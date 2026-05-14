@@ -27,18 +27,22 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   late final AnimationController _tiltController;
   late final Animation<double> _tiltAngle; // radians
 
+
   @override
   void initState() {
     super.initState();
     ///Fetch Data
     _buildAnimations();
     _runSequence();
+
   }
 
-  void _buildAnimations() {
+  void _buildAnimations()  {
+    // await Future.delayed(const Duration(seconds: 1));
+
     _squareController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: const Duration(milliseconds: 1600),
     );
     _squareScale = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _squareController, curve: Curves.easeOutBack),
@@ -86,7 +90,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     // Phase 3 – whole logo tilts 5° from bottom-left corner
     await _tiltController.forward();
 
-    Future.delayed(const Duration(seconds: 3)).then((value) {
+    Future.delayed(const Duration(seconds: 1)).then((value) {
       if (mounted) {
         Navigator.pushNamedAndRemoveUntil(context, RouteConstants.loginClientScreen, (route) => false);
       }

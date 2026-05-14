@@ -2,7 +2,7 @@ class AppStrings {
   const AppStrings._();
 
 
-  static const String brandName = "Re Flow";
+  static const String brandName = "Smart Reload";
 
   static const String serverUnrecognisedError = "Processing failed, try again in few minutes!";
   static const String appUnrecognisedError = "Something went wrong, please try again!";

@@ -1,4 +1,6 @@
 
+import 'package:flutter/material.dart';
+
 class Sizes {
 
   ///Padding and margin sizes
@@ -68,4 +70,9 @@ class Sizes {
 
   ///Grid view spacing
   static const double gridViewSpacing = 8.0;
+
+  static WidgetStateProperty<Size> buttonSize(BuildContext context, double width, double height){
+    return WidgetStateProperty.all(Size(width, height));
+  }
+
 }

@@ -11,7 +11,7 @@ import 'package:smart_reload_system/src/core/presentation/progress_indicators/cu
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/features/home/presentation/bloc/history.bloc.dart';
-import 'package:smart_reload_system/src/core/presentation/widgets/custom_button.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/primary_button.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_card.widget.dart';
 
 import 'package:permission_handler/permission_handler.dart';
@@ -240,43 +240,8 @@ class _HomeScreenState extends State<HomeScreen> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-
                 const SizedBox(height: Sizes.spaceBtwItems),
-                GestureDetector(
-                  onTap: (){
-                    // String da = 'www.google.com';//*
-                    // String da1 = '+974585485';
-                    // String da2 = 'www.youtube.com';
-                    // String da3 = 'http://atlasaxillia.com/';
-                    // String da4 = 'https://www.instagram.com/atlas.srilanka/';
-                    // String da5 = 'https://mail.google.com/';
-                    // String da6 = 'https://drive.google.com/';
-                    // String da7 = 'This is just text';
-                    // String da8 = 'This is a phone +001234567 This is a link www.youtube.com This is just text';
-                    // String da9 = 'mailto:n@gmail.com?subject=testing&body=hii dff ddf'; //*
-                    // String da10 = 'WIFI:SLT;T:WEP;P:1234;H:false;;';//*
-                    // String da11 = 'tel:+974585485';//*
-                    // String da12 = 'SMSTO:+94777192608:Tesingd';//
-                    //
-                    //
-                    // Navigator.pushNamed(context,
-                    //   RouteConstants.scanCodeScreen,
-                    //   arguments: da9
-                    // );
-                    // showDialog(
-                    //   context: context,
-                    //   builder: (BuildContext context) {
-                    //     return buildAlertBox();
-                    //   },
-                    // );
-                    // scanBarcode();
 
-                  },
-                  child: const CCard(
-                    title: 'Scan',
-                    bgColor: AppColors.linerGradient,
-                  ),
-                ),
               ],
             ),
           ),

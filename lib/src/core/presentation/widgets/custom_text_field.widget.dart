@@ -32,19 +32,19 @@ class _CTextFieldState extends State<CTextField> {
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      spacing: Sizes.xs,
       children: [
         Text(
           widget.label,
           style: Theme.of(context).textTheme.labelLarge?.copyWith(
             fontSize: Sizes.fontSizeSm,
             fontWeight: FontWeight.bold,
-            color: AppColors.darkerGrey,
+            color: AppColors.darkGrey,
           ),
         ),
-        const SizedBox(height: 8),
         TextFormField(
           controller: widget.controller,
-          obscureText: obscureText,
+          obscureText: obscureText && widget.isPassword,
           keyboardType: widget.keyboardType,
           validator: widget.validator,
           decoration: InputDecoration(

@@ -1,12 +1,15 @@
 
 import 'package:flutter/material.dart';
-import 'package:smart_reload_system/src/core/constants/app_colors.dart';
-import 'package:smart_reload_system/src/core/constants/app_strings.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
-import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/app_header.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/custom_outline_button.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/primary_button.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/rich_text_button.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_card.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text_field.widget.dart';
-import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
+import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_status_bar.widget.dart';
 
 class LoginClientScreen extends StatefulWidget {
   const LoginClientScreen({super.key});
@@ -28,116 +31,84 @@ class _LoginClientScreenState extends State<LoginClientScreen> {
   @override
   Widget build(BuildContext context) {
     bool isDark = HelperFunctions.isDarkMode(context);
-    return SafeArea(
-      child: Scaffold(
-        body: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(Sizes.sm),
-            child: Align(
-              alignment: AlignmentGeometry.center,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                spacing: Sizes.spaceBtwSections,
-                children: [
-                  Container(
-                    padding: EdgeInsets.symmetric(horizontal: Sizes.lg),
-                    decoration: BoxDecoration(
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.primary.withValues(alpha: 0.15),
-                          spreadRadius: 70,
-                          blurRadius: 70,
-                          offset: Offset(0, 60),
-                        ),
-                      ],
-                    ),
-                    child: Column(
-                      spacing: Sizes.md,
-                      children: [
-                        CSvgBuilder(path: SvgStrings.logoAngle),
-                        ShaderMask(
-                          blendMode: BlendMode.srcIn,
-                          shaderCallback: (Rect bounds) {
-                            return AppColors.linerGradient.createShader(bounds);
-                          },
-                          child: Text(
-                            AppStrings.brandName,
-                            style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                              fontWeight: FontWeight.bold,
+    return CStatusBar(
+      child: SafeArea(
+        child: Scaffold(
+          body: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(Sizes.sm),
+              child: Align(
+                alignment: AlignmentGeometry.center,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  spacing: Sizes.spaceBtwSections,
+                  children: [
+                    AppHeader(subtitle: "Login with your Client account"),
+                    CCard(
+                      child: Form(
+                        key: _formKey,
+                        child: Column(
+                          spacing: Sizes.spaceBtwInputField,
+                          children: [
+                            CTextField(
+                              controller: _phoneNumberController,
+                              label: 'Phone Number',
+                              hint: '7xxxxxxxxxx',
+                              keyboardType: TextInputType.number,
+                              prefixIcon: Icons.phone_android,
+                              validator: (value) {
+                                if (value == null || value.isEmpty) return 'Please enter mobile number';
+                                return null;
+                              },
                             ),
-                          ),
-                        ),
-                        Text(
-                          "Manage your bills",
-                          style: Theme.of(context).textTheme.bodyLarge?.copyWith(
-                            color: AppColors.darkerGrey,
-                          ),
-                        )
-
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: double.infinity,
-                    padding: EdgeInsets.all(Sizes.md),
-                    decoration: BoxDecoration(
-                      color: AppColors.white,
-                      borderRadius: BorderRadius.circular(Sizes.borderRadiusXl),
-                      boxShadow: [
-                        BoxShadow(
-                          color: AppColors.black.withValues(alpha: 0.15),
-                          spreadRadius: 2,
-                          blurRadius: 2,
-                          offset: Offset(0, 6),
-                        ),
-                      ],
-                    ),
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        spacing: Sizes.spaceBtwInputField,
-                        children: [
-                          CTextField(
-                            controller: _phoneNumberController,
-                            label: 'Mobile Number',
-                            hint: '7xxxxxxxxxx',
-                            keyboardType: TextInputType.number,
-                            prefixIcon: Icons.phone_android,
-                            validator: (value) {
-                              if (value == null || value.isEmpty) return 'Please enter mobile number';
-                              return null;
-                            },
-                          ),
-                          Column(
-                            children: [
-                              CTextField(
-                                controller: _passwordController,
-                                label: 'Password',
-                                hint: '•••••••••',
-                                isPassword: true,
-                                keyboardType: TextInputType.visiblePassword,
-                                prefixIcon: Icons.lock_outline,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) return 'Please enter password';
-                                  return null;
-                                },
-                              ),
-                              Align(
-                                alignment: AlignmentGeometry.centerRight,
-                                child: TextButton(
-
-                                  onPressed: (){},
-                                  child: Text("Forgot Password?"),
+                            Column(
+                              children: [
+                                CTextField(
+                                  controller: _passwordController,
+                                  label: 'Password',
+                                  hint: '•••••••••',
+                                  isPassword: true,
+                                  keyboardType: TextInputType.visiblePassword,
+                                  prefixIcon: Icons.lock_outline,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) return 'Please enter password';
+                                    return null;
+                                  },
                                 ),
-                              ),
-                            ],
-                          ),
-                        ],
+                                Align(
+                                  alignment: AlignmentGeometry.centerRight,
+                                  child: TextButton(
+                                    onPressed: (){},
+                                    child: Text("Forgot Password?"),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            PrimaryButton(
+                              onPressed: (){},
+                              title: "Login as Client",
+                            ),
+                            COutlineButton(
+                              onPressed: (){
+                                Navigator.pushNamed(context, RouteConstants.loginVendorScreen);
+                              },
+                              title: "Login as Vendor",
+                            ),
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                ],
+
+                    CRichTextButton(
+                      onPressed: (){
+                        Navigator.pushNamed(context, RouteConstants.registerClientScreen);
+                      },
+                      title: "Don't have an client account?",
+                      btnLabel: "Create Account",
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

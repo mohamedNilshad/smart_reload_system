@@ -7,6 +7,9 @@ import 'package:smart_reload_system/src/features/Settings/presentation/screens/d
 import 'package:smart_reload_system/src/features/home/presentation/screens/home.screen.dart';
 import 'package:smart_reload_system/src/features/Settings/presentation/screens/settings.screen.dart';
 import 'package:smart_reload_system/src/features/login/presentation/screens/login_client.screen.dart';
+import 'package:smart_reload_system/src/features/login/presentation/screens/login_vendor.screen.dart';
+import 'package:smart_reload_system/src/features/register/presentation/screens/register_client.screen.dart';
+import 'package:smart_reload_system/src/features/register/presentation/screens/register_vendor.screen.dart';
 
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
@@ -25,10 +28,30 @@ class AppRouter {
         );
 
 
-        case RouteConstants.loginClientScreen:
+      case RouteConstants.loginClientScreen:
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.loginClientScreen),
           builder: (context) => LoginClientScreen(),
+        );
+
+      case RouteConstants.loginVendorScreen:
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.loginVendorScreen),
+          builder: (context) => LoginVendorScreen(),
+        );
+
+
+      case RouteConstants.registerVendorScreen:
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.registerVendorScreen),
+          builder: (context) => RegisterVendorScreen(),
+        );
+
+
+      case RouteConstants.registerClientScreen:
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.registerClientScreen),
+          builder: (context) => RegisterClientScreen(),
         );
 
 

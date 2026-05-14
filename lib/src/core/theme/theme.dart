@@ -7,6 +7,7 @@ import 'package:smart_reload_system/src/core/theme/custom_themes/chip_theme.dart
 import 'package:smart_reload_system/src/core/theme/custom_themes/dialog_theme.dart';
 import 'package:smart_reload_system/src/core/theme/custom_themes/elevated_button_theme.dart';
 import 'package:smart_reload_system/src/core/theme/custom_themes/outline_button_theme.dart';
+import 'package:smart_reload_system/src/core/theme/custom_themes/text_button_theme.dart';
 import 'package:smart_reload_system/src/core/theme/custom_themes/text_field_theme.dart';
 import 'package:smart_reload_system/src/core/theme/custom_themes/text_theme.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -25,6 +26,7 @@ class AppTheme{
     checkboxTheme: CCheckboxTheme.lightCheckboxThemeTheme,
     chipTheme: CChipTheme.lightChipThemeTheme,
     outlinedButtonTheme: COutlinedButtonTheme.lightOutlinedButtonTheme,
+    textButtonTheme: CTextButtonTheme.lightTextButtonTheme,
     inputDecorationTheme: CTextFieldTheme.lightInputDecorationTheme,
     dialogTheme: CDialogTheme.lightDialogTheme,
 
@@ -42,6 +44,7 @@ class AppTheme{
     checkboxTheme: CCheckboxTheme.darkCheckboxThemeTheme,
     chipTheme: CChipTheme.darkChipThemeTheme,
     outlinedButtonTheme: COutlinedButtonTheme.darkOutlinedButtonTheme,
+    textButtonTheme: CTextButtonTheme.darkTextButtonTheme,
     inputDecorationTheme: CTextFieldTheme.darkInputDecorationTheme,
     dialogTheme: CDialogTheme.darkDialogTheme,
   );
