@@ -18,7 +18,7 @@ class AppStrings {
   static const String selectOptionLabel = 'Select an option';
   static const String confirmLabel = 'Confirm';
   static const String confirmDeleteLabel = 'Confirm Delete ?';
-  static const String settingsLabel = 'Settings';
+  static const String settingsLabel = 'profile';
 
 
   static const String okLabel = "OK";

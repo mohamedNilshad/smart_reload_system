@@ -1,11 +1,11 @@
 
 import 'package:flutter/material.dart';
+import 'package:smart_reload_system/src/core/presentation/screens/main.client.screen.dart';
 import 'package:smart_reload_system/src/core/presentation/screens/splash.screen.dart';
 import 'package:smart_reload_system/src/core/presentation/screens/unknown.screen.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
-import 'package:smart_reload_system/src/features/Settings/presentation/screens/default_settings.screen.dart';
-import 'package:smart_reload_system/src/features/home/presentation/screens/home.screen.dart';
-import 'package:smart_reload_system/src/features/Settings/presentation/screens/settings.screen.dart';
+import 'package:smart_reload_system/src/features/profile/presentation/screens/profile.screen.dart';
+import 'package:smart_reload_system/src/features/client/home/presentation/screens/connection.client.screen.dart';
 import 'package:smart_reload_system/src/features/login/presentation/screens/login_client.screen.dart';
 import 'package:smart_reload_system/src/features/login/presentation/screens/login_vendor.screen.dart';
 import 'package:smart_reload_system/src/features/register/presentation/screens/register_client.screen.dart';
@@ -20,13 +20,6 @@ class AppRouter {
           settings: const RouteSettings(name: RouteConstants.splashScreen),
           builder: (context) => const SplashScreen(),
         );
-
-      case RouteConstants.homeScreen:
-        return MaterialPageRoute(
-          settings: const RouteSettings(name: RouteConstants.homeScreen),
-          builder: (context) => const HomeScreen(),
-        );
-
 
       case RouteConstants.loginClientScreen:
         return MaterialPageRoute(
@@ -54,17 +47,24 @@ class AppRouter {
           builder: (context) => RegisterClientScreen(),
         );
 
+      ///CLIENT
+      case RouteConstants.mainClientScreen:
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.mainClientScreen),
+          builder: (context) => const MainClientScreen(),
+        );
+
+      case RouteConstants.connectionClientScreen:
+        final String name = settings.arguments as String;
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.connectionClientScreen),
+          builder: (context) => ConnectionClientScreen(name: name),
+        );
 
       case RouteConstants.settingsScreen:
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.settingsScreen),
-          builder: (context) => const SettingsScreen(),
-        );
-
-      case RouteConstants.defaultSettingsScreen:
-        return MaterialPageRoute(
-          settings: const RouteSettings(name: RouteConstants.defaultSettingsScreen),
-          builder: (context) => const DefaultSettingsScreen(),
+          builder: (context) => const ProfileScreen(),
         );
     }
 

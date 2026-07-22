@@ -7,7 +7,6 @@ import 'package:smart_reload_system/src/core/constants/app_strings.dart';
 import 'package:smart_reload_system/src/core/presentation/effects/arc_painter.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
-import 'package:smart_reload_system/src/features/Settings/presentation/bloc/settings.bloc.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});

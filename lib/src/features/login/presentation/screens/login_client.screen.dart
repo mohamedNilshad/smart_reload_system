@@ -86,7 +86,9 @@ class _LoginClientScreenState extends State<LoginClientScreen> {
                               ],
                             ),
                             PrimaryButton(
-                              onPressed: (){},
+                              onPressed: (){
+                                Navigator.pushNamedAndRemoveUntil(context, RouteConstants.mainClientScreen, (r) => false);
+                              },
                               title: "Login as Client",
                             ),
                             COutlineButton(

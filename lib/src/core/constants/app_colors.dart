@@ -71,5 +71,8 @@ class AppColors {
   static const Color baseColorDark   = Color(0xFF6B6F7E);
   static const Color highlightColor  = Color(0xFFF4F5F8);
 
+// ── Other ────────────────────────────────────────────────────────────────────
+  static const Color purple = Color(0xFF9B59B6);
+  static const Color red = Color(0xFFD2042D);
 
 }

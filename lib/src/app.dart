@@ -7,8 +7,8 @@ import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/router/route.dart';
 import 'package:smart_reload_system/src/core/theme/theme.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/navigator_key.dart';
-import 'package:smart_reload_system/src/features/Settings/presentation/bloc/settings.bloc.dart';
-import 'package:smart_reload_system/src/features/home/presentation/bloc/history.bloc.dart';
+import 'package:smart_reload_system/src/features/profile/presentation/bloc/settings.bloc.dart';
+// import 'package:smart_reload_system/src/features/home/presentation/bloc/history.bloc.dart';
 
 class App extends StatelessWidget {
   final ThemeMode theme;

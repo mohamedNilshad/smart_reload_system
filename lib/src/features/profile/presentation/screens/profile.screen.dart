@@ -1,0 +1,134 @@
+import 'package:flutter/material.dart';
+import 'package:smart_reload_system/src/core/constants/app_colors.dart';
+import 'package:smart_reload_system/src/core/constants/sizes.dart';
+import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/custom_outline_button.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_card.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/headline_text.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/label_text.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_title_text.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
+
+class ProfileScreen extends StatefulWidget {
+  const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: customAppBar(title: "Profile"),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(Sizes.ssm),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              CircleAvatar(
+                radius: 55.0,
+                backgroundColor: AppColors.secondary,
+                child: HeadlineText(
+                  text: "DJ",
+                  color: AppColors.white,
+                  size: 45,
+                ),
+              ),
+              SizedBox(height: 10),
+              HeadlineText(text: "Alice Johnson"),
+              SubTitleText(
+                text: "+94 123 456 789",
+                color: AppColors.darkerGrey,
+              ),
+              SizedBox(height: 20),
+              CCard(
+                child: Column(
+                  spacing: 5,
+                  children: [
+                    buildOption(
+                      context,
+                      icon: SvgStrings.user,
+                      leadColor: AppColors.secondary,
+                      title: "Edit Profile",
+                      subtitle: "Update your details",
+                    ),
+                    Divider(),
+                    buildOption(
+                      context,
+                      icon: SvgStrings.shield,
+                      leadColor: AppColors.purple,
+                      title: "Security",
+                      subtitle: "Change password",
+                    ),
+                    Divider(),
+                    buildOption(
+                      context,
+                      icon: SvgStrings.notification,
+                      leadColor: AppColors.accent,
+                      title: "Notifications",
+                      subtitle: "Manage alerts",
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: 50),
+              COutlineButton(
+                onPressed: (){},
+                title: "Logout",
+                icon: SvgStrings.logout,
+                fgColor: AppColors.red,
+                bgColor: AppColors.red,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget buildOption(BuildContext context, {required String icon, required Color leadColor, required String title, required String subtitle, void Function()? onTap}) {
+    return InkWell(
+      onTap: onTap,
+      child: Row(
+        spacing: 10.0,
+        children: [
+          Container(
+            padding: EdgeInsets.all(Sizes.md),
+            decoration: BoxDecoration(
+              color: leadColor.withValues(alpha: 0.2),
+              borderRadius: BorderRadius.circular(Sizes.borderRadius),
+            ),
+            child: CSvgBuilder(
+              path: icon,
+              width: 20,
+              colorFilter: ColorFilter.mode(leadColor, BlendMode.srcIn),
+            ),
+          ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 5.0,
+            children: [
+              TitleText(
+                text: title,
+              ),
+              LabelText(
+                text: subtitle,
+                color: AppColors.darkerGrey,
+              ),
+            ],
+          ),
+          Spacer(),
+          Icon(
+            Icons.arrow_forward_ios_rounded,
+            size: 18,
+            color: AppColors.darkGrey,
+          ),
+        ],
+      ),
+    );
+  }
+}

@@ -3,6 +3,7 @@ import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/app_strings.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/gradient_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
 
 class AppHeader extends StatelessWidget {
@@ -27,18 +28,13 @@ class AppHeader extends StatelessWidget {
         spacing: Sizes.md,
         children: [
           CSvgBuilder(path: SvgStrings.logoAngle),
-          ShaderMask(
-            blendMode: BlendMode.srcIn,
-            shaderCallback: (Rect bounds) {
-              return AppColors.linerGradient.createShader(bounds);
-            },
-            child: Text(
-              AppStrings.brandName,
-              style: Theme.of(context).textTheme.displayMedium?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
+          GradientText(
+            text: AppStrings.brandName,
+            style: Theme.of(context).textTheme.displayMedium?.copyWith(
+              fontWeight: FontWeight.bold,
             ),
           ),
+
           Text(
             subtitle,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(

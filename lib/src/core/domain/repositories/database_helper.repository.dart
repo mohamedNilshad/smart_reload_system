@@ -61,6 +61,6 @@ class DatabaseHelperRepository {
         continuesScan BOOLEAN NULL
       )
     ''');
-    debugPrint('Settings Table created');
+    debugPrint('profile Table created');
   }
 }
