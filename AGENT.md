@@ -28,26 +28,41 @@ Package name: `smart_reload_system` (update this doc if the package is renamed).
 ```
 lib
  └─ src
-     ├─ core                     # shared failures, exceptions, utils, constants
-     ├─ features
-     │   └─ <feature_name>/
-     │       ├─ data
-     │       │   ├─ datasource/  # talks to Firebase/APIs, throws Exceptions
-     │       │   ├─ model/       # only if API/DB shape differs from domain entity
-     │       │   └─ repository/  # implements domain repo interface
-     │       ├─ domain
-     │       │   ├─ entity/      # pure(ish) data classes, JSON-serializable
-     │       │   ├─ repository/  # abstract interfaces
-     │       │   └─ usecase/     # one class per action, exposes call()
-     │       └─ presentation
-     │           ├─ bloc/        # <feature>.event.dart, .state.dart, .bloc.dart
-     │           └─ screens/     # <name>.screen.dart
+     ├─ core
+     │   ├─ bloc/                # global blocs (e.g. ThemeBloc)
+     │   ├─ constants/           # colors, sizes, assets, strings
+     │   ├─ domain/              # core/common entities
+     │   ├─ error/               # failures and exceptions
+     │   ├─ presentation/
+     │   │   ├─ widgets/         # global reusable widgets
+     │   │   ├─ screens/         # global screens (e.g. splash, error)
+     │   │   ├─ popups/          # global dialogs and bottom sheets
+     │   │   └─ snack_bars/      # global snackbar implementations
+     │   ├─ router/              # app routing configuration
+     │   ├─ theme/               # light/dark theme data
+     │   ├─ usecase/             # base usecase interface
+     │   └─ utils/               # extensions, formatters, validators
+     ├─ feature/                 # note: singular
+     │   └─ <role>/              # e.g., client, vendor
+     │       └─ <feature>/       # e.g., auth, home, profile
+     │           ├─ data
+     │           │   ├─ datasource/  # talks to Firebase/APIs, throws Exceptions
+     │           │   ├─ model/       # only if API/DB shape differs from domain entity
+     │           │   └─ repository/  # implements domain repo interface
+     │           ├─ domain
+     │           │   ├─ entity/      # pure(ish) data classes, JSON-serializable
+     │           │   ├─ repository/  # abstract interfaces
+     │           │   └─ usecase/     # one class per action, exposes call()
+     │           └─ presentation
+     │               ├─ bloc/        # <feature>.event.dart, .state.dart, .bloc.dart
+     │               ├─ screens/     # <name>.screen.dart
+     │               └─ widgets/     # feature-specific UI components
      ├─ app.dart
      └─ injection_container.dart
  └─ main.dart
 ```
 
-Current features: `auth` (Client login + registration only — Vendor not started).
+Current features: `auth`, `home`, `profile` (under `client`), and `auth` (under `vendor`).
 
 ## Naming conventions (must follow exactly)
 

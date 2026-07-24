@@ -13,6 +13,7 @@ abstract class AuthRemoteDataSource {
     required String password,
   });
   Future<void> logout();
+  Stream<UserEntity?> get authStateChanges;
 }
 
 class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
@@ -25,18 +26,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserEntity> login({required String phoneNumber, required String password}) async {
     try {
-      final query = await firestore
-          .collection(_collection)
-          .where('phoneNumber', isEqualTo: phoneNumber)
-          .where('role', isEqualTo: 'client')
-          .limit(1)
+      final lookup = await firestore
+          .collection('phone_lookup')
+          .doc(phoneNumber)
           .get();
 
-      if (query.docs.isEmpty) {
-        throw ServerException('No client account found for this phone number.');
+      if (!lookup.exists) {
+        throw ServerException('Phone number not found');
       }
 
-      final email = query.docs.first.data()['email'] as String;
+      final email = lookup['email'];
 
       final credential = await firebaseAuth.signInWithEmailAndPassword(
         email: email,
@@ -94,6 +93,16 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<void> logout() async => firebaseAuth.signOut();
+
+  @override
+  Stream<UserEntity?> get authStateChanges {
+    return firebaseAuth.authStateChanges().asyncMap((fbUser) async {
+      if (fbUser == null) return null;
+      final doc = await firestore.collection(_collection).doc(fbUser.uid).get();
+      if (!doc.exists) return null; // profile missing/deleted — treat as logged out
+      return UserEntity.fromJson(doc.data()!);
+    });
+  }
 
   String _mapFirebaseError(fb.FirebaseAuthException e) {
     switch (e.code) {

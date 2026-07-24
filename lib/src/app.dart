@@ -8,6 +8,7 @@ import 'package:smart_reload_system/src/core/router/route.dart';
 import 'package:smart_reload_system/src/core/theme/theme.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/navigator_key.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/auth.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/injection_container.dart';
 
 class App extends StatelessWidget {
@@ -20,6 +21,7 @@ class App extends StatelessWidget {
       providers: [
         BlocProvider(create: (_) => ThemeBloc(theme)),
         BlocProvider(create: (_) => sl<AuthBloc>()),
+        BlocProvider(create: (_) => sl<SessionCubit>()),
       ],
       child: BlocBuilder<ThemeBloc, ThemeMode>(
           builder: (context, state) {

@@ -3,10 +3,10 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
-import 'package:smart_reload_system/src/core/constants/app_strings.dart';
 import 'package:smart_reload_system/src/core/presentation/effects/arc_painter.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
-import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
+import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.state.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,6 +26,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   late final AnimationController _tiltController;
   late final Animation<double> _tiltAngle; // radians
 
+  bool _animationFinished = false;
+  SessionState? _pendingSessionState;
 
   @override
   void initState() {
@@ -33,7 +35,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     ///Fetch Data
     _buildAnimations();
     _runSequence();
-
+    _tiltController.addStatusListener(_onAnimationStatusChanged);
   }
 
   void _buildAnimations()  {
@@ -89,11 +91,29 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     // Phase 3 – whole logo tilts 5° from bottom-left corner
     await _tiltController.forward();
 
-    Future.delayed(const Duration(seconds: 1)).then((value) {
-      if (mounted) {
-        Navigator.pushNamedAndRemoveUntil(context, RouteConstants.loginClientScreen, (route) => false);
-      }
-    });
+    // Future.delayed(const Duration(seconds: 1)).then((value) {
+    //   if (mounted) {
+    //     Navigator.pushNamedAndRemoveUntil(context, RouteConstants.loginClientScreen, (route) => false);
+    //   }
+    // });
+  }
+
+  void _onAnimationStatusChanged(AnimationStatus status) {
+    if (status == AnimationStatus.completed) {
+      _animationFinished = true;
+      _tryNavigate();
+    }
+  }
+
+  void _tryNavigate() {
+    if (!_animationFinished || _pendingSessionState == null) return;
+
+    final state = _pendingSessionState!;
+    if (state is SessionAuthenticated) {
+      Navigator.of(context).pushReplacementNamed(RouteConstants.mainClientScreen);
+    } else if (state is SessionUnauthenticated) {
+      Navigator.of(context).pushReplacementNamed(RouteConstants.loginClientScreen);
+    }
   }
 
   @override
@@ -101,6 +121,8 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     _squareController.dispose();
     _dropController.dispose();
     _tiltController.dispose();
+
+    _tiltController.removeStatusListener(_onAnimationStatusChanged);
     super.dispose();
   }
 
@@ -109,23 +131,32 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     const squareSize = 60.0;
     const borderRadius = 12.0;
-    return Scaffold(
+    return BlocListener<SessionCubit, SessionState>(
+      listener: (context, state) {
+        if (state is SessionAuthenticated || state is SessionUnauthenticated) {
+          _pendingSessionState = state;
+          _tryNavigate();
+        }
+        // SessionInitial: keep waiting, nothing to store yet
+      },
+      child: Scaffold(
 
-      backgroundColor: const Color(0xFF0D0D14),
-      body: Center(
-        child: AnimatedBuilder(
-          animation: Listenable.merge([
-            _squareController,
-            _dropController,
-            _tiltController,
-          ]),
-          builder: (context, child) {
-            return Transform(
-              alignment: Alignment.bottomLeft,
-              transform: Matrix4.rotationZ(_tiltAngle.value),
-              child: _buildLogo(squareSize, borderRadius),
-            );
-          },
+        backgroundColor: const Color(0xFF0D0D14),
+        body: Center(
+          child: AnimatedBuilder(
+            animation: Listenable.merge([
+              _squareController,
+              _dropController,
+              _tiltController,
+            ]),
+            builder: (context, child) {
+              return Transform(
+                alignment: Alignment.bottomLeft,
+                transform: Matrix4.rotationZ(_tiltAngle.value),
+                child: _buildLogo(squareSize, borderRadius),
+              );
+            },
+          ),
         ),
       ),
     );

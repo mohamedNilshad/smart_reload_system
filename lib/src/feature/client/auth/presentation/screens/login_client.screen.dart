@@ -43,7 +43,7 @@ class _LoginClientScreenState extends State<LoginClientScreen> {
               if (state is AuthFailureState) {
                 ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
               } else if (state is AuthSuccess) {
-                Navigator.of(context).pushReplacementNamed('/home');
+                Navigator.pushNamedAndRemoveUntil(context, RouteConstants.mainClientScreen, (r) => false);
               }
             },
             child: SingleChildScrollView(
@@ -102,7 +102,6 @@ class _LoginClientScreenState extends State<LoginClientScreen> {
                                     if (state is AuthLoading) return const CircularProgressIndicator();
                                     return PrimaryButton(
                                       onPressed: (){
-                                        //Navigator.pushNamedAndRemoveUntil(context, RouteConstants.mainClientScreen, (r) => false);
                                         if (_formKey.currentState!.validate()) {
                                           context.read<AuthBloc>().add(LoginRequested(
                                             phoneNumber: _phoneController.text.trim(),

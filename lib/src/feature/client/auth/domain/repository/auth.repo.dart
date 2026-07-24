@@ -17,4 +17,8 @@ abstract class AuthRepo {
   });
 
   Future<Either<Failure, void>> logout();
+
+  Stream<UserEntity?> get authStateChanges;
+
+  Future<UserEntity?> getCachedUser();
 }
