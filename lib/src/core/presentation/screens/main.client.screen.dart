@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
-import 'package:smart_reload_system/src/features/profile/presentation/screens/profile.screen.dart';
-import 'package:smart_reload_system/src/features/client/home/presentation/screens/home.client.screen.dart';
+import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/profile.screen.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/screens/home.client.screen.dart';
 
 class MainClientScreen extends StatefulWidget {
   const MainClientScreen({super.key});

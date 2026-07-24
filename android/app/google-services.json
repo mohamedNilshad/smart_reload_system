@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "255414655302",
+    "project_id": "smart-reload-system",
+    "storage_bucket": "smart-reload-system.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:255414655302:android:3f1d25f5fcf9b0add36d47",
+        "android_client_info": {
+          "package_name": "com.example.smart_reload_system"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwdt2K5XXE-2JY4PZx45VwExmMi_LNEX4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
