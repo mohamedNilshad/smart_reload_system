@@ -1,11 +1,13 @@
 import 'package:equatable/equatable.dart';
 
 class VendorModel extends Equatable {
+  final String clientVendorId;
   final String vendorId;
   final String vendorName;
   final int connectionCount;
 
   const VendorModel({
+    required this.clientVendorId,
     required this.vendorId,
     required this.vendorName,
     required this.connectionCount,
@@ -13,6 +15,7 @@ class VendorModel extends Equatable {
 
   factory VendorModel.fromJson(Map<String, dynamic> json) {
     return VendorModel(
+      clientVendorId: json['clientVendorId'] as String,
       vendorId: json['vendorId'] as String,
       vendorName: json['vendorName'] as String,
       connectionCount: json['connectionCount'] as int,
@@ -21,6 +24,7 @@ class VendorModel extends Equatable {
 
   Map<String, dynamic> toJson() {
     return {
+      'clientVendorId': clientVendorId,
       'vendorId': vendorId,
       'vendorName': vendorName,
       'connectionCount': connectionCount,
@@ -28,5 +32,5 @@ class VendorModel extends Equatable {
   }
 
   @override
-  List<Object?> get props => [vendorId, vendorName, connectionCount];
+  List<Object?> get props => [clientVendorId, vendorId, vendorName, connectionCount];
 }

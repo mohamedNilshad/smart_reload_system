@@ -134,7 +134,7 @@ class _HomeClientScreenState extends State<HomeClientScreen> {
                                     Navigator.pushNamed(
                                       context,
                                       RouteConstants.connectionClientScreen,
-                                      arguments: vendor.vendorName,
+                                      arguments: (name: vendor.vendorName, clientVendorId: vendor.clientVendorId),
                                     );
                                   },
                                   title: vendor.vendorName,

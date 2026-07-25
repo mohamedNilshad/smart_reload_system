@@ -69,6 +69,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
               final vendorName = userDoc['fullName'] as String? ?? 'Unknown';
               vendors.add(
                 VendorModel(
+                  clientVendorId: doc.id,
                   vendorId: vendorId,
                   vendorName: vendorName,
                   connectionCount: connectionCount,

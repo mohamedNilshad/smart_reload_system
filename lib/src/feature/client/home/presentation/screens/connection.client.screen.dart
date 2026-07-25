@@ -5,7 +5,7 @@ import 'package:smart_reload_system/src/feature/client/home/presentation/screens
 
 class ConnectionClientScreen extends StatefulWidget {
   final String name;
-  const ConnectionClientScreen({super.key, required this.name});
+  const ConnectionClientScreen({super.key, required this.name, required String clientVendorId});
 
   @override
   State<ConnectionClientScreen> createState() => _ConnectionClientScreenState();

@@ -55,10 +55,15 @@ class AppRouter {
         );
 
       case RouteConstants.connectionClientScreen:
-        final String name = settings.arguments as String;
+
+        final args = settings.arguments as ({
+          String name,
+          String clientVendorId,
+        });
+
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.connectionClientScreen),
-          builder: (context) => ConnectionClientScreen(name: name),
+          builder: (context) => ConnectionClientScreen(name: args.name, clientVendorId: args.clientVendorId),
         );
 
       case RouteConstants.settingsScreen:
