@@ -8,10 +8,10 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/su
 import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
 
 class CustomBanner extends StatelessWidget {
-  final String? label;
+  final bool isNew;
   final String title;
   final String body;
-  const CustomBanner({super.key, this.label, required this.title, required this.body});
+  const CustomBanner({super.key, this.isNew = false, required this.title, required this.body});
 
   @override
   Widget build(BuildContext context) {
@@ -37,9 +37,9 @@ class CustomBanner extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: 10,
             children: [
-              if(label != null)...{
+              if(isNew)...{
                 CChip(
-                  label: label ?? "",
+                  label: "NEW",
                   bgColor: AppColors.white,
                   fontColor: AppColors.white,
                 ),

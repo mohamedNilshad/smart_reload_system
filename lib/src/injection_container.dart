@@ -13,6 +13,12 @@ import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/regis
 import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/watch_auth_state.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/auth.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/datasource/home.remote_datasource.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/repository/home.repo_impl.dart';
+import 'package:smart_reload_system/src/feature/client/home/domain/repository/home.repo.dart';
+import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_banner_news.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_vendors.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home.bloc.dart';
 
 
 final sl = GetIt.instance;
@@ -53,6 +59,28 @@ Future<void> init() async{
   );
   sl.registerLazySingleton(
         () => SessionCubit(watchAuthStateUseCase: sl(), getCachedUserUseCase: sl()),
+  );
+
+  /// Home Feature - Data source
+  sl.registerLazySingleton<HomeRemoteDataSource>(
+        () => HomeRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()),
+  );
+
+  /// Home Feature - Repository
+  sl.registerLazySingleton<HomeRepo>(
+        () => HomeRepoImpl(remoteDataSource: sl()),
+  );
+
+  /// Home Feature - Use cases
+  sl.registerLazySingleton(() => GetBannerNewsUseCase(sl()));
+  sl.registerLazySingleton(() => GetVendorsUseCase(sl()));
+
+  /// Home Feature - Bloc
+  sl.registerLazySingleton(
+        () => HomeBloc(
+      getBannerNewsUseCase: sl(),
+      getVendorsUseCase: sl(),
+    ),
   );
 
 

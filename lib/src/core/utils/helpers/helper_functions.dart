@@ -1,35 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui' as ui;
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/app_strings.dart';
 
 class HelperFunctions {
-
-  static ScaffoldFeatureController customSnackBar(
-      {required BuildContext context,
-        required String message,
-        Color bgColor = AppColors.error,
-        double height = 30,
-        Duration duration = const Duration(microseconds: 4000),
-        SnackBarAction? actionButton}) {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
-
-    final snackBar = SnackBar(
-      backgroundColor: bgColor,
-      content: Text(
-        message,
-        style: const TextStyle(color: AppColors.white),
-      ),
-      duration: (actionButton != null) ? const Duration(minutes: 1) : duration,
-      action: actionButton,
-    );
-
-    return ScaffoldMessenger.of(context).showSnackBar(snackBar);
-  }
 
   static void customAlert({required BuildContext sContext, required String title, required String message}){
     showDialog(
@@ -86,38 +62,6 @@ class HelperFunctions {
     return MediaQuery.of(context).devicePixelRatio;
   }
 
-  static double reSizeHeight(bool isQrCode, double width, double height, double value){
-    double widthValue = width + value;
-    if(isQrCode) return widthValue;
-    double ratio = width / height;
-    return widthValue/ratio;
-  }
-
-  static double mmToPixels(double mm, double ppm) => mm * ppm;
-
-  static Future<double?> loadImage() async {
-    final image = await loadImageFromAsset('assets/temp.png');
-    if (image != null) {
-      return image.width / 30; // Calculate Pixels Per Millimeter
-      // print("Pixels per mm: $ppm");
-      // print("image width in Pixels: ${image.width}");
-    }
-    return null;
-  }
-
-  static Future<ui.Image?> loadImageFromAsset(String asset) async {
-    final imageProvider = AssetImage(asset);
-    const config = ImageConfiguration();
-    final Completer<ui.Image> completer = Completer();
-
-    imageProvider.resolve(config).addListener(
-      ImageStreamListener((ImageInfo image, bool synchronousCall) {
-        completer.complete(image.image);
-      }),
-    );
-    return completer.future;
-  }
-
 
   static double statusBarHeight(BuildContext context){
     return MediaQuery.of(context).padding.top;
@@ -167,16 +111,7 @@ class HelperFunctions {
     return DateFormat('h:mm a').format(dateTime);
   }
 
-  static int encodeColor(Color color) {
-    return color.value;
-  }
 
-  static Color? decodeColor(int? colorValue) {
-    if(colorValue != null) {
-      return Color(colorValue);
-    }
-    return null;
-  }
 
   static String formatCurrency(double amount) {
     final NumberFormat currencyFormatter = NumberFormat.currency(locale: 'en_US', symbol: '\$');
@@ -199,5 +134,20 @@ class HelperFunctions {
 
   static List<T> removeDuplicates<T>(List<T> list){
     return list.toSet().toList();
+  }
+
+  static String getInitials(String text) {
+    if (text.isEmpty) return '-';
+
+    final words = text.trim().split(RegExp(r'\s+'));
+
+    if (words.isEmpty) return '-';
+
+    if (words.length >= 2) {
+      return (words[0].isNotEmpty ? words[0][0] : '') +
+          (words[1].isNotEmpty ? words[1][0] : '');
+    }
+
+    return words[0].isNotEmpty ? words[0][0] : '';
   }
 }

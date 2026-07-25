@@ -5,6 +5,8 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_chip.wi
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/headline_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/label_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
+import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
+
 
 class CustomTile extends StatelessWidget {
   final String title;
@@ -39,7 +41,7 @@ class CustomTile extends StatelessWidget {
               radius: 25.0,
               backgroundColor: AppColors.secondary.withValues(alpha: 0.3),
               child: HeadlineText(
-                text: title[0],
+                text: HelperFunctions.getInitials(title),
                 color: AppColors.secondary,
               ),
             ),
@@ -51,7 +53,7 @@ class CustomTile extends StatelessWidget {
                 Row(
                   spacing: 5.0,
                   children: [
-                    CChip(label: ref),
+                    CChip(label: "ref"),
                     LabelText(
                       text: "$count Connection${count>1 ? "s" : ""}",
                       color: AppColors.darkerGrey,
