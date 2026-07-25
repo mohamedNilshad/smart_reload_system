@@ -1,0 +1,93 @@
+import 'package:flutter/material.dart';
+import 'package:smart_reload_system/src/core/constants/app_colors.dart';
+
+enum _SnackType { success, error }
+
+class AppSnackbar {
+  AppSnackbar._();
+
+  static void showSuccess(BuildContext context, String message) {
+    _show(context, message, _SnackType.success);
+  }
+
+  static void showError(BuildContext context, String message) {
+    _show(context, message, _SnackType.error);
+  }
+
+  static void _show(BuildContext context, String message, _SnackType type) {
+    final isSuccess = type == _SnackType.success;
+    final accent = isSuccess ? AppColors.green : AppColors.red;
+    final icon = isSuccess ? Icons.check_rounded : Icons.close_rounded;
+
+    ScaffoldMessenger.of(context)
+      ..hideCurrentSnackBar()
+      ..showSnackBar(
+        SnackBar(
+          behavior: SnackBarBehavior.floating,
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          duration: const Duration(seconds: 5),
+          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          padding: EdgeInsets.zero,
+          content: _SnackbarContent(message: message, accent: accent, icon: icon),
+        ),
+      );
+  }
+}
+
+class _SnackbarContent extends StatelessWidget {
+  final String message;
+  final Color accent;
+  final IconData icon;
+
+  const _SnackbarContent({
+    required this.message,
+    required this.accent,
+    required this.icon,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.darkerGrey,
+        borderRadius: BorderRadius.circular(16),
+        border: Border(left: BorderSide(color: accent, width: 6)),
+        boxShadow: [
+          BoxShadow(
+            color: AppColors.black.withValues(alpha: 0.35),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
+      child: Row(
+        children: [
+          Container(
+            width: 32,
+            height: 32,
+            decoration: BoxDecoration(
+              color: accent.withValues(alpha: 0.3),
+              shape: BoxShape.circle,
+            ),
+            child: Icon(icon, color: AppColors.white, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              message,
+              style: const TextStyle(
+                color: AppColors.white,
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                height: 1.3,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}

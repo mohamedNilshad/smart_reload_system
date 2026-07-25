@@ -20,7 +20,7 @@ class RegisterRequested extends AuthEvent {
   final String email;
   final String nic;
   final String password;
-
+ 
   const RegisterRequested({
     required this.fullName,
     required this.phoneNumber,
@@ -28,7 +28,9 @@ class RegisterRequested extends AuthEvent {
     required this.nic,
     required this.password,
   });
-
+ 
   @override
   List<Object> get props => [fullName, phoneNumber, email, nic, password];
 }
+
+class LogoutRequested extends AuthEvent {}

@@ -172,10 +172,10 @@ class App extends StatelessWidget {
 ## Commands
 
 ```bash
-flutter pub get
-dart run build_runner watch --delete-conflicting-outputs
-flutter run
-flutter test
+#flutter pub get
+#dart run build_runner watch --delete-conflicting-outputs
+#flutter run
+#flutter test
 ```
 
 ## Known gaps / next steps

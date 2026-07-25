@@ -2,6 +2,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/primary_button.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/rich_text_button.dart';
@@ -41,9 +42,10 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
           body: BlocListener<AuthBloc, AuthState>(
             listener: (context, state) {
               if (state is AuthFailureState) {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(state.message)));
+                AppSnackbar.showError(context, state.message);
               } else if (state is AuthSuccess) {
-                Navigator.of(context).pushReplacementNamed('/home');
+                Navigator.of(context).pop();
+                AppSnackbar.showSuccess(context, "Registration successful!");
               }
             },
             child: SingleChildScrollView(

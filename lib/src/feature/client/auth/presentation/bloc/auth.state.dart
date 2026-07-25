@@ -17,9 +17,11 @@ class AuthSuccess extends AuthState {
   List<Object> get props => [user];
 }
 
+class AuthLogoutSuccess extends AuthState {}
+ 
 class AuthFailureState extends AuthState {
-  final String message;
-  const AuthFailureState(this.message);
-  @override
-  List<Object> get props => [message];
+ final String message;
+ const AuthFailureState(this.message);
+ @override
+ List<Object> get props => [message];
 }

@@ -44,7 +44,13 @@ Future<void> init() async{
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
 
   /// Bloc
-  sl.registerLazySingleton(() => AuthBloc(loginUseCase: sl(), registerUseCase: sl()));
+  sl.registerLazySingleton(
+        () => AuthBloc(
+      loginUseCase: sl(),
+      registerUseCase: sl(),
+      logoutUseCase: sl(),
+    ),
+  );
   sl.registerLazySingleton(
         () => SessionCubit(watchAuthStateUseCase: sl(), getCachedUserUseCase: sl()),
   );
