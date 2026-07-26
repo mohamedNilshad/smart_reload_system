@@ -30,17 +30,13 @@ Future<void> init() async{
   sl.registerLazySingleton(() => const FlutterSecureStorage());
 
   /// Data source
-  sl.registerLazySingleton<AuthRemoteDataSource>(
-        () => AuthRemoteDataSourceImpl(firebaseAuth: sl(), firestore: sl()),
-  );
-  sl.registerLazySingleton<AuthLocalDataSource>(
-        () => AuthLocalDataSourceImpl(sl()),
-  );
+  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(firebaseAuth: sl(), firestore: sl()));
+  sl.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl(sl()));
+  sl.registerLazySingleton<HomeRemoteDataSource>(() => HomeRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()));
 
   /// Repository
-  sl.registerLazySingleton<AuthRepo>(
-        () => AuthRepoImpl(remoteDataSource: sl(), localDataSource: sl()),
-  );
+  sl.registerLazySingleton<AuthRepo>(() => AuthRepoImpl(remoteDataSource: sl(), localDataSource: sl()));
+  sl.registerLazySingleton<HomeRepo>(() => HomeRepoImpl(remoteDataSource: sl()));
 
   /// Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -48,40 +44,11 @@ Future<void> init() async{
   sl.registerLazySingleton(() => WatchAuthStateUseCase(sl()));
   sl.registerLazySingleton(() => GetCachedUserUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
-
-  /// Bloc
-  sl.registerLazySingleton(
-        () => AuthBloc(
-      loginUseCase: sl(),
-      registerUseCase: sl(),
-      logoutUseCase: sl(),
-    ),
-  );
-  sl.registerLazySingleton(
-        () => SessionCubit(watchAuthStateUseCase: sl(), getCachedUserUseCase: sl()),
-  );
-
-  /// Home Feature - Data source
-  sl.registerLazySingleton<HomeRemoteDataSource>(
-        () => HomeRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()),
-  );
-
-  /// Home Feature - Repository
-  sl.registerLazySingleton<HomeRepo>(
-        () => HomeRepoImpl(remoteDataSource: sl()),
-  );
-
-  /// Home Feature - Use cases
   sl.registerLazySingleton(() => GetBannerNewsUseCase(sl()));
   sl.registerLazySingleton(() => GetVendorsUseCase(sl()));
 
-  /// Home Feature - Bloc
-  sl.registerLazySingleton(
-        () => HomeBloc(
-      getBannerNewsUseCase: sl(),
-      getVendorsUseCase: sl(),
-    ),
-  );
-
-
+  /// Bloc
+  sl.registerLazySingleton(() => AuthBloc(loginUseCase: sl(), registerUseCase: sl(), logoutUseCase: sl()));
+  sl.registerLazySingleton(() => SessionCubit(watchAuthStateUseCase: sl(), getCachedUserUseCase: sl()));
+  sl.registerLazySingleton(() => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()));
 }

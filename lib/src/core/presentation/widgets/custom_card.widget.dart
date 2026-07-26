@@ -4,13 +4,14 @@ import 'package:smart_reload_system/src/core/constants/sizes.dart';
 
 class CCard extends StatelessWidget {
   final Widget child;
-  const CCard({super.key, required this.child});
+  final EdgeInsetsGeometry? padding;
+  const CCard({super.key, required this.child, this.padding});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.symmetric(horizontal: Sizes.md, vertical: Sizes.lg),
+      padding: padding ?? EdgeInsets.symmetric(horizontal: Sizes.md, vertical: Sizes.lg),
       margin: EdgeInsets.symmetric(horizontal: Sizes.sm),
       decoration: BoxDecoration(
           color: AppColors.white,

@@ -1,119 +1,98 @@
 import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
-import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_card.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_chip.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/label_text.widget.dart';
-import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_headline_text.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_title_text.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
 
 class ConnectionCard extends StatelessWidget {
-  final String connection;
-  final int status;
-  final String packageName;
-  final String expDate;
-  const ConnectionCard({super.key, required this.connection, required this.status, required this.packageName, required this.expDate});
+  final String conNumber;
+  final String conName;
+  final String conType;
+  final String? conPlan;
+  final bool status;
+  final String lastDate;
+  const ConnectionCard({super.key, required this.conNumber, required this.status, required this.conName, required this.conType, this.conPlan, required this.lastDate});
 
   @override
   Widget build(BuildContext context) {
     return CCard(
+      padding: EdgeInsets.zero,
       child: Column(
         spacing: 10,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16.0),
-            child: Column(
-              spacing: 10,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          Column(
+            children: [
+              ListTile(
+                leading: SizedBox(
+                  width: 30,
+                  height: 30,
+                  child: CSvgBuilder(
+                    path: SvgStrings.box,
+                    colorFilter: ColorFilter.mode(AppColors.darkGrey, BlendMode.srcIn),
+                  ),
+                ),
+                title: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: 10,
                   children: [
-                    SubHeadlineText(text: connection),
-                    CChip(
-                      label: "Active",
-                      bgColor: AppColors.buttonGreen,
-                      fontColor: AppColors.darkerGrey,
-                      enableStatus: true,
+                    TitleText(text: conName),
+                    CircleAvatar(
+                      radius: 5,
+                      backgroundColor: status ? AppColors.green : AppColors.red,
                     ),
                   ],
                 ),
-                Row(
+                subtitle: SubTitleText(text: conNumber, color: AppColors.darkerGrey),
+                trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18, color: AppColors.darkerGrey),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 60.0),
+                child: Row(
+                  spacing: 5,
+                  children: [
+                    CChip(label: conType),
+                    if(conPlan != null)...{
+                      CChip(
+                        label: conPlan!,
+                        bgColor: AppColors.primary,
+                        fontColor: AppColors.primary,
+                      ),
+                    }
+
+                  ],
+                ),
+              ),
+              SizedBox(height: 5),
+              Divider(),
+
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Row(
                   spacing: 5,
                   children: [
                     CSvgBuilder(
-                      path: SvgStrings.box,
-                      colorFilter: ColorFilter.mode(AppColors.darkGrey, BlendMode.srcIn),
+                      path: SvgStrings.clock,
+                      width: 18,
+                      colorFilter: ColorFilter.mode(AppColors.accent, BlendMode.srcIn),
                     ),
                     LabelText(
-                      text: packageName,
+                      text: "Last reload 8 days ago",//get days from last date
                       color: AppColors.darkGrey,
                     ),
+                    Spacer(),
+                    CChip(
+                      label: "Reload",
+                      bgColor: AppColors.accent,
+                      fontColor: AppColors.darkerGrey,
+                      borderRadius: 5,
+                      verticalPadding: 5,
+                    )
                   ],
                 ),
-                Container(
-                  width: double.infinity,
-                  padding: EdgeInsets.all(Sizes.md),
-                  decoration: BoxDecoration(
-                    color: AppColors.softGrey,
-                    borderRadius: BorderRadius.circular(Sizes.borderRadiusLg),
-                  ),
-                  child: Row(
-                    spacing: 5,
-                    children: [
-                      CSvgBuilder(
-                        path: SvgStrings.clock,
-                        width: 18,
-                        colorFilter: ColorFilter.mode(AppColors.accent, BlendMode.srcIn),
-                      ),
-                      RichText(
-                        text: TextSpan(
-                          text: 'Expires: ',
-                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                            color: AppColors.black,
-                          ),
-                          children: <TextSpan>[
-                            TextSpan(
-                              text: expDate,
-                              style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                color: AppColors.black,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Spacer(),
-                      CChip(
-                        label: "12 Days Left",
-                        bgColor: AppColors.accent,
-                        fontColor: AppColors.darkerGrey,
-                        borderRadius: 5,
-                        verticalPadding: 5,
-                      )
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Row(
-            children: [
-              bottomWidget(
-                context: context,
-                icon: SvgStrings.phone,
-                label: "USSD",
-              ),
-              bottomWidget(
-                context: context,
-                icon: SvgStrings.suggest,
-                label: "AI SUGGEST",
-                border: false,
-              ),
-              bottomWidget(
-                context: context,
-                icon: SvgStrings.history,
-                label: "HISTORY",
               ),
             ],
           ),
@@ -122,32 +101,5 @@ class ConnectionCard extends StatelessWidget {
     );
   }
 
-  Widget bottomWidget({required BuildContext context, required String icon, required String label, bool border = true}){
-    return Expanded(
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: Sizes.lg),
-        decoration: BoxDecoration(
-          color: AppColors.softGrey,
-          border: Border(
-            top: BorderSide(color: AppColors.grey.withValues(alpha: 0.5)),
-            bottom: BorderSide(color: AppColors.grey.withValues(alpha: 0.5)),
-            right: BorderSide(color: AppColors.grey.withValues(alpha: 0.5), width: border ? 1 : 0),
-            left: BorderSide(color: AppColors.grey.withValues(alpha: 0.5), width: border ? 1 : 0),
-          ),
-        ),
-        child: Column(
-          spacing: 5,
-          children: [
-            CSvgBuilder(
-              path: icon,
-              width: 18,
-              colorFilter: ColorFilter.mode(AppColors.darkerGrey, BlendMode.srcIn),
-            ),
-            LabelText(text: label),
-          ],
-        ),
-      ),
-    );
-  }
 
 }
