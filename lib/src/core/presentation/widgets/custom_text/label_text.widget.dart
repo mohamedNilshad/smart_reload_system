@@ -6,7 +6,9 @@ class LabelText extends StatelessWidget {
   final Color? color;
   final TextOverflow? overflow;
   final int? maxLines;
-  const LabelText({super.key, required this.text, this.color, this.overflow, this.maxLines = 1});
+  final double? size;
+  final bool isBold;
+  const LabelText({super.key, required this.text, this.color, this.overflow, this.maxLines = 1, this.size, this.isBold = false});
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +17,8 @@ class LabelText extends StatelessWidget {
       maxLines: maxLines,
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
         color: color ?? AppColors.black,
+        fontSize: size,
+        fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
         overflow: overflow,
       ),
     );

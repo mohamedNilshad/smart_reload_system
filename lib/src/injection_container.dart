@@ -17,7 +17,9 @@ import 'package:smart_reload_system/src/feature/client/home/data/datasource/home
 import 'package:smart_reload_system/src/feature/client/home/data/repository/home.repo_impl.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/repository/home.repo.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_banner_news.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_connections.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_vendors.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home.bloc.dart';
 
 
@@ -46,9 +48,11 @@ Future<void> init() async{
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
   sl.registerLazySingleton(() => GetBannerNewsUseCase(sl()));
   sl.registerLazySingleton(() => GetVendorsUseCase(sl()));
+  sl.registerLazySingleton(() => GetConnectionsUseCase(sl()));
 
   /// Bloc
   sl.registerLazySingleton(() => AuthBloc(loginUseCase: sl(), registerUseCase: sl(), logoutUseCase: sl()));
   sl.registerLazySingleton(() => SessionCubit(watchAuthStateUseCase: sl(), getCachedUserUseCase: sl()));
   sl.registerLazySingleton(() => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()));
+  sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl()));
 }

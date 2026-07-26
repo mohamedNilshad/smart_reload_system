@@ -5,7 +5,8 @@ class TitleText extends StatelessWidget {
   final String text;
   final Color? color;
   final bool isBold;
-  const TitleText({super.key, required this.text, this.color, this.isBold = true});
+  final TextAlign? textAlign;
+  const TitleText({super.key, required this.text, this.color, this.isBold = true, this.textAlign});
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +16,7 @@ class TitleText extends StatelessWidget {
         color: color ?? AppColors.black,
         fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
       ),
+      textAlign: textAlign,
     );
   }
 }

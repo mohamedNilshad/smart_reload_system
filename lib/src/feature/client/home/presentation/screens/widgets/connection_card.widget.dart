@@ -7,6 +7,7 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/la
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
+import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 
 class ConnectionCard extends StatelessWidget {
   final String conNumber;
@@ -14,8 +15,9 @@ class ConnectionCard extends StatelessWidget {
   final String conType;
   final String? conPlan;
   final bool status;
-  final String lastDate;
-  const ConnectionCard({super.key, required this.conNumber, required this.status, required this.conName, required this.conType, this.conPlan, required this.lastDate});
+  final DateTime lastDate;
+  final void Function()? onReloadTap;
+  const ConnectionCard({super.key, required this.conNumber, required this.status, required this.conName, required this.conType, this.conPlan, required this.onReloadTap, required this.lastDate});
 
   @override
   Widget build(BuildContext context) {
@@ -80,16 +82,20 @@ class ConnectionCard extends StatelessWidget {
                       colorFilter: ColorFilter.mode(AppColors.accent, BlendMode.srcIn),
                     ),
                     LabelText(
-                      text: "Last reload 8 days ago",//get days from last date
+                      text: "Last reload ${HelperFunctions.formatRelativeDate(lastDate)}",
                       color: AppColors.darkGrey,
                     ),
                     Spacer(),
-                    CChip(
-                      label: "Reload",
-                      bgColor: AppColors.accent,
-                      fontColor: AppColors.darkerGrey,
-                      borderRadius: 5,
-                      verticalPadding: 5,
+
+                    InkWell(
+                      onTap: onReloadTap,
+                      child: CChip(
+                        label: "Reload",
+                        bgColor: AppColors.accent,
+                        fontColor: AppColors.darkerGrey,
+                        borderRadius: 5,
+                        verticalPadding: 5,
+                      ),
                     )
                   ],
                 ),

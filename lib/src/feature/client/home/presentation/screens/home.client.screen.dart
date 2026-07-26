@@ -8,6 +8,7 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_banner.
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_headline_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_tile.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loading.widget.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
@@ -116,32 +117,37 @@ class _HomeClientScreenState extends State<HomeClientScreen> {
                           spacing: 10.0,
                           children: [
                             // Display banner news
-                            if (state.bannerNews.isNotEmpty)
-                              ...state.bannerNews.map((news) {
-                                return CustomBanner(
-                                  isNew: news.isNew,
-                                  title: news.title,
-                                  body: news.body,
-                                );
-                              }).toList(),
-                            const SizedBox(height: 12),
+                            if (state.bannerNews.isNotEmpty)...{
+                              CustomBanner(
+                                isNew: state.bannerNews.first.isNew,
+                                title: state.bannerNews.first.title,
+                                body: state.bannerNews.first.body,
+                              ),
+                              const SizedBox(height: 12),
+                            },
+
                             // Display vendors
                             SubHeadlineText(text: "My Vendors"),
+
                             if (state.vendors.isNotEmpty) ...{
-                              ...state.vendors.map((vendor) {
-                                return CustomTile(
-                                  onTap: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      RouteConstants.connectionClientScreen,
-                                      arguments: (name: vendor.vendorName, clientVendorId: vendor.clientVendorId),
-                                    );
-                                  },
-                                  title: vendor.vendorName,
-                                  ref: vendor.vendorId,
-                                  count: vendor.connectionCount,
-                                );
-                              }).toList(),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                spacing: 10.0,
+                                children: state.vendors.map((vendor) {
+                                  return CustomTile(
+                                    onTap: () {
+                                      Navigator.pushNamed(
+                                        context,
+                                        RouteConstants.connectionClientScreen,
+                                        arguments: (name: vendor.vendorName, clientVendorId: vendor.clientVendorId),
+                                      );
+                                    },
+                                    title: vendor.vendorName,
+                                    ref: vendor.vendorId,
+                                    count: vendor.connectionCount,
+                                  );
+                                }).toList(),
+                              ),
                             } else ...{
                               const Padding(
                                 padding: EdgeInsets.all(16),
@@ -158,31 +164,10 @@ class _HomeClientScreenState extends State<HomeClientScreen> {
                   }
 
                   // Fallback state
-                  return Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        const TitleText(
-                          text: 'Unable to load data',
-                          isBold: false,
-                        ),
-                        const SizedBox(height: 16),
-                        CircleAvatar(
-                          backgroundColor: AppColors.secondary.withValues(
-                            alpha: 0.2,
-                          ),
-                          radius: 30,
-                          child: IconButton(
-                            onPressed: () {
-                              context.read<HomeBloc>().add(
-                                const HomeDataRequested(),
-                              );
-                            },
-                            icon: const Icon(Icons.refresh, size: 30),
-                          ),
-                        ),
-                      ],
-                    ),
+                  return FallbackWidget(
+                      onPressed: () {
+                        context.read<HomeBloc>().add(const HomeDataRequested());
+                      }
                   );
                 },
               ),

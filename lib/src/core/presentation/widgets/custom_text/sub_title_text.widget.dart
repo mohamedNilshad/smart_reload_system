@@ -6,7 +6,8 @@ class SubTitleText extends StatelessWidget {
   final Color? color;
   final TextOverflow? overflow;
   final int? maxLines;
-  const SubTitleText({super.key, required this.text, this.color, this.overflow, this.maxLines = 1});
+  final bool isBold;
+  const SubTitleText({super.key, required this.text, this.color, this.overflow, this.maxLines = 1, this.isBold = false});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class SubTitleText extends StatelessWidget {
       maxLines: maxLines,
       style: Theme.of(context).textTheme.labelSmall?.copyWith(
         color: color ?? AppColors.black,
-        fontWeight: FontWeight.bold,
+        fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
         overflow: overflow,
       ),
     );

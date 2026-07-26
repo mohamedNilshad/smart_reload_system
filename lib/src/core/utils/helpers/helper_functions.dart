@@ -98,30 +98,9 @@ class HelperFunctions {
     }
   }
 
-  static String getToday() {
-    DateTime now = DateTime.now();
-    int weekday = now.weekday;
-
-    List<String> days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    return  days[weekday - 1].toLowerCase();
-  }
-
-  static String convertToAMPM(String time) {
-    DateTime dateTime = DateFormat('HH:mm').parse(time);
-    return DateFormat('h:mm a').format(dateTime);
-  }
-
-
-
   static String formatCurrency(double amount) {
     final NumberFormat currencyFormatter = NumberFormat.currency(locale: 'en_US', symbol: '\$');
     return currencyFormatter.format(amount);
-  }
-
-  static String getCurrentDateTime() {
-    final now = DateTime.now();
-    final formatter = DateFormat('yyyy_MM_dd_HH_mm_ss');
-    return formatter.format(now);
   }
 
   static bool isIOS(){
@@ -150,4 +129,86 @@ class HelperFunctions {
 
     return words[0].isNotEmpty ? words[0][0] : '';
   }
+
+
+  ///DATE FORMATS--------------------------------------------------->
+  /// Formats a date string (e.g., "2026-07-20 05:03:03.000") into relative time strings.
+  static String formatRelativeDate(dynamic dateInput) {
+    if (dateInput == null) return '';
+
+    DateTime? date;
+    if (dateInput is DateTime) {
+      date = dateInput;
+    } else if (dateInput is String) {
+      date = DateTime.tryParse(dateInput);
+    }
+
+    if (date == null) return '';
+
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    // Future dates safeguard
+    if (difference.isNegative) {
+      return 'Just now';
+    }
+
+    final seconds = difference.inSeconds;
+    final minutes = difference.inMinutes;
+    final hours = difference.inHours;
+    final days = difference.inDays;
+
+    if (seconds < 60) {
+      return 'Just now';
+    } else if (minutes < 60) {
+      return '$minutes ${minutes == 1 ? 'minute' : 'minutes'} ago';
+    } else if (hours < 24 && _isSameDay(now, date)) {
+      return '$hours ${hours == 1 ? 'hour' : 'hours'} ago';
+    } else if (_isSameDay(now, date)) {
+      return 'Today';
+    } else if (_isYesterday(now, date)) {
+      return 'Yesterday';
+    } else if (days <= 30) {
+      return '$days ${days == 1 ? 'day' : 'days'} ago';
+    } else {
+      final months = (days / 30).floor();
+      if (months < 12) {
+        return '$months ${months == 1 ? 'month' : 'months'} ago';
+      } else {
+        final years = (days / 365).floor();
+        return '$years ${years == 1 ? 'year' : 'years'} ago';
+      }
+    }
+  }
+
+  /// Helper to check if two dates are on the same calendar day
+  static bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  /// Helper to check if a date was calendar yesterday
+  static bool _isYesterday(DateTime now, DateTime date) {
+    final yesterday = now.subtract(const Duration(days: 1));
+    return _isSameDay(yesterday, date);
+  }
+
+  static String getToday() {
+    DateTime now = DateTime.now();
+    int weekday = now.weekday;
+
+    List<String> days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    return  days[weekday - 1].toLowerCase();
+  }
+
+  static String getCurrentDateTime() {
+    final now = DateTime.now();
+    final formatter = DateFormat('yyyy_MM_dd_HH_mm_ss');
+    return formatter.format(now);
+  }
+
+  static String convertToAMPM(String time) {
+    DateTime dateTime = DateFormat('HH:mm').parse(time);
+    return DateFormat('h:mm a').format(dateTime);
+  }
+
 }

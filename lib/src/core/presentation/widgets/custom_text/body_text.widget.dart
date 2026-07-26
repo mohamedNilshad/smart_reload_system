@@ -6,7 +6,8 @@ class BodyText extends StatelessWidget {
   final Color? color;
   final TextOverflow? overflow;
   final int? maxLines;
-  const BodyText({super.key, required this.text, this.color, this.overflow, this.maxLines});
+  final TextAlign? textAlign;
+  const BodyText({super.key, required this.text, this.color, this.overflow, this.maxLines, this.textAlign});
 
   @override
   Widget build(BuildContext context) {
@@ -17,6 +18,7 @@ class BodyText extends StatelessWidget {
         color: color ?? AppColors.black,
         overflow: overflow,
       ),
+      textAlign: textAlign,
     );
   }
 }

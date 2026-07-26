@@ -2,11 +2,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/banner_news.model.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
 
 abstract class HomeRemoteDataSource {
   Future<List<BannerNewsModel>> getBannerNews();
   Future<List<VendorModel>> getVendors();
+  Future<List<ConnectionModel>> getConnections(String clientVendorId);
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -88,6 +90,44 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       throw ServerException(e.message ?? 'Failed to fetch vendors');
     } catch (e) {
       throw ServerException('An error occurred while fetching vendors');
+    }
+  }
+
+  @override
+  Future<List<ConnectionModel>> getConnections(String clientVendorId) async {
+    try {
+      final connectionSnapshot = await firestore
+          .collection('connections')
+          .where('clientVendorId', isEqualTo: clientVendorId)
+          .get();
+
+
+      final connections = <ConnectionModel>[];
+
+      for (final doc in connectionSnapshot.docs) {
+        final data = doc.data();
+        final connectionTypeId = data['connectionTypeId'] as String?;
+        if (connectionTypeId != null) {
+          try {
+            final typeDoc = await firestore.collection('connection_type').doc(connectionTypeId).get();
+
+            if (typeDoc.exists) {
+              data['type'] = typeDoc['type'] as String? ?? "Unknown";
+              connections.add(ConnectionModel.fromJson(data, id: doc.id));
+            }
+          } catch (e) {
+            // Skip this vendor if user data fetch fails
+            continue;
+          }
+        }
+      }
+
+
+      return connections;
+    } on FirebaseException catch (e) {
+      throw ServerException(e.message ?? 'Failed to fetch connections');
+    } catch (e) {
+      throw ServerException('An error occurred while fetching connections');
     }
   }
 }
