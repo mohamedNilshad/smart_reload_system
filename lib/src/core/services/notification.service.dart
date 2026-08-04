@@ -42,8 +42,6 @@ class NotificationService {
   }
 
 
-
-
   Future<void> showNotification(RemoteMessage message) async {
 
     AndroidNotificationDetails androidDetails = const AndroidNotificationDetails(
