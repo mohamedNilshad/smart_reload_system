@@ -14,9 +14,9 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/ti
 import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection.bloc.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection.event.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection.state.dart' as con;
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package_request/package_request.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package_request/package_request.event.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package_request/package_request.state.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/widgets/package_card.widget.dart';
 
 class ConnectionDetailsClientScreen extends StatefulWidget {
@@ -53,15 +53,15 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
     screenWidth = HelperFunctions.screenWidth(context);
     return DefaultTabController(
       length: 3,
-      child: BlocListener<ConnectionBloc, con.ConnectionState>(
+      child: BlocListener<PackageRequestBloc, PackageRequestState>(
         listener: (context, state) {
-          _isLoadingNotifier.value = state is con.PackageRequestLoading;
+          _isLoadingNotifier.value = state is PackageRequestLoading;
 
-          if (state is con.PackageRequestSuccess) {
+          if (state is PackageRequestSuccess) {
             Navigator.of(context).pop();
             AppSnackbar.showSuccess(context, 'Reload request submitted!');
 
-          } else if (state is con.PackageRequestFailure) {
+          } else if (state is PackageRequestFailure) {
             AppSnackbar.showError(context, state.message);
           }
         },
@@ -308,9 +308,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                             amount: double.parse(amountController.text),
                           );
 
-                          context.read<ConnectionBloc>().add(
-                            PackageRequest(data),
-                          );
+                          context.read<PackageRequestBloc>().add(PackageRequest(data),);
                         }
                       },
                     );

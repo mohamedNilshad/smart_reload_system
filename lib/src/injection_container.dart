@@ -25,8 +25,9 @@ import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_b
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_connections.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_vendors.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/request_package.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection.bloc.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package_request/package_request.bloc.dart';
 
 
 final sl = GetIt.instance;
@@ -64,6 +65,7 @@ Future<void> init() async{
   sl.registerLazySingleton(() => AuthBloc(loginUseCase: sl(), registerUseCase: sl(), logoutUseCase: sl()));
   sl.registerLazySingleton(() => SessionCubit(watchAuthStateUseCase: sl(), getCachedUserUseCase: sl()));
   sl.registerLazySingleton(() => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()));
-  sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl(), requestPackageUseCase: sl()));
+  sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl()));
+  sl.registerLazySingleton(() => PackageRequestBloc(requestPackageUseCase: sl()));
   sl.registerLazySingleton(() => PaymentBloc(startPaymentUseCase: sl()));
 }

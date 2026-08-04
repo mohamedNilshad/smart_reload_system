@@ -9,9 +9,9 @@ import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widge
 import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loading.widget.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection.bloc.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection.event.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection.state.dart' as c;
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.event.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.state.dart' as c;
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/widgets/connection_card.widget.dart';
 
 class ConnectionClientScreen extends StatefulWidget {
