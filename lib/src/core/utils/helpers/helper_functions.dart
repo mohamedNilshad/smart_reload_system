@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -209,6 +210,11 @@ class HelperFunctions {
   static String convertToAMPM(String time) {
     DateTime dateTime = DateFormat('HH:mm').parse(time);
     return DateFormat('h:mm a').format(dateTime);
+  }
+
+  static Future<String?> getFCMToken() async {
+    String? token = await FirebaseMessaging.instance.getToken();
+    return token;
   }
 
 }

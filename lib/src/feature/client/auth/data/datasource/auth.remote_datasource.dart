@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
+import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/feature/client/auth/domain/entity/client.entity.dart';
 
 abstract class AuthRemoteDataSource {
@@ -26,10 +27,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<UserEntity> login({required String phoneNumber, required String password}) async {
     try {
-      final lookup = await firestore
-          .collection('phone_lookup')
-          .doc(phoneNumber)
-          .get();
+      final lookup = await firestore.collection('phone_lookup').doc(phoneNumber).get();
 
       if (!lookup.exists) {
         throw ServerException('Phone number not found');
@@ -43,6 +41,12 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       );
 
       final doc = await firestore.collection(_collection).doc(credential.user!.uid).get();
+
+      String? token = await HelperFunctions.getFCMToken();
+      print("FCM Token: $token");
+
+      await FirebaseFirestore.instance.collection(_collection).doc(credential.user!.uid).update({"token":token});
+
       return UserEntity.fromJson(doc.data()!);
     } on fb.FirebaseAuthException catch (e) {
       throw ServerException(_mapFirebaseError(e));
@@ -58,10 +62,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
     required String password,
   }) async {
     try {
-      final existing = await firestore
-          .collection('phone_lookup')
-          .doc(phoneNumber)
-          .get();
+      final existing = await firestore.collection('phone_lookup').doc(phoneNumber).get();
 
       if (existing.exists) {
         throw ServerException('This phone number is already registered.');
@@ -72,6 +73,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         password: password,
       );
 
+      String? token = await HelperFunctions.getFCMToken();
 
       final user = UserEntity(
         uid: credential.user!.uid,
@@ -80,6 +82,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
         email: email,
         nic: nic,
         role: 'client',
+        token: token,
       );
 
       await firestore.collection(_collection).doc(user.uid).set(user.toJson());
