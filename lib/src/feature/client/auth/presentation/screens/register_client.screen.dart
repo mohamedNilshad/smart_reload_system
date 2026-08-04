@@ -44,7 +44,6 @@ class _RegisterClientScreenState extends State<RegisterClientScreen> {
               if (state is AuthFailureState) {
                 AppSnackbar.showError(context, state.message);
               } else if (state is AuthSuccess) {
-                Navigator.of(context).pop();
                 AppSnackbar.showSuccess(context, "Registration successful!");
               }
             },

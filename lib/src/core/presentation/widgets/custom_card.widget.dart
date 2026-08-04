@@ -5,18 +5,21 @@ import 'package:smart_reload_system/src/core/constants/sizes.dart';
 class CCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry? padding;
-  const CCard({super.key, required this.child, this.padding});
+  final EdgeInsetsGeometry? margin;
+  final BorderRadius? radius;
+  final bool disableShadow;
+  const CCard({super.key, required this.child, this.padding, this.radius, this.margin, this.disableShadow = false});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
       padding: padding ?? EdgeInsets.symmetric(horizontal: Sizes.md, vertical: Sizes.lg),
-      margin: EdgeInsets.symmetric(horizontal: Sizes.sm),
+      margin: margin ?? EdgeInsets.symmetric(horizontal: Sizes.sm),
       decoration: BoxDecoration(
           color: AppColors.white,
-          borderRadius: BorderRadius.circular(Sizes.borderRadiusXl),
-          boxShadow: [
+          borderRadius: radius ?? BorderRadius.circular(Sizes.borderRadiusXl),
+          boxShadow: disableShadow ? null : [
             BoxShadow(
               color: AppColors.black.withValues(alpha: 0.15),
               spreadRadius: 2,

@@ -31,7 +31,7 @@ class CChip extends StatelessWidget {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: horizontalPadding!, vertical: verticalPadding!),
       // alignment: Alignment.center,
-      width: label.length > 10 ? 100 : null,
+      width: label.length > 10 ? 110 : null,
       decoration: BoxDecoration(
         color: (bgColor ?? AppColors.grey).withValues(alpha: 0.5),
         borderRadius: BorderRadius.circular(borderRadius!),
@@ -39,6 +39,7 @@ class CChip extends StatelessWidget {
       child: Row(
         spacing: 5,
         mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           if(enableStatus)...{
             CircleAvatar(

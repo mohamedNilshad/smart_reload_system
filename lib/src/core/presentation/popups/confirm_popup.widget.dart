@@ -10,6 +10,7 @@ class ShowConfirmPopup extends StatelessWidget {
   final String? content;
   final String leftBtn;
   final String rightBtn;
+
   const ShowConfirmPopup({
     super.key,
     this.title = AppStrings.confirmDeleteLabel,

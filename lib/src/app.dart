@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:smart_reload_system/src/core/bloc/payment/payment.bloc.dart';
 import 'package:smart_reload_system/src/core/bloc/theme/theme.bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_strings.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
@@ -26,6 +27,7 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => sl<SessionCubit>()),
         BlocProvider(create: (_) => sl<HomeBloc>()),
         BlocProvider(create: (_) => sl<ConnectionBloc>()),
+        BlocProvider(create: (_) => sl<PaymentBloc>()),
       ],
       child: BlocBuilder<ThemeBloc, ThemeMode>(
           builder: (context, state) {

@@ -3,12 +3,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/banner_news.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
 
 abstract class HomeRemoteDataSource {
   Future<List<BannerNewsModel>> getBannerNews();
   Future<List<VendorModel>> getVendors();
   Future<List<ConnectionModel>> getConnections(String clientVendorId);
+  Future<bool> requestPackage(PackageRequestModel packageRequestModel);
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -124,6 +126,22 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
 
       return connections;
+    } on FirebaseException catch (e) {
+      throw ServerException(e.message ?? 'Failed to fetch connections');
+    } catch (e) {
+      throw ServerException('An error occurred while fetching connections');
+    }
+  }
+
+
+  @override
+  Future<bool> requestPackage(PackageRequestModel packageRequestModel) async {
+    try {
+
+
+      await firestore.collection("requested_packages").add(packageRequestModel.toJson());
+      //send push notification
+      return true;
     } on FirebaseException catch (e) {
       throw ServerException(e.message ?? 'Failed to fetch connections');
     } catch (e) {

@@ -12,5 +12,6 @@ class RouteConstants {
   ///CLIENT
   static const String mainClientScreen = "MainClientScreen";
   static const String connectionClientScreen = "ConnectionClientScreen";
+  static const String connectionDetailsClientScreen = "ConnectionDetailsClientScreen";
 
 }

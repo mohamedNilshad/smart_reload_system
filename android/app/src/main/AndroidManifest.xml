@@ -1,5 +1,8 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.smart_reload_system"
+    xmlns:tools="http://schemas.android.com/tools">
     <application
+        tools:replace="android:label"
         android:label="smart_reload_system"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">

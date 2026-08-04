@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
@@ -77,7 +78,7 @@ class AppBottomSheet {
         required Widget form,
         required String buttonText,
         required VoidCallback onSubmit,
-        bool isLoading = false,
+        ValueListenable<bool>? isLoading,
       }) {
     return showModalBottomSheet<T>(
       context: context,
@@ -90,7 +91,7 @@ class AppBottomSheet {
           form: form,
           buttonText: buttonText,
           onSubmit: onSubmit,
-          isLoading: isLoading,
+          isLoading: isLoading ?? ValueNotifier(false),
         ),
       ),
     );
@@ -204,7 +205,7 @@ class _FormContent extends StatelessWidget {
   final Widget form;
   final String buttonText;
   final VoidCallback onSubmit;
-  final bool isLoading;
+  final ValueListenable<bool> isLoading;
 
   const _FormContent({
     required this.title,
@@ -226,17 +227,23 @@ class _FormContent extends StatelessWidget {
         form,
         const SizedBox(height: 20),
 
-        ElevatedButton(
-          onPressed: isLoading ? null : onSubmit,
-          style: ElevatedButton.styleFrom(
-            minimumSize: Size(HelperFunctions.screenWidth(context), Sizes.buttonHeight),
-          ),
-          child:  isLoading ?
-          const SizedBox(
-            width: 20,
-            height: 20,
-            child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-          ) : Text(buttonText),
+        ValueListenableBuilder<bool>(
+            valueListenable: isLoading,
+            builder: (context, loading, _) {
+
+            return ElevatedButton(
+              onPressed: loading ? null : onSubmit,
+              style: ElevatedButton.styleFrom(
+                minimumSize: Size(HelperFunctions.screenWidth(context), Sizes.buttonHeight),
+              ),
+              child:  loading ?
+              const SizedBox(
+                width: 20,
+                height: 20,
+                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+              ) : Text(buttonText),
+            );
+          }
         ),
       ],
     );

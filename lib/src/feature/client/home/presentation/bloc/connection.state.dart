@@ -31,3 +31,24 @@ class ConnectionFailure extends ConnectionState {
   @override
   List<Object?> get props => [message];
 }
+
+
+class PackageRequestLoading extends ConnectionState {
+  const PackageRequestLoading();
+}
+
+class PackageRequestSuccess extends ConnectionState {
+  final bool isRequested;
+  const PackageRequestSuccess(this.isRequested);
+
+  @override
+  List<Object?> get props => [isRequested];
+}
+
+class PackageRequestFailure extends ConnectionState {
+  final String message;
+  const PackageRequestFailure(this.message);
+
+  @override
+  List<Object?> get props => [message];
+}

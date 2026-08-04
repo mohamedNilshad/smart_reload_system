@@ -7,19 +7,12 @@ import 'package:firebase_core/firebase_core.dart';
 void main()  {
   runZonedGuarded<Future<void>>(() async {
     WidgetsFlutterBinding.ensureInitialized();
-    // ThemeMode initTheme = await getInitialThemeState();
     await di.init();
     await Firebase.initializeApp();
-    print("Firebase Connected!");
+    debugPrint("Firebase Connected!");
     runApp(App(theme: ThemeMode.light));
   }, (error, stack) =>
       print(error));
   // FirebaseCrashlytics.instance.recordError(error, stack, fatal: true));
 }
-
-// Future<ThemeMode> getInitialThemeState() async {
-//   final prefs = await SharedPreferences.getInstance();
-//   final isDarkMode = prefs.getBool('isDarkMode') ?? false;
-//   return isDarkMode ? ThemeMode.dark : ThemeMode.light;
-// }
 

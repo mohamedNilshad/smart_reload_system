@@ -4,6 +4,7 @@ import 'package:smart_reload_system/src/core/error/failures.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/datasource/home.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/banner_news.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/repository/home.repo.dart';
 
@@ -42,6 +43,18 @@ class HomeRepoImpl implements HomeRepo {
       String clientVendorId) async {
     try {
       final result = await remoteDataSource.getConnections(clientVendorId);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('An unexpected error occurred'));
+    }
+  }
+
+  @override
+  Future<Either<Failure, bool>> requestPackage(PackageRequestModel packageRequestModel) async {
+    try {
+      final result = await remoteDataSource.requestPackage(packageRequestModel);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

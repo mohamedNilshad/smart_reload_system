@@ -69,10 +69,10 @@ class ConnectionCard extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 5),
-              Divider(),
+              Divider(thickness: 0.3),
 
               Padding(
-                padding: const EdgeInsets.all(16.0),
+                padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
                 child: Row(
                   spacing: 5,
                   children: [

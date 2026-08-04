@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:smart_reload_system/src/core/bloc/payment/payment.bloc.dart';
+import 'package:smart_reload_system/src/core/bloc/payment/payment.event.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loading.widget.dart';
+import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection.event.dart';
@@ -100,7 +103,22 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                     spacing: 10.0,
                     children: state.connections.map((connection) {
                       return InkWell(
-                        onTap: () async {},
+                        onTap: () async {
+
+                          Navigator.pushNamed(
+                            context,
+                            RouteConstants.connectionDetailsClientScreen,
+                            arguments: (
+                            clientVendorId: connection.clientVendorId,
+                            connectionId: connection.id,
+                            conName: connection.conName,
+                            conNumber: connection.conNumber,
+                            status: connection.status,
+                            conType: connection.conType,
+                            conPlan: connection.conPlan,
+                          ),
+                          );
+                        },
                         child: ConnectionCard(
                           onReloadTap: () async{
                             final result = await AppBottomSheet.showRadioSelect(
@@ -123,13 +141,28 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                                     decoration: const InputDecoration(labelText: 'Amount'),
                                   ),
                                   buttonText: 'Continue',
+                                  // isLoading: ,
                                   onSubmit: () {
-                                    Navigator.of(context).pop();
+                                    if(amountController.text.isNotEmpty){
+                                      context.read<PaymentBloc>().add(
+                                        StartPaymentRequested(
+                                          orderId: 'ORD-${DateTime.now().millisecondsSinceEpoch}',
+                                          amount: 500.00,
+                                          itemDescription: 'Mobile Reload',
+                                          firstName: 'Saman',
+                                          lastName: 'Perera',
+                                          email: 'saman@example.com',
+                                          phone: '0771234567',
+                                          address: 'No.1, Galle Road',
+                                          city: 'Colombo',
+                                        ),
+                                      );
+                                    }
+                                    // Navigator.of(context).pop();
                                     // proceed with amountController.text
                                   },
                                 );
                               }
-                              debugPrint(result);
                             }
                           },
                           conNumber: connection.conNumber,

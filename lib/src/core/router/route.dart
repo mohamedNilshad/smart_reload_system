@@ -4,6 +4,7 @@ import 'package:smart_reload_system/src/core/presentation/screens/main.client.sc
 import 'package:smart_reload_system/src/core/presentation/screens/splash.screen.dart';
 import 'package:smart_reload_system/src/core/presentation/screens/unknown.screen.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection_details.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/profile.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/login_client.screen.dart';
@@ -64,6 +65,32 @@ class AppRouter {
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.connectionClientScreen),
           builder: (context) => ConnectionClientScreen(name: args.name, clientVendorId: args.clientVendorId),
+        );
+
+      case RouteConstants.connectionDetailsClientScreen:
+
+        final args = settings.arguments as ({
+          String clientVendorId,
+          String connectionId,
+          String conName,
+          String conNumber,
+          bool status,
+          String conType,
+          String? conPlan,
+        });
+
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.connectionDetailsClientScreen),
+          builder: (context) => ConnectionDetailsClientScreen(
+            clientVendorId: args.clientVendorId,
+            connectionId: args.connectionId,
+            conName: args.conName,
+            conNumber: args.conNumber,
+            status: args.status,
+            conType: args.conType,
+            conPlan: args.conPlan,
+
+          ),
         );
 
       case RouteConstants.settingsScreen:
