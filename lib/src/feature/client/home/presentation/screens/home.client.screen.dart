@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
@@ -16,6 +15,7 @@ import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/se
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.event.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.state.dart';
+import 'package:smart_reload_system/src/feature/client/notification/presentation/screens/widget/notification_bell.widget.dart';
 
 class HomeClientScreen extends StatefulWidget {
   const HomeClientScreen({super.key});
@@ -48,23 +48,25 @@ class _HomeClientScreenState extends State<HomeClientScreen> {
           appBar: customAppBar(
             title: userName,
             action: [
-              IconButton(
-                onPressed: () {},
-                color: AppColors.darkGrey,
-                icon: Stack(
-                  children: [
-                    const Icon(Icons.notifications_none_rounded, size: 30),
-                    Positioned(
-                      right: 5,
-                      top: 5,
-                      child: CircleAvatar(
-                        radius: 4,
-                        backgroundColor: Colors.red,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              // IconButton(
+              //   onPressed: () {},
+              //   color: AppColors.darkGrey,
+              //   icon: Stack(
+              //     children: [
+              //       const Icon(Icons.notifications_none_rounded, size: 30),
+              //       Positioned(
+              //         right: 5,
+              //         top: 5,
+              //         child: CircleAvatar(
+              //           radius: 4,
+              //           backgroundColor: Colors.red,
+              //         ),
+              //       ),
+              //     ],
+              //   ),
+              // ),
+
+              NotificationBell(),
             ],
           ),
           body: BlocListener<HomeBloc, HomeState>(

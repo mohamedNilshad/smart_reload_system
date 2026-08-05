@@ -5,6 +5,7 @@ import 'package:smart_reload_system/src/core/presentation/screens/splash.screen.
 import 'package:smart_reload_system/src/core/presentation/screens/unknown.screen.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection_details.client.screen.dart';
+import 'package:smart_reload_system/src/feature/client/notification/presentation/screens/notifications.screen.dart';
 import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/profile.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/login_client.screen.dart';
@@ -97,6 +98,12 @@ class AppRouter {
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.settingsScreen),
           builder: (context) => const ProfileScreen(),
+        );
+
+      case RouteConstants.notificationClientScreen:
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.notificationClientScreen),
+          builder: (context) => const NotificationScreen(),
         );
     }
 

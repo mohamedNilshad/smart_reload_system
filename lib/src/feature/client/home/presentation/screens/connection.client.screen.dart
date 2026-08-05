@@ -82,7 +82,6 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
             }
 
             if (state is c.ConnectionFailure) {
-              debugPrint(state.message);
               return FallbackWidget(
                   onPressed: () {
                     context.read<ConnectionBloc>().add(ConnectionsRequested(widget.clientVendorId));

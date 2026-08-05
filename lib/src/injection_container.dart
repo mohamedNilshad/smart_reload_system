@@ -29,6 +29,15 @@ import 'package:smart_reload_system/src/feature/client/home/domain/usecase/reque
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package_request/package_request.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/notification/data/datasource/notification.remote_datasource.dart';
+import 'package:smart_reload_system/src/feature/client/notification/data/repository/notification.repo_impl.dart';
+import 'package:smart_reload_system/src/feature/client/notification/domain/repository/notification.repo.dart';
+import 'package:smart_reload_system/src/feature/client/notification/domain/usecase/get_notifications.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/notification/domain/usecase/mark_all_as_read.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/notification/domain/usecase/mark_as_read.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/notification/domain/usecase/watch_unread_count.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/unread_count.cubit.dart';
 
 
 final sl = GetIt.instance;
@@ -45,11 +54,13 @@ Future<void> init() async{
   sl.registerLazySingleton<PaymentRemoteDataSource>(() => PaymentRemoteDataSourceImpl());
   sl.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl(sl()));
   sl.registerLazySingleton<HomeRemoteDataSource>(() => HomeRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton<NotificationRemoteDataSource>(() => NotificationRemoteDataSourceImpl(sl()));
 
   /// Repository
   sl.registerLazySingleton<AuthRepo>(() => AuthRepoImpl(remoteDataSource: sl(), localDataSource: sl()));
   sl.registerLazySingleton<HomeRepo>(() => HomeRepoImpl(remoteDataSource: sl()));
   sl.registerLazySingleton<PaymentRepo>(() => PaymentRepoImpl(sl()));
+  sl.registerLazySingleton<NotificationRepo>(() => NotificationRepoImpl(sl()));
 
   /// Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -62,6 +73,11 @@ Future<void> init() async{
   sl.registerLazySingleton(() => GetConnectionsUseCase(sl()));
   sl.registerLazySingleton(() => StartPaymentUseCase(sl()));
   sl.registerLazySingleton(() => RequestPackageUseCase(sl()));
+  sl.registerLazySingleton(() => WatchUnreadCountUseCase(sl()));
+  sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
+  sl.registerLazySingleton(() => MarkAsReadUseCase(sl()));
+  sl.registerLazySingleton(() => MarkAllAsReadUseCase(sl()));
+
 
   /// Bloc
   sl.registerLazySingleton(() => AuthBloc(loginUseCase: sl(), registerUseCase: sl(), logoutUseCase: sl()));
@@ -70,4 +86,7 @@ Future<void> init() async{
   sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl()));
   sl.registerLazySingleton(() => PackageRequestBloc(requestPackageUseCase: sl()));
   sl.registerLazySingleton(() => PaymentBloc(startPaymentUseCase: sl()));
+  sl.registerLazySingleton(() => UnreadCountCubit(watchUnreadCountUseCase: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton(() => NotificationBloc(getNotificationsUseCase: sl(), markAsReadUseCase: sl(), markAllAsReadUseCase: sl()));
+
 }
