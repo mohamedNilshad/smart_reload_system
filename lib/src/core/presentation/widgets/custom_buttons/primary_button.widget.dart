@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 
 class PrimaryButton extends StatelessWidget {
-  final VoidCallback onPressed;
+  final VoidCallback? onPressed;
   final String title;
   const PrimaryButton({
     super.key,
-    required this.onPressed,
+    this.onPressed,
     required this.title,
   });
 

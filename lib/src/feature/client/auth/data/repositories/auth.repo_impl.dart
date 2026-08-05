@@ -49,6 +49,16 @@ class AuthRepoImpl implements AuthRepo {
   }
 
   @override
+  Future<Either<Failure, void>> reauthenticate(String password) async {
+    try {
+      await remoteDataSource.reauthenticate(password);
+      return const Right(null);
+    } on ServerException catch (e) {
+      return Left(AuthFailure(e.message));
+    }
+  }
+
+  @override
   Future<Either<Failure, void>> logout() async {
     try {
       await remoteDataSource.logout();

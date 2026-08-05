@@ -15,6 +15,7 @@ import 'package:smart_reload_system/src/feature/client/auth/domain/repository/au
 import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/get_cached_user.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/login.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/logout.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/reauthenticate.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/register.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/watch_auth_state.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/auth.bloc.dart';
@@ -67,6 +68,7 @@ Future<void> init() async{
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
   sl.registerLazySingleton(() => WatchAuthStateUseCase(sl()));
   sl.registerLazySingleton(() => GetCachedUserUseCase(sl()));
+  sl.registerLazySingleton(() => ReauthenticateUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
   sl.registerLazySingleton(() => GetBannerNewsUseCase(sl()));
   sl.registerLazySingleton(() => GetVendorsUseCase(sl()));
@@ -80,7 +82,7 @@ Future<void> init() async{
 
 
   /// Bloc
-  sl.registerLazySingleton(() => AuthBloc(loginUseCase: sl(), registerUseCase: sl(), logoutUseCase: sl()));
+  sl.registerLazySingleton(() => AuthBloc(loginUseCase: sl(), registerUseCase: sl(), logoutUseCase: sl(), reauthenticateUseCase: sl()));
   sl.registerLazySingleton(() => SessionCubit(watchAuthStateUseCase: sl(), getCachedUserUseCase: sl()));
   sl.registerLazySingleton(() => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()));
   sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl()));

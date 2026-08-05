@@ -34,3 +34,10 @@ class RegisterRequested extends AuthEvent {
 }
 
 class LogoutRequested extends AuthEvent {}
+
+class ReauthenticateRequested extends AuthEvent {
+  final String password;
+  const ReauthenticateRequested({required this.password});
+  @override
+  List<Object> get props => [password];
+}

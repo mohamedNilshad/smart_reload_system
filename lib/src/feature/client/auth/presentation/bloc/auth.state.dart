@@ -18,6 +18,8 @@ class AuthSuccess extends AuthState {
 }
 
 class AuthLogoutSuccess extends AuthState {}
+
+class ReauthenticationSuccess extends AuthState {}
  
 class AuthFailureState extends AuthState {
  final String message;

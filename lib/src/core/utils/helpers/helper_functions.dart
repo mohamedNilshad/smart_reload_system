@@ -131,6 +131,20 @@ class HelperFunctions {
     return words[0].isNotEmpty ? words[0][0] : '';
   }
 
+  static String maskPhoneNumber(String phone) {
+    // Strip any whitespace or special characters first if needed
+    final cleanPhone = phone.replaceAll(RegExp(r'\D'), '');
+
+    if (cleanPhone.length < 5) return phone; // Fallback for unusually short input
+
+    final start = cleanPhone.substring(0, 3);
+    final end = cleanPhone.substring(cleanPhone.length - 2);
+    const middleMask = '*******'; // 7 asterisks
+
+    return '$start$middleMask$end';
+  }
+
+
 
   ///DATE FORMATS--------------------------------------------------->
   /// Formats a date string (e.g., "2026-07-20 05:03:03.000") into relative time strings.

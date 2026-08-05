@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/custom_outline_button.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_card.widget.dart';
@@ -12,9 +13,13 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/su
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
+import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
+import 'package:smart_reload_system/src/feature/client/auth/domain/entity/client.entity.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/auth.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/auth.event.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/auth.state.dart';
+import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.state.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -24,14 +29,24 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
+  late UserEntity user;
+
+  @override
+  void initState() {
+    final sessionState = context.read<SessionCubit>().state;
+    if (sessionState is SessionAuthenticated) {
+      user = sessionState.user;
+    }
+
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthFailureState) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(state.message)),
-          );
+          AppSnackbar.showError(context, state.message);
         } else if (state is AuthLogoutSuccess) {
           if (!mounted) return;
           Navigator.of(context).pushNamedAndRemoveUntil(
@@ -52,15 +67,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   radius: 55.0,
                   backgroundColor: AppColors.secondary,
                   child: HeadlineText(
-                    text: "DJ",
+                    text: HelperFunctions.getInitials(user.fullName),
                     color: AppColors.white,
                     size: 45,
                   ),
                 ),
                 SizedBox(height: 10),
-                HeadlineText(text: "Alice Johnson"),
+                HeadlineText(text: user.fullName),
                 SubTitleText(
-                  text: "+94 123 456 789",
+                  text: HelperFunctions.maskPhoneNumber(user.phoneNumber),
                   color: AppColors.darkerGrey,
                 ),
                 SizedBox(height: 20),
@@ -69,6 +84,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     spacing: 5,
                     children: [
                       buildOption(
+                        onTap: () {
+                          Navigator.of(context).pushNamed(RouteConstants.editProfileClientScreen);
+                        },
                         context,
                         icon: SvgStrings.user,
                         leadColor: AppColors.secondary,
@@ -85,6 +103,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       Divider(),
                       buildOption(
+                        onTap: () => Navigator.of(context).pushNamed(RouteConstants.notificationClientScreen),
                         context,
                         icon: SvgStrings.notification,
                         leadColor: AppColors.accent,

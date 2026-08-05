@@ -13,6 +13,8 @@ abstract class AuthRemoteDataSource {
     required String nic,
     required String password,
   });
+
+  Future<void> reauthenticate(String password);
   Future<void> logout();
   Stream<UserEntity?> get authStateChanges;
 }
@@ -43,7 +45,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       final doc = await firestore.collection(_collection).doc(credential.user!.uid).get();
 
       String? token = await HelperFunctions.getFCMToken();
-      print("FCM Token: $token");
 
       await FirebaseFirestore.instance.collection(_collection).doc(credential.user!.uid).update({"token":token});
 
@@ -91,6 +92,20 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return user;
     } on fb.FirebaseAuthException catch (e) {
       throw ServerException(_mapFirebaseError(e));
+    }
+  }
+
+  @override
+  Future<void> reauthenticate(String password) async {
+    try {
+      final user = firebaseAuth.currentUser;
+      if (user == null || user.email == null) {
+        throw ServerException('No authenticated user found.');
+      }
+      final credential = fb.EmailAuthProvider.credential(email: user.email!, password: password);
+      await user.reauthenticateWithCredential(credential);
+    } on fb.FirebaseAuthException catch (e) {
+      throw ServerException(_mapFirebaseError(e)); // 'wrong-password' already mapped
     }
   }
 

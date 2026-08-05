@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
+import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 
 enum _SnackType { success, error }
 
 class AppSnackbar {
   AppSnackbar._();
 
-  static void showSuccess(BuildContext context, String message) {
-    _show(context, message, _SnackType.success);
+  static void showSuccess(BuildContext context, String message, {bool showUp = false}) {
+    _show(context, message, _SnackType.success, showUp);
   }
 
-  static void showError(BuildContext context, String message) {
-    _show(context, message, _SnackType.error);
+  static void showError(BuildContext context, String message, {bool showUp = false}) {
+    _show(context, message, _SnackType.error, showUp);
   }
 
-  static void _show(BuildContext context, String message, _SnackType type) {
+  static void _show(BuildContext context, String message, _SnackType type, bool showUp) {
     final isSuccess = type == _SnackType.success;
     final accent = isSuccess ? AppColors.green : AppColors.red;
     final icon = isSuccess ? Icons.check_rounded : Icons.close_rounded;
@@ -27,7 +28,12 @@ class AppSnackbar {
           backgroundColor: Colors.transparent,
           elevation: 0,
           duration: const Duration(seconds: 5),
-          margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          margin: showUp ? EdgeInsets.only(
+            bottom: HelperFunctions.screenHeight(context) - 160,
+            left: 16,
+            right: 16,
+          ) : const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           padding: EdgeInsets.zero,
           content: _SnackbarContent(message: message, accent: accent, icon: icon),

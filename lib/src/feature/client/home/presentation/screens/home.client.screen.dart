@@ -47,27 +47,7 @@ class _HomeClientScreenState extends State<HomeClientScreen> {
         return Scaffold(
           appBar: customAppBar(
             title: userName,
-            action: [
-              // IconButton(
-              //   onPressed: () {},
-              //   color: AppColors.darkGrey,
-              //   icon: Stack(
-              //     children: [
-              //       const Icon(Icons.notifications_none_rounded, size: 30),
-              //       Positioned(
-              //         right: 5,
-              //         top: 5,
-              //         child: CircleAvatar(
-              //           radius: 4,
-              //           backgroundColor: Colors.red,
-              //         ),
-              //       ),
-              //     ],
-              //   ),
-              // ),
-
-              NotificationBell(),
-            ],
+            action: [NotificationBell()],
           ),
           body: BlocListener<HomeBloc, HomeState>(
             listener: (context, state) {

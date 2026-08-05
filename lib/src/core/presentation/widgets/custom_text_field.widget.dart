@@ -10,6 +10,7 @@ class CTextField extends StatefulWidget {
   final TextInputType keyboardType;
   final IconData? prefixIcon;
   final String? Function(String?)? validator;
+  final String? Function(String?)? onChanged;
 
   const CTextField({
     super.key,
@@ -20,6 +21,7 @@ class CTextField extends StatefulWidget {
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
     this.validator,
+    this.onChanged,
   });
 
   @override
@@ -47,6 +49,7 @@ class _CTextFieldState extends State<CTextField> {
           obscureText: obscureText && widget.isPassword,
           keyboardType: widget.keyboardType,
           validator: widget.validator,
+          onChanged: widget.onChanged,
           decoration: InputDecoration(
             hintText: widget.hint,
             prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon, size: 20) : null,

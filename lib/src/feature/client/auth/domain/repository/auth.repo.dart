@@ -16,6 +16,8 @@ abstract class AuthRepo {
     required String password,
   });
 
+  Future<Either<Failure, void>> reauthenticate(String password);
+
   Future<Either<Failure, void>> logout();
 
   Stream<UserEntity?> get authStateChanges;
