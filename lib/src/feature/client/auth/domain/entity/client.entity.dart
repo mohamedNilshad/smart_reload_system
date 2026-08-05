@@ -23,6 +23,18 @@ class UserEntity extends Equatable {
     this.token,
   });
 
+  UserEntity copyWith({String? newFullName, String? newPhoneNumber, String? newEmail, String? newNic}){
+    return UserEntity(
+      uid: uid,
+      fullName: newFullName ?? fullName,
+      phoneNumber: newPhoneNumber ?? phoneNumber,
+      email: newEmail ?? email,
+      nic: newNic ?? nic,
+      role: role,
+      token: token,
+    );
+  }
+
   factory UserEntity.fromJson(Map<String, dynamic> json) => _$UserEntityFromJson(json);
   Map<String, dynamic> toJson() => _$UserEntityToJson(this);
 

@@ -17,6 +17,7 @@ import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/login
 import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/logout.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/reauthenticate.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/register.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/verify_email.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/watch_auth_state.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/auth.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
@@ -39,6 +40,12 @@ import 'package:smart_reload_system/src/feature/client/notification/domain/useca
 import 'package:smart_reload_system/src/feature/client/notification/domain/usecase/watch_unread_count.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/unread_count.cubit.dart';
+import 'package:smart_reload_system/src/feature/client/profile/data/datasource/profile.remote_datasource.dart';
+import 'package:smart_reload_system/src/feature/client/profile/data/repository/profile.repo_impl.dart';
+import 'package:smart_reload_system/src/feature/client/profile/domain/repository/profile.repo.dart';
+import 'package:smart_reload_system/src/feature/client/profile/domain/usecase/update_password.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/profile/domain/usecase/update_profile.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/profile/presentation/bloc/profile.bloc.dart';
 
 
 final sl = GetIt.instance;
@@ -56,12 +63,14 @@ Future<void> init() async{
   sl.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl(sl()));
   sl.registerLazySingleton<HomeRemoteDataSource>(() => HomeRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<NotificationRemoteDataSource>(() => NotificationRemoteDataSourceImpl(sl()));
+  sl.registerLazySingleton<ProfileRemoteDataSource>(() => ProfileRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()));
 
   /// Repository
   sl.registerLazySingleton<AuthRepo>(() => AuthRepoImpl(remoteDataSource: sl(), localDataSource: sl()));
   sl.registerLazySingleton<HomeRepo>(() => HomeRepoImpl(remoteDataSource: sl()));
   sl.registerLazySingleton<PaymentRepo>(() => PaymentRepoImpl(sl()));
   sl.registerLazySingleton<NotificationRepo>(() => NotificationRepoImpl(sl()));
+  sl.registerLazySingleton<ProfileRepo>(() => ProfileRepoImpl(remoteDataSource: sl()));
 
   /// Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -79,10 +88,19 @@ Future<void> init() async{
   sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
   sl.registerLazySingleton(() => MarkAsReadUseCase(sl()));
   sl.registerLazySingleton(() => MarkAllAsReadUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
+  sl.registerLazySingleton(() => UpdatePasswordUseCase(sl()));
+  sl.registerLazySingleton(() => VerifyEmailUseCase(sl()));
 
 
   /// Bloc
-  sl.registerLazySingleton(() => AuthBloc(loginUseCase: sl(), registerUseCase: sl(), logoutUseCase: sl(), reauthenticateUseCase: sl()));
+  sl.registerLazySingleton(() => AuthBloc(
+    loginUseCase: sl(),
+    registerUseCase: sl(),
+    logoutUseCase: sl(),
+    reauthenticateUseCase: sl(),
+    verifyEmailUseCase: sl(),
+  ));
   sl.registerLazySingleton(() => SessionCubit(watchAuthStateUseCase: sl(), getCachedUserUseCase: sl()));
   sl.registerLazySingleton(() => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()));
   sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl()));
@@ -90,5 +108,6 @@ Future<void> init() async{
   sl.registerLazySingleton(() => PaymentBloc(startPaymentUseCase: sl()));
   sl.registerLazySingleton(() => UnreadCountCubit(watchUnreadCountUseCase: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton(() => NotificationBloc(getNotificationsUseCase: sl(), markAsReadUseCase: sl(), markAllAsReadUseCase: sl()));
+  sl.registerLazySingleton(() => ProfileBloc(updateProfileUseCase: sl(), updatePasswordUseCase: sl()));
 
 }

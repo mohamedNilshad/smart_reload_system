@@ -14,6 +14,9 @@ import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/au
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/auth.state.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.state.dart';
+import 'package:smart_reload_system/src/feature/client/profile/presentation/bloc/profile.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/profile/presentation/bloc/profile.event.dart';
+import 'package:smart_reload_system/src/feature/client/profile/presentation/bloc/profile.state.dart';
 
 class EditProfileClientScreen extends StatefulWidget {
   const EditProfileClientScreen({super.key});
@@ -26,7 +29,6 @@ class _EditProfileClientScreenState extends State<EditProfileClientScreen> {
   final _formKey = GlobalKey<FormState>();
   final _passwordFormKey = GlobalKey<FormState>();
 
-
   final TextEditingController _passwordController = TextEditingController();
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
@@ -35,8 +37,10 @@ class _EditProfileClientScreenState extends State<EditProfileClientScreen> {
   late UserEntity user;
 
   bool enableBtn = false;
+  bool loadingBtn = false;
   final _isLoadingNotifier = ValueNotifier<bool>(false);
   double screenWidth = 0.0;
+  String btnText = "Update";
 
   @override
   void initState() {
@@ -54,6 +58,17 @@ class _EditProfileClientScreenState extends State<EditProfileClientScreen> {
     _phoneController.text = user.phoneNumber;
     _emailController.text = user.email;
     _nicController.text = user.nic;
+  }
+
+  void _setNewValues(){
+    setState(() {
+      user = user.copyWith(
+        newFullName : _nameController.text,
+        newPhoneNumber : _phoneController.text,
+        newEmail : _emailController.text,
+        newNic : _nicController.text,
+      );
+    });
   }
 
   void _validateNewValues(){
@@ -87,135 +102,163 @@ class _EditProfileClientScreenState extends State<EditProfileClientScreen> {
           child: CCard(
             child: Form(
               key: _formKey,
-              child: Column(
-                spacing: Sizes.spaceBtwInputField,
-                children: [
-                  CTextField(
-                    controller: _nameController,
-                    label: 'Name',
-                    hint: 'John Doe',
-                    keyboardType: TextInputType.text,
-                    prefixIcon: Icons.person_outline_rounded,
-                    onChanged: (v) {
-                      _validateNewValues();
-                      return;
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter your name';
-                      return null;
-                    },
-                  ),
-                  CTextField(
-                    controller: _phoneController,
-                    label: 'Phone Number',
-                    hint: '7xxxxxxxxxx',
-                    keyboardType: TextInputType.number,
-                    prefixIcon: Icons.phone_android,
-                    onChanged: (v) {
-                      _validateNewValues();
-                      return;
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter mobile number';
-                      return null;
-                    },
-                  ),
-                  CTextField(
-                    controller: _emailController,
-                    label: 'Email Address',
-                    hint: 'you@example.com',
-                    keyboardType: TextInputType.emailAddress,
-                    prefixIcon: Icons.mail_outline_rounded,
-                    onChanged: (v) {
-                      _validateNewValues();
-                      return;
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter email address';
-                      return null;
-                    },
-                  ),
-                  CTextField(
-                    controller: _nicController,
-                    label: 'NIC / ID Number',
-                    hint: '123456789V',
-                    keyboardType: TextInputType.text,
-                    prefixIcon: Icons.credit_card,
-                    onChanged: (v) {
-                      _validateNewValues();
-                      return;
-                    },
-                    validator: (value) {
-                      if (value == null || value.isEmpty) return 'Please enter your NIC / ID card';
-                      return null;
-                    },
-                  ),
+              child:  BlocListener<ProfileBloc, ProfileState>(
+                listener: (context, state) {
+                  loadingBtn = state is ProfileLoading;
 
-                  BlocListener<AuthBloc, AuthState>(
-                    listener: (context, state) {
-                      _isLoadingNotifier.value = state is AuthLoading;
+                  if (state is ProfileFailure) {
+                    AppSnackbar.showError(context, state.message);
 
-                      if (state is AuthFailureState) {
-                        AppSnackbar.showError(context, state.message, showUp: true); // wrong password, etc.
-                      } else if (state is ReauthenticationSuccess) {
-                        Navigator.of(context).pop();
-                        // context.read<AuthBloc>().add(
-                        //     UserEntity(
-                        //   fullName: _nameController.text.trim(),
-                        //   phoneNumber: _phoneController.text.trim(),
-                        //   email: _emailController.text.trim(),
-                        //   nic: _nicController.text.trim(),
-                        // ),
-                        // );
+                  } else if (state is ProfileUpdateSuccess) {
+                    _setNewValues();
+                    AppSnackbar.showSuccess(context, "Successfully updated!");
+                  }
+                },
+                child: Column(
+                  spacing: Sizes.spaceBtwInputField,
+                  children: [
+                    CTextField(
+                      controller: _nameController,
+                      label: 'Name',
+                      hint: 'John Doe',
+                      keyboardType: TextInputType.text,
+                      prefixIcon: Icons.person_outline_rounded,
+                      onChanged: (v) {
+                        _validateNewValues();
+                        return;
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'Please enter your name';
+                        return null;
+                      },
+                    ),
+                    CTextField(
+                      controller: _phoneController,
+                      label: 'Phone Number',
+                      hint: '7xxxxxxxxxx',
+                      keyboardType: TextInputType.number,
+                      prefixIcon: Icons.phone_android,
+                      readOnly: true,
+                      onChanged: (v) {
+                        _validateNewValues();
+                        return;
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'Please enter mobile number';
+                        return null;
+                      },
+                    ),
+                    CTextField(
+                      controller: _emailController,
+                      label: 'Email Address',
+                      hint: 'you@example.com',
+                      keyboardType: TextInputType.emailAddress,
+                      prefixIcon: Icons.mail_outline_rounded,
+                      readOnly: true,
+                      onChanged: (v) {
+                        _validateNewValues();
+                        return;
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'Please enter email address';
+                        return null;
+                      },
+                    ),
+                    CTextField(
+                      controller: _nicController,
+                      label: 'NIC / ID Number',
+                      hint: '123456789V',
+                      keyboardType: TextInputType.text,
+                      prefixIcon: Icons.credit_card,
+                      onChanged: (v) {
+                        _validateNewValues();
+                        return;
+                      },
+                      validator: (value) {
+                        if (value == null || value.isEmpty) return 'Please enter your NIC / ID card';
+                        return null;
+                      },
+                    ),
 
-                        // context.read<ProfileBloc>().add(
-                        //   ProfileUpdateRequested(
-                        //     fullName: fullNameController.text,
-                        //     phoneNumber: phoneController.text,
-                        //     nic: nicController.text,
-                        //   ),
-                        // );
-                      }
-                    },
-                    child: ElevatedButton(
-                      onPressed: !enableBtn ? null : () async {
-                        if (_formKey.currentState!.validate()) {
-                          FocusManager.instance.primaryFocus?.unfocus();
-                          AppBottomSheet.showForm(
-                            context,
-                            title: 'Enter Amount',
-                            form: Form(
-                              key: _passwordFormKey,
-                              child: CTextField(
-                                controller: _passwordController,
-                                label: 'Password',
-                                hint: '•••••••••',
-                                isPassword: true,
-                                keyboardType: TextInputType.visiblePassword,
-                                prefixIcon: Icons.lock_outline,
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) return 'Please enter password';
-                                  return null;
-                                },
-                              ),
+                    BlocListener<AuthBloc, AuthState>(
+                      listener: (context, state) {
+                        _isLoadingNotifier.value = state is AuthLoading;
+
+                        if (state is AuthFailureState) {
+                          AppSnackbar.showError(context, state.message, showUp: true); // wrong password, etc.
+                        } else if (state is ReauthenticationSuccess) {
+
+                          context.read<ProfileBloc>().add(
+                            ProfileUpdateRequested(
+                              isEmailChanged: user.email != _emailController.text.trim(),
+                              fullName: _nameController.text.trim(),
+                              phoneNumber: _phoneController.text.trim(),
+                              email: _emailController.text.trim(),
+                              nic: _nicController.text.trim(),
                             ),
-                            buttonText: 'Continue',
-                            isLoading: _isLoadingNotifier,
-                            onSubmit: () {
-                              if(_passwordFormKey.currentState!.validate()){
-                                FocusManager.instance.primaryFocus?.unfocus();
-                                context.read<AuthBloc>().add(ReauthenticateRequested(password: _passwordController.text));
-                              }
-                            },
                           );
+                          setState(() {
+                            enableBtn = true;
+                            btnText = "Update";
+                          });
+
+                          Navigator.of(context).pop();
                         }
                       },
+                      child: ElevatedButton(
+                        onPressed: !enableBtn || loadingBtn ? null : () async {
+                          if (_formKey.currentState!.validate()) {
+                            FocusManager.instance.primaryFocus?.unfocus();
+                            setState(() {
+                              enableBtn = false;
+                              btnText = "Waiting for confirm";
+                            });
 
-                      style: ElevatedButton.styleFrom(minimumSize: Size(screenWidth, Sizes.buttonHeight)),
-                      child: Text("Update"),
+                            await AppBottomSheet.showForm(
+                              context,
+                              title: 'Enter Password',
+                              form: Form(
+                                key: _passwordFormKey,
+                                child: CTextField(
+                                  controller: _passwordController,
+                                  label: 'Password',
+                                  hint: '•••••••••',
+                                  isPassword: true,
+                                  keyboardType: TextInputType.visiblePassword,
+                                  prefixIcon: Icons.lock_outline,
+                                  validator: (value) {
+                                    if (value == null || value.isEmpty) return 'Please enter password';
+                                    return null;
+                                  },
+                                ),
+                              ),
+                              buttonText: 'Continue',
+                              isLoading: _isLoadingNotifier,
+                              onSubmit: () {
+                                if(_passwordFormKey.currentState!.validate()){
+                                  FocusManager.instance.primaryFocus?.unfocus();
+                                  context.read<AuthBloc>().add(ReauthenticateRequested(password: _passwordController.text));
+                                }
+                              },
+                            );
+
+                            setState(() {
+                              enableBtn = true;
+                              btnText = "Update";
+                            });
+                          }
+                        },
+
+                        style: ElevatedButton.styleFrom(minimumSize: Size(screenWidth, Sizes.buttonHeight)),
+                        child: loadingBtn ? const SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                        ) : Text(btnText),
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

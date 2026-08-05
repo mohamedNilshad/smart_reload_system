@@ -4,6 +4,7 @@ class RouteConstants {
 
   static const String splashScreen = "SplashScreen";
   static const String loginClientScreen = "LoginClientScreen";
+  static const String forgotPasswordClientScreen = "ForgotPasswordClientScreen";
   static const String loginVendorScreen = "LoginVendorScreen";
   static const String registerClientScreen = "RegisterClientScreen";
   static const String registerVendorScreen = "RegisterVendorScreen";
@@ -15,5 +16,6 @@ class RouteConstants {
   static const String connectionDetailsClientScreen = "ConnectionDetailsClientScreen";
   static const String notificationClientScreen = "NotificationClientScreen";
   static const String editProfileClientScreen = "EditProfileClientScreen";
+  static const String resetPasswordClientScreen = "ResetPasswordClientScreen";
 
 }

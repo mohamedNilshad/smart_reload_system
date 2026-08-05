@@ -27,6 +27,16 @@ class AuthRepoImpl implements AuthRepo {
   }
 
   @override
+  Future<Either<Failure, bool>> forgotPassword(String email) async {
+    try {
+      await remoteDataSource.forgotPassword(email);
+      return Right(true);
+    } on ServerException catch (e) {
+      return Left(AuthFailure(e.message));
+    }
+  }
+
+  @override
   Future<Either<Failure, UserEntity>> register({
     required String fullName,
     required String phoneNumber,

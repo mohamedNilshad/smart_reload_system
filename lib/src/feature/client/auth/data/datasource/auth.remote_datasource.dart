@@ -15,6 +15,7 @@ abstract class AuthRemoteDataSource {
   });
 
   Future<void> reauthenticate(String password);
+  Future<void> forgotPassword(String email);
   Future<void> logout();
   Stream<UserEntity?> get authStateChanges;
 }
@@ -49,6 +50,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await FirebaseFirestore.instance.collection(_collection).doc(credential.user!.uid).update({"token":token});
 
       return UserEntity.fromJson(doc.data()!);
+    } on fb.FirebaseAuthException catch (e) {
+      throw ServerException(_mapFirebaseError(e));
+    }
+  }
+
+  @override
+  Future<void> forgotPassword(String email) async {
+    try {
+      final existing = await firestore.collection('phone_lookup').where('email', isEqualTo: email).get();
+
+      if (existing.docs.isEmpty) {
+        throw ServerException('Email not found');
+      }
+      await firebaseAuth.sendPasswordResetEmail(email: email);
+
     } on fb.FirebaseAuthException catch (e) {
       throw ServerException(_mapFirebaseError(e));
     }
@@ -112,13 +128,30 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   @override
   Future<void> logout() async => firebaseAuth.signOut();
 
+  // @override
+  // Stream<UserEntity?> get authStateChanges {
+  //   return firebaseAuth.authStateChanges().asyncMap((fbUser) async {
+  //     if (fbUser == null) return null;
+  //     final doc = await firestore.collection(_collection).doc(fbUser.uid).get();
+  //     if (!doc.exists) return null; // profile missing/deleted — treat as logged out
+  //     return UserEntity.fromJson(doc.data()!);
+  //   });
+  // }
+
   @override
   Stream<UserEntity?> get authStateChanges {
-    return firebaseAuth.authStateChanges().asyncMap((fbUser) async {
-      if (fbUser == null) return null;
-      final doc = await firestore.collection(_collection).doc(fbUser.uid).get();
-      if (!doc.exists) return null; // profile missing/deleted — treat as logged out
-      return UserEntity.fromJson(doc.data()!);
+    return firebaseAuth.authStateChanges().asyncExpand((fbUser) {
+      if (fbUser == null) return Stream.value(null);
+
+      // Switch to a real-time Firestore listener on the user's doc.
+      // This fires immediately with current data, then again on ANY
+      // field change (fullName, nic, phone, etc.).
+
+      return firestore
+          .collection(_collection)
+          .doc(fbUser.uid)
+          .snapshots()
+          .map((doc) => doc.exists ? UserEntity.fromJson(doc.data()!) : null);
     });
   }
 

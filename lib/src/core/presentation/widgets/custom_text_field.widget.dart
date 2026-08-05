@@ -7,6 +7,7 @@ class CTextField extends StatefulWidget {
   final String label;
   final String hint;
   final bool isPassword;
+  final bool readOnly;
   final TextInputType keyboardType;
   final IconData? prefixIcon;
   final String? Function(String?)? validator;
@@ -18,6 +19,7 @@ class CTextField extends StatefulWidget {
     required this.label,
     required this.hint,
     this.isPassword = false,
+    this.readOnly = false,
     this.keyboardType = TextInputType.text,
     this.prefixIcon,
     this.validator,
@@ -50,14 +52,15 @@ class _CTextFieldState extends State<CTextField> {
           keyboardType: widget.keyboardType,
           validator: widget.validator,
           onChanged: widget.onChanged,
+          readOnly: widget.readOnly,
           decoration: InputDecoration(
             hintText: widget.hint,
             prefixIcon: widget.prefixIcon != null ? Icon(widget.prefixIcon, size: 20) : null,
             suffixIcon: !widget.isPassword ? null : IconButton(
                 onPressed: () => setState(() => obscureText = !obscureText),
                 icon: Icon(obscureText ? Icons.visibility : Icons.visibility_off)),
-            // filled: true,
-            // fillColor: Colors.grey[100],
+            filled: widget.readOnly,
+            fillColor: widget.readOnly ? Colors.grey[100] : null,
           ),
         ),
       ],

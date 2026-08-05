@@ -90,7 +90,9 @@ class _LoginClientScreenState extends State<LoginClientScreen> {
                                   Align(
                                     alignment: AlignmentGeometry.centerRight,
                                     child: TextButton(
-                                      onPressed: (){},
+                                      onPressed: (){
+                                        Navigator.pushNamed(context, RouteConstants.forgotPasswordClientScreen);
+                                      },
                                       child: Text("Forgot Password?"),
                                     ),
                                   ),

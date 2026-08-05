@@ -84,6 +84,7 @@ class AppBottomSheet {
       context: context,
       isScrollControlled: true,
       showDragHandle: false,
+
       backgroundColor: Colors.transparent,
       builder: (_) => _BottomSheetShell(
         child: _FormContent(

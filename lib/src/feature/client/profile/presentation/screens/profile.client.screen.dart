@@ -33,12 +33,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   @override
   void initState() {
+    _initValues();
+    super.initState();
+  }
+
+  void _initValues(){
     final sessionState = context.read<SessionCubit>().state;
     if (sessionState is SessionAuthenticated) {
       user = sessionState.user;
     }
 
-    super.initState();
   }
 
   @override
@@ -85,7 +89,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     children: [
                       buildOption(
                         onTap: () {
-                          Navigator.of(context).pushNamed(RouteConstants.editProfileClientScreen);
+                          Navigator.of(context).pushNamed(RouteConstants.editProfileClientScreen).then((_){
+                            _initValues();
+                          });
                         },
                         context,
                         icon: SvgStrings.user,
@@ -95,6 +101,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       Divider(),
                       buildOption(
+                        onTap: () {
+                          Navigator.of(context).pushNamed(RouteConstants.resetPasswordClientScreen);
+                        },
                         context,
                         icon: SvgStrings.shield,
                         leadColor: AppColors.purple,

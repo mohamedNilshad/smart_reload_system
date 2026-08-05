@@ -4,12 +4,14 @@ import 'package:smart_reload_system/src/core/presentation/screens/main.client.sc
 import 'package:smart_reload_system/src/core/presentation/screens/splash.screen.dart';
 import 'package:smart_reload_system/src/core/presentation/screens/unknown.screen.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
+import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/verify_email_client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection_details.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/screens/notifications.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/edit_profile.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/profile.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/login_client.screen.dart';
+import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/reset_password.client.screen.dart';
 import 'package:smart_reload_system/src/feature/vendor/auth/presentation/screens/login_vendor.screen.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/register_client.screen.dart';
 import 'package:smart_reload_system/src/feature/vendor/auth/presentation/screens/register_vendor.screen.dart';
@@ -36,6 +38,11 @@ class AppRouter {
           builder: (context) => LoginVendorScreen(),
         );
 
+      case RouteConstants.forgotPasswordClientScreen:
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.forgotPasswordClientScreen),
+          builder: (context) => ForgotPasswordClientScreen(),
+        );
 
       case RouteConstants.registerVendorScreen:
         return MaterialPageRoute(
@@ -111,6 +118,12 @@ class AppRouter {
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.editProfileClientScreen),
           builder: (context) => const EditProfileClientScreen(),
+        );
+
+      case RouteConstants.resetPasswordClientScreen:
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.resetPasswordClientScreen),
+          builder: (context) => const ResetPasswordClientScreen(),
         );
     }
 
