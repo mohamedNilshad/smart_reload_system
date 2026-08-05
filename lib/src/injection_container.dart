@@ -7,6 +7,7 @@ import 'package:smart_reload_system/src/core/data/datasource/payment.remote_data
 import 'package:smart_reload_system/src/core/data/repository/payment.repo_impl.dart';
 import 'package:smart_reload_system/src/core/domain/repositories/payment.repo.dart';
 import 'package:smart_reload_system/src/core/domain/usecases/start_payment.usecase.dart';
+import 'package:smart_reload_system/src/core/services/notification.service.dart';
 import 'package:smart_reload_system/src/feature/client/auth/data/datasource/auth.local_datasource.dart';
 import 'package:smart_reload_system/src/feature/client/auth/data/datasource/auth.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/client/auth/data/repositories/auth.repo_impl.dart';
@@ -37,6 +38,7 @@ Future<void> init() async{
   sl.registerLazySingleton(() => fb.FirebaseAuth.instance);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
   sl.registerLazySingleton(() => const FlutterSecureStorage());
+  sl.registerLazySingleton(() => NotificationService());
 
   /// Data source
   sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(firebaseAuth: sl(), firestore: sl()));
