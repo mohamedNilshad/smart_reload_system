@@ -5,6 +5,7 @@ import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/custom_elevated_button.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_card.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text_field.widget.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
@@ -205,7 +206,7 @@ class _EditProfileClientScreenState extends State<EditProfileClientScreen> {
                           Navigator.of(context).pop();
                         }
                       },
-                      child: ElevatedButton(
+                      child: CElevatedButton(
                         onPressed: !enableBtn || loadingBtn ? null : () async {
                           if (_formKey.currentState!.validate()) {
                             FocusManager.instance.primaryFocus?.unfocus();
@@ -248,13 +249,8 @@ class _EditProfileClientScreenState extends State<EditProfileClientScreen> {
                             });
                           }
                         },
-
-                        style: ElevatedButton.styleFrom(minimumSize: Size(screenWidth, Sizes.buttonHeight)),
-                        child: loadingBtn ? const SizedBox(
-                          width: 20,
-                          height: 20,
-                          child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-                        ) : Text(btnText),
+                        isLoading: loadingBtn,
+                        label: btnText,
                       ),
                     ),
                   ],

@@ -15,9 +15,9 @@ class ConnectionCard extends StatelessWidget {
   final String conType;
   final String? conPlan;
   final bool status;
-  final DateTime lastDate;
+  final DateTime? lastDate;
   final void Function()? onReloadTap;
-  const ConnectionCard({super.key, required this.conNumber, required this.status, required this.conName, required this.conType, this.conPlan, required this.onReloadTap, required this.lastDate});
+  const ConnectionCard({super.key, required this.conNumber, required this.status, required this.conName, required this.conType, this.conPlan, required this.onReloadTap, this.lastDate});
 
   @override
   Widget build(BuildContext context) {
@@ -81,10 +81,13 @@ class ConnectionCard extends StatelessWidget {
                       width: 18,
                       colorFilter: ColorFilter.mode(AppColors.accent, BlendMode.srcIn),
                     ),
-                    LabelText(
-                      text: "Last reload ${HelperFunctions.formatRelativeDate(lastDate)}",
-                      color: AppColors.darkGrey,
-                    ),
+                    if(lastDate != null)...{
+                      LabelText(
+                        text: "Last reload ${HelperFunctions.formatRelativeDate(lastDate)}",
+                        color: AppColors.darkGrey,
+                      ),
+                    },
+
                     Spacer(),
 
                     InkWell(

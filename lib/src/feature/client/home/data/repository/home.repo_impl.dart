@@ -62,4 +62,17 @@ class HomeRepoImpl implements HomeRepo {
       return Left(ServerFailure('An unexpected error occurred'));
     }
   }
+
+  @override
+  Future<Either<Failure, bool>> addNewConnection(ConnectionModel connectionModel) async {
+    try {
+      final result = await remoteDataSource.addNewConnection(connectionModel);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('An unexpected error occurred'));
+    }
+  }
+
 }

@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 
 abstract class ConnectionEvent extends Equatable {
   const ConnectionEvent();
@@ -17,4 +18,12 @@ class ConnectionsRequested extends ConnectionEvent {
 
 class ConnectionsReset extends ConnectionEvent {
   const ConnectionsReset();
+}
+
+class AddNewConnectionRequested extends ConnectionEvent {
+  final ConnectionModel connectionModel;
+  const AddNewConnectionRequested(this.connectionModel);
+
+  @override
+  List<Object?> get props => [connectionModel];
 }

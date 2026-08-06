@@ -10,4 +10,5 @@ abstract class HomeRepo {
   Future<Either<Failure, List<VendorModel>>> getVendors();
   Future<Either<Failure, List<ConnectionModel>>> getConnections(String clientVendorId);
   Future<Either<Failure, bool>> requestPackage(PackageRequestModel packageRequestModel);
+  Future<Either<Failure, bool>> addNewConnection(ConnectionModel connectionModel);
 }

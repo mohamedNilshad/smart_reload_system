@@ -5,10 +5,12 @@ import 'package:smart_reload_system/src/core/bloc/payment/payment.event.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/custom_elevated_button.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loading.widget.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.event.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.state.dart' as c;
@@ -30,12 +32,24 @@ class ConnectionClientScreen extends StatefulWidget {
 class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
   final amountController = TextEditingController();
   double screenWidth = 0.0;
+  final List<Map<String, String>> connectionsNumbers = [];
 
   @override
   void initState() {
     super.initState();
     context.read<ConnectionBloc>().add(const ConnectionsReset());
     context.read<ConnectionBloc>().add(ConnectionsRequested(widget.clientVendorId));
+  }
+
+  void initValues(List<ConnectionModel> connections){
+    connectionsNumbers.clear();
+    for (var connection in connections) {
+      connectionsNumbers.add({
+        'category': connection.connectionCategory,
+        'number': connection.connectionNumber,
+      });
+    }
+
   }
 
   @override
@@ -94,9 +108,11 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                 return const Center(child: Text('No connections found.'));
               }
 
+              initValues(state.connections);
+
               return SingleChildScrollView(
                 child: Padding(
-                  padding: const EdgeInsets.all(Sizes.ssm),
+                  padding: const EdgeInsets.fromLTRB(Sizes.ssm, Sizes.ssm, Sizes.ssm, 100 ),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     spacing: 10.0,
@@ -110,11 +126,11 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                             arguments: (
                             clientVendorId: connection.clientVendorId,
                             connectionId: connection.id,
-                            conName: connection.conName,
-                            conNumber: connection.conNumber,
+                            conName: connection.connectionName,
+                            conNumber: connection.connectionNumber,
                             status: connection.status,
-                            conType: connection.conType,
-                            conPlan: connection.conPlan,
+                            conType: connection.connectionType,
+                            conPlan: connection.billingType,
                           ),
                           );
                         },
@@ -164,12 +180,12 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                               }
                             }
                           },
-                          conNumber: connection.conNumber,
-                          lastDate: connection.lastDate,
-                          conName: connection.conName,
+                          conNumber: connection.connectionNumber,
+                          lastDate: connection.lastReloadDate,
+                          conName: connection.connectionName,
                           status: connection.status,
-                          conType: connection.conType,
-                          conPlan: connection.conPlan,
+                          conType: connection.connectionType,
+                          conPlan: connection.billingType,
                         ),
                       );
                     }).toList(),
@@ -182,6 +198,26 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
           },
         ),
       ),
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: Sizes.sm),
+        child: CElevatedButton(
+          onPressed: () {
+            Navigator.of(context).pushNamed(
+              RouteConstants.addNewConnectionClientScreen,
+              arguments: (clientVendorId: widget.clientVendorId, connectionNumbers: connectionsNumbers)
+            ).then((result){
+
+              if(result != null && result == true){
+                context.read<ConnectionBloc>().add(const ConnectionsReset());
+                context.read<ConnectionBloc>().add(ConnectionsRequested(widget.clientVendorId));
+              }
+            });
+          },
+          label: "Add new connection",
+        ),
+      ),
+
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
     );
   }
 }

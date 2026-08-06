@@ -6,6 +6,7 @@ import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/custom_elevated_button.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_chip.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/body_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_headline_text.widget.dart';
@@ -265,9 +266,10 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
               ),
             ),
           ),
+
           floatingActionButton: Padding(
             padding: const EdgeInsets.symmetric(horizontal: Sizes.sm),
-            child: ElevatedButton(
+            child: CElevatedButton(
               onPressed: () async {
                 final result = await AppBottomSheet.showRadioSelect(
                   context,
@@ -315,12 +317,10 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                   }
                 }
               },
-              style: ElevatedButton.styleFrom(
-                minimumSize: Size(screenWidth, Sizes.buttonHeight)
-              ),
-              child: Text("Request Reload"),
+              label: "Request Reload",
             ),
           ),
+
           floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         ),
       ),

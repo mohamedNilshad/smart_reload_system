@@ -231,4 +231,12 @@ class HelperFunctions {
     return token;
   }
 
+  static List<String> makeEnumList<T extends Enum>(Iterable<T> enumValues) {
+    return enumValues.map((v) => v.name).toList();
+  }
+
+  static List<String> removeUnderscore(List<String> list) {
+
+    return list.map((v) => v.replaceAll("_", " ")).toList();
+  }
 }

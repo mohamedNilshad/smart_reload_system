@@ -11,6 +11,7 @@ abstract class HomeRemoteDataSource {
   Future<List<VendorModel>> getVendors();
   Future<List<ConnectionModel>> getConnections(String clientVendorId);
   Future<bool> requestPackage(PackageRequestModel packageRequestModel);
+  Future<bool> addNewConnection(ConnectionModel connectionModel);
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -104,35 +105,14 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           .get();
 
 
-      final connections = <ConnectionModel>[];
+      return connectionSnapshot.docs.map((doc) => ConnectionModel.fromJson(doc.data(), id: doc.id)).toList();
 
-      for (final doc in connectionSnapshot.docs) {
-        final data = doc.data();
-        final connectionTypeId = data['connectionTypeId'] as String?;
-        if (connectionTypeId != null) {
-          try {
-            final typeDoc = await firestore.collection('connection_type').doc(connectionTypeId).get();
-
-            if (typeDoc.exists) {
-              data['type'] = typeDoc['type'] as String? ?? "Unknown";
-              connections.add(ConnectionModel.fromJson(data, id: doc.id));
-            }
-          } catch (e) {
-            // Skip this vendor if user data fetch fails
-            continue;
-          }
-        }
-      }
-
-
-      return connections;
     } on FirebaseException catch (e) {
       throw ServerException(e.message ?? 'Failed to fetch connections');
     } catch (e) {
       throw ServerException('An error occurred while fetching connections');
     }
   }
-
 
   @override
   Future<bool> requestPackage(PackageRequestModel packageRequestModel) async {
@@ -146,6 +126,20 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       throw ServerException(e.message ?? 'Failed to fetch connections');
     } catch (e) {
       throw ServerException('An error occurred while fetching connections');
+    }
+  }
+
+  @override
+  Future<bool> addNewConnection(ConnectionModel connectionModel) async {
+    try {
+
+      await firestore.collection("connections").add(connectionModel.toJson());
+      //send push notification
+      return true;
+    } on FirebaseException catch (e) {
+      throw ServerException(e.message ?? 'Failed to add connections');
+    } catch (e) {
+      throw ServerException('An error occurred while adding connections');
     }
   }
 }

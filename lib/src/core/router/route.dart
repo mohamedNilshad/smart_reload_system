@@ -6,6 +6,7 @@ import 'package:smart_reload_system/src/core/presentation/screens/unknown.screen
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/verify_email_client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection_details.client.screen.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/screens/widgets/add_new_connection.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/screens/notifications.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/edit_profile.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/profile.client.screen.dart';
@@ -74,6 +75,18 @@ class AppRouter {
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.connectionClientScreen),
           builder: (context) => ConnectionClientScreen(name: args.name, clientVendorId: args.clientVendorId),
+        );
+
+      case RouteConstants.addNewConnectionClientScreen:
+
+        final args = settings.arguments as ({
+          String clientVendorId,
+          List<Map<String, String>> connectionNumbers,
+        });
+
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.addNewConnectionClientScreen),
+          builder: (context) => AddNewConnectionClientScreen(clientVendorId: args.clientVendorId, connectionNumbers: args.connectionNumbers),
         );
 
       case RouteConstants.connectionDetailsClientScreen:

@@ -20,7 +20,7 @@ class CDropDown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return DropdownButtonFormField<String>(
-      value: selectedType,
+      initialValue: selectedType,
       borderRadius: BorderRadius.circular(Sizes.sm),
       items: items.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(

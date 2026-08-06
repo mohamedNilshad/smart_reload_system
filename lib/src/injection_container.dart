@@ -24,6 +24,7 @@ import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/se
 import 'package:smart_reload_system/src/feature/client/home/data/datasource/home.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/repository/home.repo_impl.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/repository/home.repo.dart';
+import 'package:smart_reload_system/src/feature/client/home/domain/usecase/add_new_connection.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_banner_news.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_connections.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_vendors.usecase.dart';
@@ -91,6 +92,7 @@ Future<void> init() async{
   sl.registerLazySingleton(() => UpdateProfileUseCase(sl()));
   sl.registerLazySingleton(() => UpdatePasswordUseCase(sl()));
   sl.registerLazySingleton(() => VerifyEmailUseCase(sl()));
+  sl.registerLazySingleton(() => AddNewConnectionUseCase(sl()));
 
 
   /// Bloc
@@ -103,7 +105,7 @@ Future<void> init() async{
   ));
   sl.registerLazySingleton(() => SessionCubit(watchAuthStateUseCase: sl(), getCachedUserUseCase: sl()));
   sl.registerLazySingleton(() => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()));
-  sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl()));
+  sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl(), addNewConnectionUseCase: sl()));
   sl.registerLazySingleton(() => PackageRequestBloc(requestPackageUseCase: sl()));
   sl.registerLazySingleton(() => PaymentBloc(startPaymentUseCase: sl()));
   sl.registerLazySingleton(() => UnreadCountCubit(watchUnreadCountUseCase: sl(), firebaseAuth: sl()));
