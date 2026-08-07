@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/presentation/effects/arc_painter.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/seeder_button.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.state.dart';
@@ -110,6 +111,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
 
     final state = _pendingSessionState!;
     if (state is SessionAuthenticated) {
+      FloatingButtonOverlay.show(context);
       Navigator.of(context).pushReplacementNamed(RouteConstants.mainClientScreen);
     } else if (state is SessionUnauthenticated) {
       Navigator.of(context).pushReplacementNamed(RouteConstants.loginClientScreen);

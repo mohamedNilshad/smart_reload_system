@@ -12,7 +12,7 @@ import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/au
 import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.bloc.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package_request/package_request.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/packaget.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/unread_count.cubit.dart';
 import 'package:smart_reload_system/src/feature/client/profile/presentation/bloc/profile.bloc.dart';
@@ -32,7 +32,7 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => sl<HomeBloc>()),
         BlocProvider(create: (_) => sl<ConnectionBloc>()),
         BlocProvider(create: (_) => sl<PaymentBloc>()),
-        BlocProvider(create: (_) => sl<PackageRequestBloc>()),
+        BlocProvider(create: (_) => sl<PackageBloc>()),
         BlocProvider(create: (_) => sl<NotificationBloc>()),
         BlocProvider(create: (_) => sl<UnreadCountCubit>()),
         BlocProvider(create: (_) => sl<ProfileBloc>()),

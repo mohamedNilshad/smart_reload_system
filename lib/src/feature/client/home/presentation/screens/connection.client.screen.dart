@@ -206,7 +206,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
           onPressed: () {
             Navigator.of(context).pushNamed(
               RouteConstants.addNewConnectionClientScreen,
-              arguments: (clientVendorId: widget.clientVendorId, connectionNumbers: connectionsNumbers)
+              arguments: (id: widget.clientVendorId, connectionNumbers: connectionsNumbers)
             ).then((result){
 
               if(result != null && result == true && context.mounted){

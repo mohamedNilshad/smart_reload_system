@@ -7,6 +7,7 @@ import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/verify_email_client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection_details.client.screen.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/screens/package_details.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/widgets/add_new_connection.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/screens/notifications.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/edit_profile.client.screen.dart';
@@ -97,6 +98,15 @@ class AppRouter {
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.connectionDetailsClientScreen),
           builder: (context) => ConnectionDetailsClientScreen(connectionModel: connectionModel),
+        );
+
+      case RouteConstants.packageDetailsClientScreen:
+
+        final connectionModel = settings.arguments as ConnectionModel;
+
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.packageDetailsClientScreen),
+          builder: (context) => PackageDetailsClientScreen(connectionModel: connectionModel),
         );
 
       case RouteConstants.settingsScreen:

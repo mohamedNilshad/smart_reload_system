@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/banner_news.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
 
@@ -12,6 +13,7 @@ abstract class HomeRemoteDataSource {
   Future<List<ConnectionModel>> getConnections(String clientVendorId);
   Future<bool> requestPackage(PackageRequestModel packageRequestModel);
   Future<bool> addNewConnection(ConnectionModel connectionModel);
+  Future<List<PackageModel>> getPackages(String type, String serviceProvider);
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -142,4 +144,27 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       throw ServerException('An error occurred while adding connections');
     }
   }
+
+  @override
+  Future<List<PackageModel>> getPackages(String type, String serviceProvider) async {
+    try {
+
+      final packageSnapshot = await firestore
+          .collection('package_details')
+          .where('telecomType', isEqualTo: type)
+          .where('serviceProvider', isEqualTo: serviceProvider)
+          .get();
+
+
+
+      return packageSnapshot.docs.map((doc) => PackageModel.fromJson(doc.data(), id: doc.id)).toList();
+
+    } on FirebaseException catch (e) {
+      throw ServerException(e.message ?? 'Failed to fetch packages');
+    } catch (e) {
+      print(e);
+      throw ServerException('An error occurred while fetching packages');
+    }
+  }
+
 }

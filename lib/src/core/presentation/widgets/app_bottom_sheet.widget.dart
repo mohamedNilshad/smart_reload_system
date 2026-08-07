@@ -53,8 +53,11 @@ class AppBottomSheet {
         required String title,
         required String subtitle,
         String buttonText = 'OK',
+        List<String>? points,
         VoidCallback? onPressed,
+        ValueNotifier<bool>? isLoading,
       }) {
+
     return showModalBottomSheet(
       context: context,
       isScrollControlled: true,
@@ -65,6 +68,8 @@ class AppBottomSheet {
           title: title,
           subtitle: subtitle,
           buttonText: buttonText,
+          points: points ?? [],
+          isLoading: isLoading ?? ValueNotifier<bool>(false),
           onPressed: onPressed,
         ),
       ),
@@ -84,7 +89,6 @@ class AppBottomSheet {
       context: context,
       isScrollControlled: true,
       showDragHandle: false,
-
       backgroundColor: Colors.transparent,
       builder: (_) => _BottomSheetShell(
         child: _FormContent(
@@ -103,6 +107,7 @@ class AppBottomSheet {
   static Future<String?> showRadioSelect(
       BuildContext context, {
         required String title,
+        bool askConfirm = true,
         required List<String> options,
         String? selectedValue,
       }) {
@@ -114,6 +119,7 @@ class AppBottomSheet {
       builder: (_) => _BottomSheetShell(
         child: _RadioSelectContent(
           title: title,
+          askConfirm: askConfirm,
           options: options,
           selectedValue: selectedValue,
         ),
@@ -169,32 +175,66 @@ class _InfoContent extends StatelessWidget {
   final String title;
   final String subtitle;
   final String buttonText;
+  final List<String> points;
+  final ValueNotifier<bool> isLoading;
   final VoidCallback? onPressed;
 
   const _InfoContent({
     required this.title,
     required this.subtitle,
     required this.buttonText,
+    required this.points,
     this.onPressed,
+    required this.isLoading,
   });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TitleText(text: title, textAlign: TextAlign.center),
-        const SizedBox(height: 8),
+        TitleText(text: title),
+        const SizedBox(height: Sizes.sm),
 
         BodyText(text: subtitle, textAlign: TextAlign.center, color: AppColors.darkerGrey),
+
+        if(points.isNotEmpty)...{
+          Padding(
+            padding: EdgeInsetsGeometry.only(left: Sizes.xs),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: points.map((p){
+                return Row(
+                  children: [
+                    Icon(Icons.arrow_right_outlined, size: 20,),
+                    Flexible(child: BodyText(text: p, color: AppColors.darkGrey, size: 11,)),
+                  ],
+                );
+              }).toList(),
+            ),
+          ),
+        },
+
         const SizedBox(height: 24),
 
-        ElevatedButton(
-          onPressed: onPressed ?? () => Navigator.of(context).pop(),
-          style: ElevatedButton.styleFrom(
-            minimumSize: Size(HelperFunctions.screenWidth(context), Sizes.buttonHeight),
-          ),
-          child: Text(buttonText),
+        ValueListenableBuilder<bool>(
+            valueListenable: isLoading,
+            builder: (context, loading, _) {
+
+              return ElevatedButton(
+                onPressed: loading ? null : (onPressed ?? () => Navigator.of(context).pop()),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(HelperFunctions.screenWidth(context), Sizes.buttonHeight),
+                ),
+                child:  loading ?
+                const SizedBox(
+                  width: 20,
+                  height: 20,
+                  child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                ) : Text(buttonText),
+              );
+            }
         ),
       ],
     );
@@ -253,11 +293,13 @@ class _FormContent extends StatelessWidget {
 
 class _RadioSelectContent extends StatefulWidget {
   final String title;
+  final bool askConfirm;
   final List<String> options;
   final String? selectedValue;
 
   const _RadioSelectContent({
     required this.title,
+    required this.askConfirm,
     required this.options,
     this.selectedValue,
   });
@@ -290,7 +332,12 @@ class _RadioSelectContentState extends State<_RadioSelectContent> {
             padding: const EdgeInsets.only(bottom: 10),
             child: InkWell(
               borderRadius: BorderRadius.circular(14),
-              onTap: () => setState(() => _selected = option),
+              onTap: () {
+                setState(() => _selected = option);
+                if(!widget.askConfirm) {
+                  Navigator.of(context).pop(option);
+                }
+              },
               child: Container(
                 padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
                 decoration: BoxDecoration(
@@ -322,14 +369,18 @@ class _RadioSelectContentState extends State<_RadioSelectContent> {
             ),
           );
         }),
-        const SizedBox(height: 12),
-        ElevatedButton(
-          onPressed: _selected == null ? null : () => Navigator.of(context).pop(_selected),
-          style: ElevatedButton.styleFrom(
-            minimumSize: Size(HelperFunctions.screenWidth(context), Sizes.buttonHeight),
+
+        if(widget.askConfirm)...{
+          const SizedBox(height: 12),
+          ElevatedButton(
+            onPressed: _selected == null ? null : () => Navigator.of(context).pop(_selected),
+            style: ElevatedButton.styleFrom(
+              minimumSize: Size(HelperFunctions.screenWidth(context), Sizes.buttonHeight),
+            ),
+            child: const Text('Confirm'),
           ),
-          child: const Text('Confirm'),
-        ),
+
+        }
       ],
     );
   }

@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
+import 'package:smart_reload_system/src/core/enums/connection_data.enum.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
@@ -13,13 +14,15 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/su
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
+import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package_request/package_request.bloc.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package_request/package_request.event.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package_request/package_request.state.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/screens/widgets/package_card.widget.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/packaget.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/package.event.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/package.state.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/screens/widgets/activated_package_card.widget.dart';
 
 class ConnectionDetailsClientScreen extends StatefulWidget {
   final ConnectionModel connectionModel;
@@ -35,13 +38,42 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
   final _isLoadingNotifier = ValueNotifier<bool>(false);
   late final ConnectionModel connectionModel;
 
+  bool fetchingPackages = false;
+  List<PackageModel> packageDetails = [];
+  List<PackageModel> dataPackages = [];
+  List<PackageModel> voicePackages = [];
+  List<PackageModel> comboPackages = [];
+
   int expandId = -1;
   double screenWidth = 0.0;
 
   @override
   void initState() {
     connectionModel = widget.connectionModel;
+
+    context.read<PackageBloc>().add(FetchPackages(
+        type: connectionModel.connectionType,
+        serviceProvider: connectionModel.serviceProvider!
+    ));
     super.initState();
+  }
+  
+  void initValue(){
+    setState(() {
+      for (var p in packageDetails) {
+        if(p.packageType == PackageType.Data.name){
+          dataPackages.add(p);
+        }else if(p.packageType == PackageType.Voice.name){
+          voicePackages.add(p);
+        }else if(p.packageType == PackageType.Combo.name){
+          comboPackages.add(p);
+        }
+      }
+      fetchingPackages = false;
+      // dataPackages = packageDetails.where((p) => p.packageType == PackageType.Data.name).toList();
+      // voicePackages = packageDetails.where((p) => p.packageType == PackageType.Voice.name).toList();
+      // comboPackages = packageDetails.where((p) => p.packageType == PackageType.Combo.name).toList();
+    });
   }
 
   @override
@@ -56,18 +88,29 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
     screenWidth = HelperFunctions.screenWidth(context);
     return DefaultTabController(
       length: 3,
-      child: BlocListener<PackageRequestBloc, PackageRequestState>(
+      child: BlocListener<PackageBloc, PackageState>(
         listener: (context, state) {
-          _isLoadingNotifier.value = state is PackageRequestLoading;
+          if(state is PackageLoading){
+            _isLoadingNotifier.value = state.requesting;
+            fetchingPackages = state.fetching;
+          }
 
-          if (state is PackageRequestSuccess) {
-            Navigator.of(context).pop();
-            AppSnackbar.showSuccess(context, 'Reload request submitted!');
+          if (state is PackageSuccess) {
+            if((state.isRequested != null) && (state.isRequested == true)){
+              Navigator.of(context).pop();
+              AppSnackbar.showSuccess(context, 'Reload request submitted!');
+            }
+            if(state.packages != null){
+              packageDetails = state.packages!;
+              initValue();
+            }
 
-          } else if (state is PackageRequestFailure) {
+          } else if (state is PackageFailure) {
+            setState(() => fetchingPackages = false);
             AppSnackbar.showError(context, state.message);
           }
         },
+
         child: Scaffold(
           appBar: customAppBar(
             onPressed: () => Navigator.of(context).pop(),
@@ -192,11 +235,11 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                   children: [
                     /// Data
                     ListView.builder(
-                      itemCount: 10,
+                      itemCount: dataPackages.length,
                       itemBuilder: (context, index){
                         return Padding(
                           padding:  EdgeInsets.only(bottom: (index == 9) ? 80 : 0.0),
-                          child: PackageCard(
+                          child: ActivatedPackageCard(
                             onTap: () {
                               if(expandId == index) {
                                 setState(() => expandId = -1);
@@ -204,11 +247,11 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                                 setState(() => expandId = index);
                               }
                             },
-                            title: "30-Day Unlimited Data",
-                            subtitle: "Rs. 699",
+                            title: dataPackages[index].packageName,
+                            subtitle: dataPackages[index].packagePrice.toString(),
                             expDate: DateTime(2026, 4),
                             isExpand: expandId == index,
-                            description: "High-speed data, then reduced speeds after the included quota is used.",
+                            description: dataPackages[index].packageDescription,
 
                           ),
                         );
@@ -217,11 +260,11 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
 
                     /// Voice
                     ListView.builder(
-                      itemCount: 10,
+                      itemCount: voicePackages.length,
                       itemBuilder: (context, index){
                         return Padding(
                           padding:  EdgeInsets.only(bottom: (index == 9) ? 80 : 0.0),
-                          child: PackageCard(
+                          child: ActivatedPackageCard(
                             onTap: () {
                               if(expandId == index) {
                                 setState(() => expandId = -1);
@@ -229,11 +272,11 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                                 setState(() => expandId = index);
                               }
                             },
-                            title: "Unlimited Voice",
-                            subtitle: "Rs. 549",
+                            title: voicePackages[index].packageName,
+                            subtitle: voicePackages[index].packagePrice.toString(),
                             expDate: DateTime(2026, 4),
                             isExpand: expandId == index,
-                            description: "Valid for local calls. International calls are charged separately.",
+                            description: voicePackages[index].packageDescription,
                           ),
                         );
                       },
@@ -242,11 +285,11 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
 
                     /// Combo
                     ListView.builder(
-                      itemCount: 10,
+                      itemCount: comboPackages.length,
                       itemBuilder: (context, index){
                         return Padding(
                           padding:  EdgeInsets.only(bottom: (index == 9) ? 80 : 0.0),
-                          child: PackageCard(
+                          child: ActivatedPackageCard(
                             onTap: () {
                               if(expandId == index) {
                                 setState(() => expandId = -1);
@@ -254,11 +297,11 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                                 setState(() => expandId = index);
                               }
                             },
-                            title: "Unlimited Voice & Data",
-                            subtitle: "Rs. 1599",
+                            title: comboPackages[index].packageName,
+                            subtitle: comboPackages[index].packagePrice.toString(),
                             expDate: DateTime(2026, 4),
                             isExpand: expandId == index,
-                            description: "Valid for local calls. International calls are charged separately.",
+                            description: comboPackages[index].packageDescription,
                           ),
                         );
                       },
@@ -282,13 +325,14 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                 final result = await AppBottomSheet.showRadioSelect(
                   context,
                   title: 'Choose',
+                  askConfirm: false,
                   options: ['Select a package', 'Enter Amount'],
-                  selectedValue: 'Select a package',
+                  selectedValue: '',
                 );
 
                 if (result != null) {
-                  if(result == 'Select a package'){
-                    //navigate to package screen
+                  if(result == 'Select a package' && context.mounted){
+                    Navigator.of(context).pushNamed(RouteConstants.packageDetailsClientScreen, arguments: connectionModel);
                   }else{
                     amountController.clear();
                     AppBottomSheet.showForm(
@@ -318,7 +362,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                             amount: double.parse(amountController.text),
                           );
 
-                          context.read<PackageRequestBloc>().add(PackageRequest(data),);
+                          context.read<PackageBloc>().add(PackageRequest(data));
                         }
                       },
                     );

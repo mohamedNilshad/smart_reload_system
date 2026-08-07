@@ -27,11 +27,12 @@ import 'package:smart_reload_system/src/feature/client/home/domain/repository/ho
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/add_new_connection.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_banner_news.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_connections.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_packages.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_vendors.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/request_package.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.bloc.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package_request/package_request.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/packaget.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/notification/data/datasource/notification.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/client/notification/data/repository/notification.repo_impl.dart';
 import 'package:smart_reload_system/src/feature/client/notification/domain/repository/notification.repo.dart';
@@ -85,6 +86,7 @@ Future<void> init() async{
   sl.registerLazySingleton(() => GetConnectionsUseCase(sl()));
   sl.registerLazySingleton(() => StartPaymentUseCase(sl()));
   sl.registerLazySingleton(() => RequestPackageUseCase(sl()));
+  sl.registerLazySingleton(() => GetPackagesUseCase(sl()));
   sl.registerLazySingleton(() => WatchUnreadCountUseCase(sl()));
   sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
   sl.registerLazySingleton(() => MarkAsReadUseCase(sl()));
@@ -106,7 +108,7 @@ Future<void> init() async{
   sl.registerLazySingleton(() => SessionCubit(watchAuthStateUseCase: sl(), getCachedUserUseCase: sl()));
   sl.registerLazySingleton(() => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()));
   sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl(), addNewConnectionUseCase: sl()));
-  sl.registerLazySingleton(() => PackageRequestBloc(requestPackageUseCase: sl()));
+  sl.registerLazySingleton(() => PackageBloc(requestPackageUseCase: sl(), getPackageUseCase: sl()));
   sl.registerLazySingleton(() => PaymentBloc(startPaymentUseCase: sl()));
   sl.registerLazySingleton(() => UnreadCountCubit(watchUnreadCountUseCase: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton(() => NotificationBloc(getNotificationsUseCase: sl(), markAsReadUseCase: sl(), markAllAsReadUseCase: sl()));
