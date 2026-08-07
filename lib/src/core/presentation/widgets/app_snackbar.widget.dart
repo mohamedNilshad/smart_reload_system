@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 
-enum _SnackType { success, error }
+enum _SnackType { success, error, info }
 
 class AppSnackbar {
   AppSnackbar._();
@@ -15,10 +15,17 @@ class AppSnackbar {
     _show(context, message, _SnackType.error, showUp);
   }
 
+  static void showInfo(BuildContext context, String message, {bool showUp = false}) {
+    _show(context, message, _SnackType.info, showUp);
+  }
+
   static void _show(BuildContext context, String message, _SnackType type, bool showUp) {
-    final isSuccess = type == _SnackType.success;
-    final accent = isSuccess ? AppColors.green : AppColors.red;
-    final icon = isSuccess ? Icons.check_rounded : Icons.close_rounded;
+    final isSuccess = (type == _SnackType.success);
+    final isError = (type == _SnackType.error);
+    // final isInfo = (type == _SnackType.info);
+
+    final accent = isSuccess ? AppColors.green : (isError ? AppColors.red : AppColors.info);
+    final icon = isSuccess ? Icons.check_rounded : (isError ? Icons.close_rounded : Icons.info_outline_rounded);
 
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()

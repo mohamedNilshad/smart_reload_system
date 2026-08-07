@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:smart_reload_system/src/core/bloc/payment/payment.bloc.dart';
-import 'package:smart_reload_system/src/core/bloc/payment/payment.event.dart';
+import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
-import 'package:smart_reload_system/src/core/presentation/widgets/app_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/custom_elevated_button.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/body_text.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/empty_screen.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loading.widget.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
@@ -31,6 +32,7 @@ class ConnectionClientScreen extends StatefulWidget {
 
 class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
   final amountController = TextEditingController();
+  final _isLoadingNotifier = ValueNotifier<bool>(false);
   double screenWidth = 0.0;
   final List<Map<String, String>> connectionsNumbers = [];
 
@@ -39,6 +41,13 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
     super.initState();
     context.read<ConnectionBloc>().add(const ConnectionsReset());
     context.read<ConnectionBloc>().add(ConnectionsRequested(widget.clientVendorId));
+  }
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    _isLoadingNotifier.dispose();
+    super.dispose();
   }
 
   void initValues(List<ConnectionModel> connections){
@@ -105,90 +114,83 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
 
             if (state is c.ConnectionSuccess) {
               if (state.connections.isEmpty) {
-                return const Center(child: Text('No connections found.'));
+                return EmptyScreenWidget();
               }
 
               initValues(state.connections);
+              List<ConnectionModel> approvedList = state.connections.where((c) => c.status == true).toList();
+              List<ConnectionModel> pendingList = state.connections.where((c) => c.status == false).toList();
 
               return SingleChildScrollView(
                 child: Padding(
                   padding: const EdgeInsets.fromLTRB(Sizes.ssm, Sizes.ssm, Sizes.ssm, 100 ),
                   child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    spacing: 10.0,
-                    children: state.connections.map((connection) {
-                      return InkWell(
-                        onTap: () async {
+                    children: [
+                      Container(
+                        margin: EdgeInsets.symmetric(vertical: Sizes.sm),
+                        alignment: AlignmentGeometry.topStart,
+                        child: TitleText(text: "Activated Connections"),
+                      ),
 
-                          Navigator.pushNamed(
-                            context,
-                            RouteConstants.connectionDetailsClientScreen,
-                            arguments: (
-                            clientVendorId: connection.clientVendorId,
-                            connectionId: connection.id,
-                            conName: connection.connectionName,
-                            conNumber: connection.connectionNumber,
-                            status: connection.status,
-                            conType: connection.connectionType,
-                            conPlan: connection.billingType,
-                          ),
-                          );
-                        },
-                        child: ConnectionCard(
-                          onReloadTap: () async{
-                            final result = await AppBottomSheet.showRadioSelect(
-                              context,
-                              title: 'Choose',
-                              options: ['Select a package', 'Enter Amount'],
-                              selectedValue: 'Select a package',
-                            );
-                            if (result != null) {
-                              // use result
-                              if(result == 'Select a package'){
-                                //navigate to package screen
-                              }else{
-                                AppBottomSheet.showForm(
+                      if(approvedList.isEmpty)...{
+                        BodyText(text: "No connections!", color: AppColors.darkerGrey),
+                      }else...{
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 10.0,
+                          children: approvedList.map((connection) {
+                            return ConnectionCard(
+                              onTap: () async {
+                                Navigator.pushNamed(
                                   context,
-                                  title: 'Enter Amount',
-                                  form: TextFormField(
-                                    controller: amountController,
-                                    keyboardType: TextInputType.number,
-                                    decoration: const InputDecoration(labelText: 'Amount'),
-                                  ),
-                                  buttonText: 'Continue',
-                                  // isLoading: ,
-                                  onSubmit: () {
-                                    if(amountController.text.isNotEmpty){
-                                      context.read<PaymentBloc>().add(
-                                        StartPaymentRequested(
-                                          orderId: 'ORD-${DateTime.now().millisecondsSinceEpoch}',
-                                          amount: 500.00,
-                                          itemDescription: 'Mobile Reload',
-                                          firstName: 'Saman',
-                                          lastName: 'Perera',
-                                          email: 'saman@example.com',
-                                          phone: '0771234567',
-                                          address: 'No.1, Galle Road',
-                                          city: 'Colombo',
-                                        ),
-                                      );
-                                    }
-                                    // Navigator.of(context).pop();
-                                    // proceed with amountController.text
-                                  },
+                                  RouteConstants.connectionDetailsClientScreen,
+                                  arguments: connection,
                                 );
-                              }
-                            }
-                          },
-                          conNumber: connection.connectionNumber,
-                          lastDate: connection.lastReloadDate,
-                          conName: connection.connectionName,
-                          status: connection.status,
-                          conType: connection.connectionType,
-                          conPlan: connection.billingType,
+                              },
+                              conNumber: connection.connectionNumber,
+                              lastDate: connection.lastReloadDate,
+                              conName: connection.connectionName,
+                              isActive: connection.isActive,
+                              conType: connection.connectionType,
+                              conPlan: connection.billingType,
+                            );
+                          }).toList(),
                         ),
-                      );
-                    }).toList(),
+                      },
+
+                      Container(
+                        margin: EdgeInsets.fromLTRB(0.0, Sizes.lg, 0.0, Sizes.sm),
+                        alignment: AlignmentGeometry.topStart,
+                        child: TitleText(text: "Pending Connections"),
+                      ),
+
+                      if(pendingList.isEmpty)...{
+                        BodyText(text: "No connections!",),
+                      }else...{
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          spacing: 10.0,
+                          children: pendingList.map((connection) {
+                            return ConnectionCard(
+                              onTap: () async {
+                                Navigator.pushNamed(
+                                  context,
+                                  RouteConstants.connectionDetailsClientScreen,
+                                  arguments: connection,
+                                );
+                              },
+                              conNumber: connection.connectionNumber,
+                              lastDate: connection.lastReloadDate,
+                              conName: connection.connectionName,
+                              isActive: connection.isActive,
+                              conType: connection.connectionType,
+                              conPlan: connection.billingType,
+                              status: false,
+                            );
+                          }).toList(),
+                        ),
+                      },
+                    ],
                   ),
                 ),
               );
@@ -207,7 +209,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
               arguments: (clientVendorId: widget.clientVendorId, connectionNumbers: connectionsNumbers)
             ).then((result){
 
-              if(result != null && result == true){
+              if(result != null && result == true && context.mounted){
                 context.read<ConnectionBloc>().add(const ConnectionsReset());
                 context.read<ConnectionBloc>().add(ConnectionsRequested(widget.clientVendorId));
               }

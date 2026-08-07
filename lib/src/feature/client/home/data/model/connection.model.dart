@@ -30,6 +30,7 @@ class ConnectionModel extends Equatable {
 
   factory ConnectionModel.fromJson(Map<String, dynamic> json, {String? id}) {
     return ConnectionModel(
+      id: id ?? '',
       clientVendorId: json['clientVendorId'] as String? ?? '',
       connectionCategory: json['connectionCategory'] as String? ?? '',
       connectionType: json['connectionType'] as String? ?? '',

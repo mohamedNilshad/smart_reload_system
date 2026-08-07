@@ -14,6 +14,7 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/su
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package_request/package_request.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package_request/package_request.event.dart';
@@ -21,14 +22,8 @@ import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/pa
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/widgets/package_card.widget.dart';
 
 class ConnectionDetailsClientScreen extends StatefulWidget {
-  final String clientVendorId;
-  final String connectionId;
-  final String conName;
-  final String conNumber;
-  final String conType;
-  final String? conPlan;
-  final bool status;
-  const ConnectionDetailsClientScreen({super.key, required this.clientVendorId, required this.connectionId, required this.conName, required this.conNumber, this.conPlan, required this.conType, required this.status});
+  final ConnectionModel connectionModel;
+  const ConnectionDetailsClientScreen({super.key, required this.connectionModel});
 
   @override
   State<ConnectionDetailsClientScreen> createState() => _ConnectionDetailsClientScreenState();
@@ -38,9 +33,16 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
   final amountController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _isLoadingNotifier = ValueNotifier<bool>(false);
+  late final ConnectionModel connectionModel;
 
   int expandId = -1;
   double screenWidth = 0.0;
+
+  @override
+  void initState() {
+    connectionModel = widget.connectionModel;
+    super.initState();
+  }
 
   @override
   void dispose() {
@@ -106,22 +108,22 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                               mainAxisSize: MainAxisSize.min,
                               spacing: 10,
                               children: [
-                                TitleText(text: widget.conName),
+                                TitleText(text: connectionModel.connectionName),
                                 CircleAvatar(
                                   radius: 5,
-                                  backgroundColor: widget.status ? AppColors.green : AppColors.red,
+                                  backgroundColor: connectionModel.isActive ? AppColors.green : AppColors.red,
                                 ),
                               ],
                             ),
-                            subtitle: SubTitleText(text: widget.conNumber, color: AppColors.darkerGrey),
+                            subtitle: SubTitleText(text: connectionModel.connectionNumber, color: AppColors.darkerGrey),
                           ),
                           Row(
                             spacing: 5,
                             children: [
-                              CChip(label: widget.conType),
-                              if (widget.conPlan != null) ...{
+                              CChip(label: connectionModel.connectionType),
+                              if (connectionModel.billingType != null) ...{
                                 CChip(
-                                  label: widget.conPlan!,
+                                  label: connectionModel.billingType!,
                                   bgColor: AppColors.primary,
                                   fontColor: AppColors.primary,
                                 ),
@@ -271,6 +273,12 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
             padding: const EdgeInsets.symmetric(horizontal: Sizes.sm),
             child: CElevatedButton(
               onPressed: () async {
+                if(!connectionModel.status){
+                  AppSnackbar.showInfo(context, "Waiting for connection approve");
+                  return;
+                }
+
+
                 final result = await AppBottomSheet.showRadioSelect(
                   context,
                   title: 'Choose',
@@ -304,9 +312,9 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                       onSubmit: () {
                         if(amountController.text.isNotEmpty && _formKey.currentState!.validate()){
                           final data = PackageRequestModel(
-                            clientVendorId: widget.clientVendorId,
-                            connectionId: widget.connectionId,
-                            date: DateTime.now(),
+                            clientVendorId: connectionModel.clientVendorId,
+                            connectionId: connectionModel.id!,
+                            requestDate: DateTime.now(),
                             amount: double.parse(amountController.text),
                           );
 
@@ -317,6 +325,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                   }
                 }
               },
+              bgColor: connectionModel.status ? null : AppColors.darkerGrey,
               label: "Request Reload",
             ),
           ),

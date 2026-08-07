@@ -5,6 +5,7 @@ import 'package:smart_reload_system/src/core/presentation/screens/splash.screen.
 import 'package:smart_reload_system/src/core/presentation/screens/unknown.screen.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/verify_email_client.screen.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection_details.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/widgets/add_new_connection.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/screens/notifications.client.screen.dart';
@@ -91,28 +92,11 @@ class AppRouter {
 
       case RouteConstants.connectionDetailsClientScreen:
 
-        final args = settings.arguments as ({
-          String clientVendorId,
-          String connectionId,
-          String conName,
-          String conNumber,
-          bool status,
-          String conType,
-          String? conPlan,
-        });
+        final connectionModel = settings.arguments as ConnectionModel;
 
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.connectionDetailsClientScreen),
-          builder: (context) => ConnectionDetailsClientScreen(
-            clientVendorId: args.clientVendorId,
-            connectionId: args.connectionId,
-            conName: args.conName,
-            conNumber: args.conNumber,
-            status: args.status,
-            conType: args.conType,
-            conPlan: args.conPlan,
-
-          ),
+          builder: (context) => ConnectionDetailsClientScreen(connectionModel: connectionModel),
         );
 
       case RouteConstants.settingsScreen:

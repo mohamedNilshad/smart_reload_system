@@ -5,15 +5,27 @@ class PackageRequestModel extends Equatable {
   final String clientVendorId;
   final String connectionId;
   final String? packageDetailsId;
-  final DateTime date;
+  final DateTime requestDate;
   final double? amount;
+
+  final DateTime? activatedDate;
+  final DateTime? expireDate;
+  final bool? isPaid;
+  final DateTime? paidDate;
+  final String? paymentId;
 
   const PackageRequestModel({
     required this.clientVendorId,
     required this.connectionId,
+    required this.requestDate,
     this.packageDetailsId,
-    required this.date,
     this.amount,
+
+    this.isPaid,
+    this.activatedDate,
+    this.expireDate,
+    this.paidDate,
+    this.paymentId,
   });
 
   factory PackageRequestModel.fromJson(Map<String, dynamic> json, {String? id}) {
@@ -22,7 +34,12 @@ class PackageRequestModel extends Equatable {
       connectionId: json['connectionId'] as String? ?? '',
       packageDetailsId: json['packageDetailsId'] as String? ?? '',
       amount: json['amount'] as double?,
-      date: (json['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      requestDate: (json['requestDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
+      isPaid: json['isPaid'] as bool? ?? false,
+      activatedDate: (json['activatedDate'] as Timestamp?)?.toDate(),
+      expireDate: (json['expireDate'] as Timestamp?)?.toDate(),
+      paidDate: (json['paidDate'] as Timestamp?)?.toDate(),
+      paymentId: (json['paymentId'] as String?),
     );
   }
 
@@ -32,8 +49,12 @@ class PackageRequestModel extends Equatable {
       'connectionId': connectionId,
       'packageDetailsId': packageDetailsId,
       'amount': amount,
-      'date': Timestamp.fromDate(date),
-
+      'requestDate': Timestamp.fromDate(requestDate),
+      'isPaid': isPaid,
+      'activatedDate': (activatedDate != null) ? Timestamp.fromDate(activatedDate!) : null,
+      'expireDate': (expireDate != null) ? Timestamp.fromDate(expireDate!) : null,
+      'paidDate': (paidDate != null) ? Timestamp.fromDate(paidDate!) : null,
+      'paymentId': paymentId,
     };
   }
 
@@ -43,6 +64,11 @@ class PackageRequestModel extends Equatable {
     connectionId,
     packageDetailsId,
     amount,
-    date,
+    requestDate,
+    isPaid,
+    activatedDate,
+    expireDate,
+    paidDate,
+    paymentId,
   ];
 }

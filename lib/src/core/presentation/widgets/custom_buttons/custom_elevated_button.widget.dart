@@ -7,7 +7,8 @@ class CElevatedButton extends StatelessWidget {
   final void Function()? onPressed;
   final String label;
   final bool isLoading;
-  const CElevatedButton({super.key, required this.onPressed, required this.label, this.isLoading = false});
+  final Color? bgColor;
+  const CElevatedButton({super.key, required this.onPressed, required this.label, this.isLoading = false, this.bgColor});
 
   @override
   Widget build(BuildContext context) {
@@ -15,6 +16,7 @@ class CElevatedButton extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         minimumSize: Size(HelperFunctions.screenWidth(context), Sizes.buttonHeight),
+        backgroundColor: bgColor,
       ),
       child: isLoading ? const SizedBox(
         width: 20,

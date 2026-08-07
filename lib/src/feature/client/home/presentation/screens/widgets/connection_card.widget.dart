@@ -14,98 +14,98 @@ class ConnectionCard extends StatelessWidget {
   final String conName;
   final String conType;
   final String? conPlan;
+  final bool isActive;
   final bool status;
   final DateTime? lastDate;
-  final void Function()? onReloadTap;
-  const ConnectionCard({super.key, required this.conNumber, required this.status, required this.conName, required this.conType, this.conPlan, required this.onReloadTap, this.lastDate});
+  final void Function()? onTap;
+  const ConnectionCard({super.key, required this.conNumber, required this.isActive, this.status = true, required this.conName, required this.conType, this.conPlan, required this.onTap, this.lastDate});
 
   @override
   Widget build(BuildContext context) {
-    return CCard(
-      padding: EdgeInsets.zero,
-      child: Column(
-        spacing: 10,
-        children: [
-          Column(
-            children: [
-              ListTile(
-                leading: SizedBox(
-                  width: 30,
-                  height: 30,
-                  child: CSvgBuilder(
-                    path: SvgStrings.box,
-                    colorFilter: ColorFilter.mode(AppColors.darkGrey, BlendMode.srcIn),
+    return InkWell(
+      onTap: onTap,
+      child: CCard(
+        padding: EdgeInsets.zero,
+        child: Column(
+          children: [
+            ListTile(
+              leading: SizedBox(
+                width: 30,
+                height: 30,
+                child: CSvgBuilder(
+                  path: SvgStrings.box,
+                  colorFilter: ColorFilter.mode(AppColors.darkGrey, BlendMode.srcIn),
+                ),
+              ),
+              title: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 10,
+                children: [
+                  TitleText(text: conName),
+                  CircleAvatar(
+                    radius: 5,
+                    backgroundColor: isActive ? AppColors.green : AppColors.red,
                   ),
-                ),
-                title: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  spacing: 10,
-                  children: [
-                    TitleText(text: conName),
-                    CircleAvatar(
-                      radius: 5,
-                      backgroundColor: status ? AppColors.green : AppColors.red,
+                ],
+              ),
+              subtitle: SubTitleText(text: conNumber, color: AppColors.darkerGrey),
+              trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18, color: AppColors.darkerGrey),
+            ),
+            Padding(
+              padding: const EdgeInsets.only(left: 60.0),
+              child: Row(
+                spacing: 5,
+                children: [
+                  CChip(label: conType),
+                  if(conPlan != null)...{
+                    CChip(
+                      label: conPlan!,
+                      bgColor: AppColors.primary,
+                      fontColor: AppColors.primary,
                     ),
-                  ],
-                ),
-                subtitle: SubTitleText(text: conNumber, color: AppColors.darkerGrey),
-                trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18, color: AppColors.darkerGrey),
-              ),
-              Padding(
-                padding: const EdgeInsets.only(left: 60.0),
-                child: Row(
-                  spacing: 5,
-                  children: [
-                    CChip(label: conType),
-                    if(conPlan != null)...{
-                      CChip(
-                        label: conPlan!,
-                        bgColor: AppColors.primary,
-                        fontColor: AppColors.primary,
-                      ),
-                    }
+                  }
 
-                  ],
-                ),
+                ],
               ),
-              SizedBox(height: 5),
-              Divider(thickness: 0.3),
+            ),
+            SizedBox(height: 5),
+            Divider(thickness: 0.3),
 
-              Padding(
-                padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
-                child: Row(
-                  spacing: 5,
-                  children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
+              child: Row(
+                spacing: 5,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  if(!status)...{
                     CSvgBuilder(
                       path: SvgStrings.clock,
-                      width: 18,
-                      colorFilter: ColorFilter.mode(AppColors.accent, BlendMode.srcIn),
+                      width: 12,
+                      colorFilter: ColorFilter.mode(AppColors.darkGrey, BlendMode.srcIn),
                     ),
-                    if(lastDate != null)...{
-                      LabelText(
-                        text: "Last reload ${HelperFunctions.formatRelativeDate(lastDate)}",
-                        color: AppColors.darkGrey,
-                      ),
-                    },
+                    LabelText(
+                      text: "Waiting for approve",
+                      color: AppColors.darkGrey,
+                    ),
+                  }else if(lastDate == null)...{
+                    Icon(Icons.info_outline_rounded, size: 14, color: AppColors.accent,),
+                    LabelText(
+                      text: "No reload yet",
+                      color: AppColors.accent,
+                    ),
+                  }else if(lastDate != null)...{
+                    Icon(Icons.check_circle_outline_rounded, size: 14, color: AppColors.primary,),
+                    LabelText(
+                      text: "Last reload ${HelperFunctions.formatRelativeDate(lastDate)}",
+                      color: AppColors.primary,
+                    ),
+                  },
 
-                    Spacer(),
-
-                    InkWell(
-                      onTap: onReloadTap,
-                      child: CChip(
-                        label: "Reload",
-                        bgColor: AppColors.accent,
-                        fontColor: AppColors.darkerGrey,
-                        borderRadius: 5,
-                        verticalPadding: 5,
-                      ),
-                    )
-                  ],
-                ),
+                ],
               ),
-            ],
-          ),
-        ],
+            ),
+          ],
+        ),
       ),
     );
   }
