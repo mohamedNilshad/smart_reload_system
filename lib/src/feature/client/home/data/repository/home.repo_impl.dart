@@ -87,4 +87,16 @@ class HomeRepoImpl implements HomeRepo {
       return Left(ServerFailure('An unexpected error occurred'));
     }
   }
+
+  @override
+  Future<Either<Failure, List<PackageRequestModel>>> getActivatedPackages(String connectionId) async {
+    try {
+      final result = await remoteDataSource.getActivatedPackages(connectionId);
+      return Right(result);
+    } on ServerException catch (e) {
+      return Left(ServerFailure(e.message));
+    } catch (e) {
+      return Left(ServerFailure('An unexpected error occurred'));
+    }
+  }
 }

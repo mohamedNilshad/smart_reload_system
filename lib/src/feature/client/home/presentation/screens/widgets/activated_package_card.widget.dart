@@ -4,7 +4,6 @@ import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_card.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_chip.widget.dart';
-import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/body_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/label_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
@@ -13,12 +12,30 @@ import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart
 
 class ActivatedPackageCard extends StatelessWidget {
   final String title;
-  final String subtitle;
   final String description;
-  final DateTime? expDate;
+  final DateTime expDate;
+  final DateTime actDate;
+  final double price;
   final bool isExpand;
+  final String validity;
   final void Function()? onTap;
-  const ActivatedPackageCard({super.key, required this.title, required this.subtitle, required this.description, this.expDate, this.isExpand = false, required this.onTap});
+  const ActivatedPackageCard({super.key, required this.title, required this.price, required this.validity, required this.description, required this.actDate, required this.expDate, this.isExpand = false, required this.onTap});
+
+
+  double calDate(DateTime startDate, DateTime endDate){
+    final now = DateTime.now();
+
+
+    // Total and elapsed durations
+    final totalDuration = endDate.difference(startDate).inMinutes;
+    final elapsedDuration = now.difference(startDate).inMinutes;
+
+    double progress = 0.0;
+    if (totalDuration > 0) {
+      progress = (elapsedDuration / totalDuration);
+    }
+    return progress;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,11 +58,14 @@ class ActivatedPackageCard extends StatelessWidget {
                       ListTile(
                         contentPadding: EdgeInsets.zero,
                         title: TitleText(text: title),
-                        subtitle: SubTitleText(text: subtitle, color: AppColors.darkerGrey),
-                        trailing: CChip(
-                          label: "Expiring soon",
-                          bgColor: AppColors.accent,
-                          fontColor: AppColors.warning,
+                        subtitle: SubTitleText(text: description, color: AppColors.darkerGrey),
+                        trailing: Visibility(
+                          visible: calDate(actDate, expDate) > 0.75,
+                          child: CChip(
+                            label: "Expiring soon",
+                            bgColor: AppColors.accent,
+                            fontColor: AppColors.warning,
+                          ),
                         ),
                       ),
                       Container(
@@ -66,18 +86,13 @@ class ActivatedPackageCard extends StatelessWidget {
                                   colorFilter: ColorFilter.mode(AppColors.accent, BlendMode.srcIn),
                                 ),
                                 LabelText(
-                                  text: "Expires in $expDate days",
+                                  text: HelperFunctions.calculateRemainingTime(expDate),
                                   color: AppColors.accent,
                                 ),
                               ],
                             ),
-                            LinearProgressIndicator(
-                              value: 0.65,
-                              minHeight: 7.0,
-                              borderRadius: BorderRadius.circular(25),
-                              backgroundColor: AppColors.grey,
-                              valueColor: AlwaysStoppedAnimation<Color>(AppColors.error),
-                            ),
+
+                            buildDateProgressBar(endDate: expDate, startDate: actDate),
                           ],
                         ),
                       ),
@@ -115,22 +130,15 @@ class ActivatedPackageCard extends StatelessWidget {
                   Row(
                     spacing: HelperFunctions.screenWidth(context)/4,
                     children: [
-                      _buildDetailsColumn("Activated", "Oct 02, 2026"),
-                      _buildDetailsColumn("Price", "Rs. 699.00"),
+                      _buildDetailsColumn("Activated date", HelperFunctions.formatDateTime(actDate)),
+                      _buildDetailsColumn("Price", "Rs. ${price.toStringAsFixed(0)}"),
                     ],
                   ),
                   Row(
-                    spacing: 5,
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: HelperFunctions.screenWidth(context)/4,
                     children: [
-                      Icon(Icons.info_outline_rounded, color: AppColors.darkGrey, size: 20,),
-                      Expanded(
-                        child: BodyText(
-                          text: description,
-                          color: AppColors.darkGrey,
-                          size: 11,
-                        ),
-                      ),
+                      _buildDetailsColumn("Exp. date", HelperFunctions.formatDateTime(expDate)),
+                      _buildDetailsColumn("Validity", validity),
                     ],
                   ),
                 ],
@@ -140,6 +148,31 @@ class ActivatedPackageCard extends StatelessWidget {
         ],
       ),
     );
+  }
+
+
+  Widget buildDateProgressBar({required DateTime startDate, required DateTime endDate}) {
+    double progress = calDate(startDate, endDate);
+
+    // Calculate remaining days for display
+    return LinearProgressIndicator(
+      value: progress,
+      minHeight: 7.0,
+      borderRadius: BorderRadius.circular(25),
+      backgroundColor: AppColors.grey,
+      valueColor: AlwaysStoppedAnimation<Color>(getProgressColor(progress)),
+    );
+  }
+
+  Color getProgressColor(double value){
+
+    if(value < 0.5){
+      return AppColors.darkGrey;
+    }else if(value < 0.75){
+      return AppColors.accent;
+    }else{
+      return AppColors.red;
+    }
   }
 
   Widget _buildDetailsColumn(String title, String subtitle){

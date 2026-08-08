@@ -147,7 +147,7 @@ class HelperFunctions {
 
 
   ///DATE FORMATS--------------------------------------------------->
-  /// Formats a date string (e.g., "2026-07-20 05:03:03.000") into relative time strings.
+  // Formats a date string (e.g., "2026-07-20 05:03:03.000") into relative time strings.
   static String formatRelativeDate(dynamic dateInput) {
     if (dateInput == null) return '';
 
@@ -196,12 +196,12 @@ class HelperFunctions {
     }
   }
 
-  /// Helper to check if two dates are on the same calendar day
+  // Helper to check if two dates are on the same calendar day
   static bool _isSameDay(DateTime a, DateTime b) {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
-  /// Helper to check if a date was calendar yesterday
+  // Helper to check if a date was calendar yesterday
   static bool _isYesterday(DateTime now, DateTime date) {
     final yesterday = now.subtract(const Duration(days: 1));
     return _isSameDay(yesterday, date);
@@ -224,6 +224,43 @@ class HelperFunctions {
   static String convertToAMPM(String time) {
     DateTime dateTime = DateFormat('HH:mm').parse(time);
     return DateFormat('h:mm a').format(dateTime);
+  }
+
+  static String formatDateTime(DateTime dateTime) {
+    // 'MMM dd, yyyy, hh:mm a' -> Oct 02, 2026, 01:16 PM
+    return DateFormat('MMM dd, yyyy, hh:mm a').format(dateTime);
+  }
+
+  static String calculateRemainingTime(DateTime futureDate) {
+    final now = DateTime.now();
+    final difference = futureDate.difference(now);
+
+    // If the date has already passed
+    if (difference.isNegative) return "0 days remaining";
+
+
+    // 1. Days and remaining hours (e.g., 5 days and 14 hours)
+    final days = difference.inDays;
+    final hours = difference.inHours % 24;
+    final minutes = difference.inMinutes % 60;
+
+    String dayText = "";
+    String hourText = "";
+    String minuteText = "";
+
+    if(days > 0){
+      dayText = "$days days ";
+    }
+    if(hours > 0){
+      hourText = "$hours hours ";
+    }
+    if(minutes > 0){
+      minuteText = "$minutes minutes ";
+    }
+
+    String finalText = 'remaining';
+    return '$dayText$hourText$minuteText$finalText';
+
   }
 
   static Future<String?> getFCMToken() async {

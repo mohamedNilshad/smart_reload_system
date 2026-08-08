@@ -14,6 +14,7 @@ abstract class HomeRemoteDataSource {
   Future<bool> requestPackage(PackageRequestModel packageRequestModel);
   Future<bool> addNewConnection(ConnectionModel connectionModel);
   Future<List<PackageModel>> getPackages(String type, String serviceProvider);
+  Future<List<PackageRequestModel>> getActivatedPackages(String connectionId);
 }
 
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
@@ -70,8 +71,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
         if (vendorId != null) {
           try {
-            final userDoc =
-                await firestore.collection('users').doc(vendorId).get();
+            final userDoc = await firestore.collection('users').doc(vendorId).get();
             if (userDoc.exists) {
               final vendorName = userDoc['fullName'] as String? ?? 'Unknown';
               vendors.add(
@@ -120,7 +120,6 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   Future<bool> requestPackage(PackageRequestModel packageRequestModel) async {
     try {
 
-
       await firestore.collection("requested_packages").add(packageRequestModel.toJson());
       //send push notification
       return true;
@@ -155,15 +154,43 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           .where('serviceProvider', isEqualTo: serviceProvider)
           .get();
 
-
-
       return packageSnapshot.docs.map((doc) => PackageModel.fromJson(doc.data(), id: doc.id)).toList();
 
     } on FirebaseException catch (e) {
       throw ServerException(e.message ?? 'Failed to fetch packages');
     } catch (e) {
-      print(e);
       throw ServerException('An error occurred while fetching packages');
+    }
+  }
+
+
+  @override
+  Future<List<PackageRequestModel>> getActivatedPackages(String connectionId) async {
+    try {
+
+      final actPackagesSnapshot = await firestore
+          .collection('requested_packages')
+          .where('connectionId', isEqualTo: connectionId)
+          // .where('activatedDate', isNull: false)
+          .get();
+
+      List<PackageRequestModel> apList = actPackagesSnapshot.docs.map((doc) => PackageRequestModel.fromJson(doc.data(), id: doc.id)).toList();
+
+      for(int i = 0; i < apList.length; i++){
+        if(apList[i].packageDetailsId == null || apList[i].packageDetailsId!.isEmpty){
+          continue;
+        }
+        final packageSnapshot = await firestore.collection('package_details').doc(apList[i].packageDetailsId).get();
+        final data = PackageModel.fromJson(packageSnapshot.data()!, id: packageSnapshot.id);
+        apList[i] = apList[i].copyWith(newPackageModel: data);
+      }
+
+      return apList;
+
+    } on FirebaseException catch (e) {
+      throw ServerException(e.message ?? 'Failed to fetch activated packages');
+    } catch (e) {
+      throw ServerException('An error occurred while fetching activated packages');
     }
   }
 

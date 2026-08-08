@@ -36,6 +36,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
   double screenWidth = 0.0;
   final List<Map<String, String>> connectionsNumbers = [];
 
+
   @override
   void initState() {
     super.initState();
@@ -58,7 +59,6 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
         'number': connection.connectionNumber,
       });
     }
-
   }
 
   @override
@@ -158,15 +158,14 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                         ),
                       },
 
-                      Container(
-                        margin: EdgeInsets.fromLTRB(0.0, Sizes.lg, 0.0, Sizes.sm),
-                        alignment: AlignmentGeometry.topStart,
-                        child: TitleText(text: "Pending Connections"),
-                      ),
 
-                      if(pendingList.isEmpty)...{
-                        BodyText(text: "No connections!",),
-                      }else...{
+                      if(pendingList.isNotEmpty)...{
+                        Container(
+                          margin: EdgeInsets.fromLTRB(0.0, Sizes.lg, 0.0, Sizes.sm),
+                          alignment: AlignmentGeometry.topStart,
+                          child: TitleText(text: "Pending Connections"),
+                        ),
+
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           spacing: 10.0,
@@ -206,7 +205,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
           onPressed: () {
             Navigator.of(context).pushNamed(
               RouteConstants.addNewConnectionClientScreen,
-              arguments: (id: widget.clientVendorId, connectionNumbers: connectionsNumbers)
+              arguments: (clientVendorId: widget.clientVendorId, connectionNumbers: connectionsNumbers)
             ).then((result){
 
               if(result != null && result == true && context.mounted){

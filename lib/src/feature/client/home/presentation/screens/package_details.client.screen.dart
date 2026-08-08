@@ -9,6 +9,7 @@ import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.w
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_chip.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/sticky_tab_bar_delegate.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
@@ -142,7 +143,7 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
                       // Tab bar — pins to the top once the header above scrolls past it.
                       SliverPersistentHeader(
                         pinned: true,
-                        delegate: _StickyTabBarDelegate(
+                        delegate: StickyTabBarDelegate(
                           TabBar(
                             labelColor: AppColors.primary,
                             unselectedLabelColor: AppColors.darkerGrey,
@@ -252,27 +253,5 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
         ],
       ),
     );
-  }
-}
-
-class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar tabBar;
-  final Color backgroundColor;
-
-  _StickyTabBarDelegate(this.tabBar, {required this.backgroundColor});
-
-  @override
-  double get minExtent => tabBar.preferredSize.height;
-  @override
-  double get maxExtent => tabBar.preferredSize.height;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(color: backgroundColor, child: tabBar);
-  }
-
-  @override
-  bool shouldRebuild(covariant _StickyTabBarDelegate oldDelegate) {
-    return oldDelegate.tabBar != tabBar || oldDelegate.backgroundColor != backgroundColor;
   }
 }

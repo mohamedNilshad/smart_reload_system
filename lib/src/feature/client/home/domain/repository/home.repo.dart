@@ -13,4 +13,5 @@ abstract class HomeRepo {
   Future<Either<Failure, bool>> requestPackage(PackageRequestModel packageRequestModel);
   Future<Either<Failure, bool>> addNewConnection(ConnectionModel connectionModel);
   Future<Either<Failure, List<PackageModel>>> getPackages(String type, String serviceProvider);
+  Future<Either<Failure, List<PackageRequestModel>>> getActivatedPackages(String connectionId);
 }

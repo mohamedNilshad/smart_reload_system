@@ -13,11 +13,12 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/bo
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_headline_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/empty_screen.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/sticky_tab_bar_delegate.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
-import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/packaget.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/package.event.dart';
@@ -38,41 +39,50 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
   final _isLoadingNotifier = ValueNotifier<bool>(false);
   late final ConnectionModel connectionModel;
 
-  bool fetchingPackages = false;
-  List<PackageModel> packageDetails = [];
-  List<PackageModel> dataPackages = [];
-  List<PackageModel> voicePackages = [];
-  List<PackageModel> comboPackages = [];
+  bool fetchingActPackage = true;
+  List<PackageRequestModel> actPackageDetails = [];
+  List<PackageRequestModel> pendingPackageDetails = [];
+  List<PackageRequestModel> dataPackages = [];
+  List<PackageRequestModel> voicePackages = [];
+  List<PackageRequestModel> comboPackages = [];
 
   int expandId = -1;
   double screenWidth = 0.0;
+  double screenHeight = 0.0;
+  bool isUtility = false;
+  bool isMobile = false;
 
   @override
   void initState() {
     connectionModel = widget.connectionModel;
-
-    context.read<PackageBloc>().add(FetchPackages(
-        type: connectionModel.connectionType,
-        serviceProvider: connectionModel.serviceProvider!
-    ));
+    isMobile = connectionModel.connectionType.toLowerCase() == TelecomType.Mobile.name.toLowerCase();
+    context.read<PackageBloc>().add(FetchActivatedPackages(connectionId: connectionModel.id!));
     super.initState();
   }
   
-  void initValue(){
+  void initValue(List<PackageRequestModel> packages){
     setState(() {
-      for (var p in packageDetails) {
-        if(p.packageType == PackageType.Data.name){
+
+      for (var pc in packages) {
+        if(pc.activatedDate != null){
+          actPackageDetails.add(pc);
+        }else {
+          pendingPackageDetails.add(pc);
+        }
+      }
+
+      for (var p in actPackageDetails) {
+        if(p.packageModel?.packageType == PackageType.Data.name){
           dataPackages.add(p);
-        }else if(p.packageType == PackageType.Voice.name){
+        }else if(p.packageModel?.packageType == PackageType.Voice.name){
           voicePackages.add(p);
-        }else if(p.packageType == PackageType.Combo.name){
+        }else if(p.packageModel?.packageType == PackageType.Combo.name){
           comboPackages.add(p);
         }
       }
-      fetchingPackages = false;
-      // dataPackages = packageDetails.where((p) => p.packageType == PackageType.Data.name).toList();
-      // voicePackages = packageDetails.where((p) => p.packageType == PackageType.Voice.name).toList();
-      // comboPackages = packageDetails.where((p) => p.packageType == PackageType.Combo.name).toList();
+      fetchingActPackage = false;
+      //show history only
+      isUtility = (connectionModel.connectionCategory.toLowerCase() == ConCategory.Utility.name.toLowerCase()) || (connectionModel.connectionType.toLowerCase() == TelecomType.TV.name.toLowerCase());
     });
   }
 
@@ -86,319 +96,330 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
   @override
   Widget build(BuildContext context) {
     screenWidth = HelperFunctions.screenWidth(context);
-    return DefaultTabController(
-      length: 3,
-      child: BlocListener<PackageBloc, PackageState>(
-        listener: (context, state) {
-          if(state is PackageLoading){
-            _isLoadingNotifier.value = state.requesting;
-            fetchingPackages = state.fetching;
+    screenHeight = HelperFunctions.screenHeight(context);
+    return BlocListener<PackageBloc, PackageState>(
+      listener: (context, state) {
+        if(state is PackageLoading){
+          _isLoadingNotifier.value = state.requesting;
+          fetchingActPackage = state.fetchingActPackage;
+        }
+
+        if (state is PackageSuccess) {
+          if((state.isRequested != null) && (state.isRequested == true)){
+            Navigator.of(context).pop();
+            AppSnackbar.showSuccess(context, 'Reload request submitted!');
+          }
+          if(state.actPackages != null){
+            initValue(state.actPackages!);
           }
 
-          if (state is PackageSuccess) {
-            if((state.isRequested != null) && (state.isRequested == true)){
-              Navigator.of(context).pop();
-              AppSnackbar.showSuccess(context, 'Reload request submitted!');
-            }
-            if(state.packages != null){
-              packageDetails = state.packages!;
-              initValue();
-            }
+        } else if (state is PackageFailure) {
+          setState(() => fetchingActPackage = false);
+          AppSnackbar.showError(context, state.message);
+        }
+      },
 
-          } else if (state is PackageFailure) {
-            setState(() => fetchingPackages = false);
-            AppSnackbar.showError(context, state.message);
-          }
-        },
-
-        child: Scaffold(
-          appBar: customAppBar(
-            onPressed: () => Navigator.of(context).pop(),
-            icon: Icons.arrow_back_ios_new_rounded,
-            title: "Connection Details",
-          ),
-          body: RefreshIndicator(
+      child: Scaffold(
+        appBar: customAppBar(
+          onPressed: () => Navigator.of(context).pop(),
+          icon: Icons.arrow_back_ios_new_rounded,
+          title: "Connection Details",
+        ),
+        body: Visibility(
+          visible: !fetchingActPackage,
+          replacement: Center(child: CircularProgressIndicator(color: AppColors.primary)),
+          child: RefreshIndicator(
             onRefresh: () async {
-              // context.read<HomeBloc>().add(const HomeDataRequested());
-              // await Future.delayed(const Duration(milliseconds: 500));
+              context.read<PackageBloc>().add(FetchActivatedPackages(connectionId: connectionModel.id!));
+              await Future.delayed(const Duration(milliseconds: 500));
             },
-            child: NestedScrollView(
-              headerSliverBuilder: (context, innerBoxIsScrolled) {
-                return [
-                  // Everything above the tabs — scrolls away with the page.
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.all(Sizes.sm),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        spacing: 10.0,
-                        children: [
-                          ListTile(
-                            leading: Container(
-                              width: 50,
-                              height: 50,
-                              padding: const EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                color: AppColors.primary.withValues(alpha: 0.4),
-                                borderRadius: BorderRadius.circular(10.0),
-                              ),
-                              child: CSvgBuilder(
-                                path: SvgStrings.box,
-                                colorFilter: ColorFilter.mode(AppColors.black, BlendMode.srcIn),
-                              ),
-                            ),
-                            title: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              spacing: 10,
-                              children: [
-                                TitleText(text: connectionModel.connectionName),
-                                CircleAvatar(
-                                  radius: 5,
-                                  backgroundColor: connectionModel.isActive ? AppColors.green : AppColors.red,
-                                ),
-                              ],
-                            ),
-                            subtitle: SubTitleText(text: connectionModel.connectionNumber, color: AppColors.darkerGrey),
-                          ),
-                          Row(
-                            spacing: 5,
-                            children: [
-                              CChip(label: connectionModel.connectionType),
-                              if (connectionModel.billingType != null) ...{
-                                CChip(
-                                  label: connectionModel.billingType!,
-                                  bgColor: AppColors.primary,
-                                  fontColor: AppColors.primary,
-                                ),
-                              },
-                            ],
-                          ),
-                          Container(
-                            padding: EdgeInsets.all(Sizes.ssm),
-                            margin: EdgeInsets.only(bottom: Sizes.ssm),
-                            width: double.infinity,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(16.0),
-                              border: Border(left: BorderSide(color: AppColors.primary, width: 5.0)),
-                              color: AppColors.white,
-                            ),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  spacing: 5,
-                                  children: [
-                                    SubTitleText(text: "Last Reload Date: 25 Jul 2026"),
-                                    TitleText(text: "Package Title"),
-                                    BodyText(text: "Package description"),
-                                  ],
-                                ),
-                                TextButton(
-                                  onPressed: (){},
-                                  child: Text("See All"),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SubHeadlineText(text: "Activated Packages"),
-                        ],
+            child: Visibility(
+              visible: !isUtility,
+              replacement: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.all(Sizes.sm),
+                  child: Column(
+                    children: [
+                      _buildHeader(),
+                      _buildList(
+                        packages: dataPackages,
+                        emptyMsg: "No Data packages activated!",
                       ),
-                    ),
+                    ],
                   ),
+                ),
+              ),
+              child: Visibility(
+                visible: isMobile,
 
-                  // Tab bar — pins to the top once the header above scrolls past it.
-                  SliverPersistentHeader(
-                    pinned: true,
-                    delegate: _StickyTabBarDelegate(
-                      TabBar(
-                        labelColor: AppColors.primary,
-                        unselectedLabelColor: AppColors.darkerGrey,
-                        indicatorColor: AppColors.primary,
-                        labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                          fontSize: 14,
+                replacement: SingleChildScrollView(
+                  child: Padding(
+                    padding: const EdgeInsets.all(Sizes.sm),
+                    child: Column(
+                      children: [
+                        _buildHeader(),
+                        _buildList(
+                          packages: dataPackages,
+                          emptyMsg: "No Data packages activated!",
+                          topPadding: true,
                         ),
-                        tabs: const [
-                          Tab(text: 'Data'),
-                          Tab(text: 'Voice'),
-                          Tab(text: 'Combo'),
-                        ],
-                      ),
-                      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                      ],
                     ),
                   ),
-                ];
-              },
-              body: Padding(
-                padding: const EdgeInsets.fromLTRB(Sizes.sm, 0.0, Sizes.sm, 0.0),
-                child: TabBarView(
-                  children: [
-                    /// Data
-                    ListView.builder(
-                      itemCount: dataPackages.length,
-                      itemBuilder: (context, index){
-                        return Padding(
-                          padding:  EdgeInsets.only(bottom: (index == 9) ? 80 : 0.0),
-                          child: ActivatedPackageCard(
-                            onTap: () {
-                              if(expandId == index) {
-                                setState(() => expandId = -1);
-                              }else {
-                                setState(() => expandId = index);
-                              }
-                            },
-                            title: dataPackages[index].packageName,
-                            subtitle: dataPackages[index].packagePrice.toString(),
-                            expDate: DateTime(2026, 4),
-                            isExpand: expandId == index,
-                            description: dataPackages[index].packageDescription,
+                ),
+                child: DefaultTabController(
+                  length: 3,
+                  child: NestedScrollView(
+                    headerSliverBuilder: (context, innerBoxIsScrolled) {
+                      return [
+                        // Everything above the tabs — scrolls away with the page.
+                        SliverToBoxAdapter(child: _buildHeader()),
 
+                        // Tab bar — pins to the top once the header above scrolls past it.
+                        SliverPersistentHeader(
+                          pinned: true,
+                          delegate: StickyTabBarDelegate(
+                            TabBar(
+                              labelColor: AppColors.primary,
+                              unselectedLabelColor: AppColors.darkerGrey,
+                              indicatorColor: AppColors.primary,
+                              labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                fontSize: 14,
+                              ),
+                              tabs: const [
+                                Tab(text: 'Data'),
+                                Tab(text: 'Voice'),
+                                Tab(text: 'Combo'),
+                              ],
+                            ),
+                            backgroundColor: Theme.of(context).scaffoldBackgroundColor,
                           ),
-                        );
-                      },
-                    ),
-
-                    /// Voice
-                    ListView.builder(
-                      itemCount: voicePackages.length,
-                      itemBuilder: (context, index){
-                        return Padding(
-                          padding:  EdgeInsets.only(bottom: (index == 9) ? 80 : 0.0),
-                          child: ActivatedPackageCard(
-                            onTap: () {
-                              if(expandId == index) {
-                                setState(() => expandId = -1);
-                              }else {
-                                setState(() => expandId = index);
-                              }
-                            },
-                            title: voicePackages[index].packageName,
-                            subtitle: voicePackages[index].packagePrice.toString(),
-                            expDate: DateTime(2026, 4),
-                            isExpand: expandId == index,
-                            description: voicePackages[index].packageDescription,
+                        ),
+                      ];
+                    },
+                    body: Padding(
+                      padding: const EdgeInsets.fromLTRB(Sizes.sm, 0.0, Sizes.sm, 0.0),
+                      child: TabBarView(
+                        children: [
+                          /// Data
+                          _buildList(
+                            packages: dataPackages,
+                            emptyMsg: "No Data packages activated!",
                           ),
-                        );
-                      },
-                    ),
 
-
-                    /// Combo
-                    ListView.builder(
-                      itemCount: comboPackages.length,
-                      itemBuilder: (context, index){
-                        return Padding(
-                          padding:  EdgeInsets.only(bottom: (index == 9) ? 80 : 0.0),
-                          child: ActivatedPackageCard(
-                            onTap: () {
-                              if(expandId == index) {
-                                setState(() => expandId = -1);
-                              }else {
-                                setState(() => expandId = index);
-                              }
-                            },
-                            title: comboPackages[index].packageName,
-                            subtitle: comboPackages[index].packagePrice.toString(),
-                            expDate: DateTime(2026, 4),
-                            isExpand: expandId == index,
-                            description: comboPackages[index].packageDescription,
+                          /// Voice
+                          _buildList(
+                            packages: voicePackages,
+                            emptyMsg: "No Voice packages activated!",
                           ),
-                        );
-                      },
+
+                          /// Combo
+                          _buildList(
+                            packages: comboPackages,
+                            emptyMsg: "No Combo packages activated!",
+                          ),
+                        ],
+                      ),
                     ),
-                  ],
+                  ),
                 ),
               ),
             ),
           ),
-
-          floatingActionButton: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: Sizes.sm),
-            child: CElevatedButton(
-              onPressed: () async {
-                if(!connectionModel.status){
-                  AppSnackbar.showInfo(context, "Waiting for connection approve");
-                  return;
-                }
-
-
-                final result = await AppBottomSheet.showRadioSelect(
-                  context,
-                  title: 'Choose',
-                  askConfirm: false,
-                  options: ['Select a package', 'Enter Amount'],
-                  selectedValue: '',
-                );
-
-                if (result != null) {
-                  if(result == 'Select a package' && context.mounted){
-                    Navigator.of(context).pushNamed(RouteConstants.packageDetailsClientScreen, arguments: connectionModel);
-                  }else{
-                    amountController.clear();
-                    AppBottomSheet.showForm(
-                      context,
-                      title: 'Enter Amount',
-                      form: Form(
-                        key: _formKey,
-                        child: TextFormField(
-                          controller: amountController,
-                          keyboardType: TextInputType.number,
-                          decoration: const InputDecoration(labelText: 'Amount'),
-                          validator: (value) {
-                            if (value == null || value.isEmpty) return 'Please enter amount';
-                            if (double.parse(value) < 50.0) return 'Please enter minimum amount Rs. 50.00';
-                            return null;
-                          },
-                        ),
-                      ),
-                      buttonText: 'Continue',
-                      isLoading: _isLoadingNotifier,
-                      onSubmit: () {
-                        if(amountController.text.isNotEmpty && _formKey.currentState!.validate()){
-                          final data = PackageRequestModel(
-                            clientVendorId: connectionModel.clientVendorId,
-                            connectionId: connectionModel.id!,
-                            requestDate: DateTime.now(),
-                            amount: double.parse(amountController.text),
-                          );
-
-                          context.read<PackageBloc>().add(PackageRequest(data));
-                        }
-                      },
-                    );
-                  }
-                }
-              },
-              bgColor: connectionModel.status ? null : AppColors.darkerGrey,
-              label: "Request Reload",
-            ),
-          ),
-
-          floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         ),
+
+        floatingActionButton: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: Sizes.sm),
+          child: CElevatedButton(
+            onPressed: () async {
+              if(!connectionModel.status){
+                AppSnackbar.showInfo(context, "Waiting for connection approve");
+                return;
+              }
+
+              if(isUtility){
+                showAmountSheet();
+                return;
+              }
+
+              final result = await AppBottomSheet.showRadioSelect(
+                context,
+                title: 'Choose',
+                askConfirm: false,
+                options: ['Select a package', 'Enter Amount'],
+                selectedValue: '',
+              );
+
+              if (result != null) {
+                if(result == 'Select a package' && context.mounted){
+                  Navigator.of(context).pushNamed(RouteConstants.packageDetailsClientScreen, arguments: connectionModel);
+                }else{
+                  showAmountSheet();
+                }
+              }
+            },
+            bgColor: connectionModel.status ? null : AppColors.darkerGrey,
+            label: "Request Reload",
+          ),
+        ),
+
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
       ),
     );
   }
-}
 
-class _StickyTabBarDelegate extends SliverPersistentHeaderDelegate {
-  final TabBar tabBar;
-  final Color backgroundColor;
+  void showAmountSheet(){
+    amountController.clear();
+    AppBottomSheet.showForm(
+      context,
+      title: 'Enter Amount',
+      form: Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: amountController,
+          keyboardType: TextInputType.number,
+          decoration: const InputDecoration(labelText: 'Amount'),
+          validator: (value) {
+            if (value == null || value.isEmpty) return 'Please enter amount';
+            if (double.parse(value) < 50.0) return 'Please enter minimum amount Rs. 50.00';
+            return null;
+          },
+        ),
+      ),
+      buttonText: 'Continue',
+      isLoading: _isLoadingNotifier,
+      onSubmit: () {
+        if(amountController.text.isNotEmpty && _formKey.currentState!.validate()){
+          final data = PackageRequestModel(
+            clientVendorId: connectionModel.clientVendorId,
+            connectionId: connectionModel.id!,
+            requestDate: DateTime.now(),
+            amount: double.parse(amountController.text),
+          );
 
-  _StickyTabBarDelegate(this.tabBar, {required this.backgroundColor});
-
-  @override
-  double get minExtent => tabBar.preferredSize.height;
-  @override
-  double get maxExtent => tabBar.preferredSize.height;
-
-  @override
-  Widget build(BuildContext context, double shrinkOffset, bool overlapsContent) {
-    return Container(color: backgroundColor, child: tabBar);
+          context.read<PackageBloc>().add(PackageRequest(data));
+        }
+      },
+    );
   }
 
-  @override
-  bool shouldRebuild(covariant _StickyTabBarDelegate oldDelegate) {
-    return oldDelegate.tabBar != tabBar || oldDelegate.backgroundColor != backgroundColor;
+  Widget _buildList({required List<PackageRequestModel> packages, required String emptyMsg, bool topPadding = false}){
+
+    return Visibility(
+      visible: packages.isNotEmpty,
+      replacement: Padding(
+        padding: EdgeInsets.only(top: topPadding ? screenHeight/6 : 0.0),
+        child: EmptyScreenWidget(message: emptyMsg),
+      ),
+      child: ListView.builder(
+        itemCount: packages.length,
+        shrinkWrap: !isMobile,
+        scrollDirection: Axis.vertical,
+        physics: isMobile ? null : NeverScrollableScrollPhysics(),
+        itemBuilder: (context, index){
+          final item = packages[index];
+          int count = (item.packageModel?.packageValidity ?? 0.0).toInt();
+          String validity = "$count ${item.packageModel?.validityPeriod}${count >1 ? 's' : ''}";
+
+          return ActivatedPackageCard(
+            onTap: () {
+              if(expandId == index) {
+                setState(() => expandId = -1);
+              }else {
+                setState(() => expandId = index);
+              }
+            },
+            title: item.packageModel?.packageName ?? "-",
+            price: item.amount ?? 0.0,
+            expDate: item.expireDate!,
+            isExpand: expandId == index,
+            description: item.packageModel?.packageDescription ?? "-",
+            actDate: item.activatedDate!,
+            validity: validity,
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildHeader() {
+    return Padding(
+      padding: const EdgeInsets.all(Sizes.sm),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        spacing: 10.0,
+        children: [
+          ListTile(
+            leading: Container(
+              width: 50,
+              height: 50,
+              padding: const EdgeInsets.all(8.0),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.4),
+                borderRadius: BorderRadius.circular(10.0),
+              ),
+              child: CSvgBuilder(
+                path: SvgStrings.box,
+                colorFilter: ColorFilter.mode(AppColors.black, BlendMode.srcIn),
+              ),
+            ),
+            title: Row(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 10,
+              children: [
+                TitleText(text: connectionModel.connectionName),
+                CircleAvatar(
+                  radius: 5,
+                  backgroundColor: connectionModel.isActive ? AppColors.green : AppColors.red,
+                ),
+              ],
+            ),
+            subtitle: SubTitleText(text: connectionModel.connectionNumber, color: AppColors.darkerGrey),
+          ),
+          Row(
+            spacing: 5,
+            children: [
+              CChip(label: connectionModel.connectionType),
+              if (connectionModel.billingType != null) ...{
+                CChip(
+                  label: connectionModel.billingType!,
+                  bgColor: AppColors.primary,
+                  fontColor: AppColors.primary,
+                ),
+              },
+            ],
+          ),
+          Container(
+            padding: EdgeInsets.all(Sizes.ssm),
+            margin: EdgeInsets.only(bottom: Sizes.ssm),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(16.0),
+              border: Border(left: BorderSide(color: AppColors.primary, width: 5.0)),
+              color: AppColors.white,
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  spacing: 5,
+                  children: [
+                    SubTitleText(text: "Last Reload Date: 25 Jul 2026"),
+                    TitleText(text: "Package Title"),
+                    BodyText(text: "Package description"),
+                  ],
+                ),
+                TextButton(
+                  onPressed: (){},
+                  child: Text("See All"),
+                ),
+              ],
+            ),
+          ),
+          SubHeadlineText(text: "Activated Packages"),
+        ],
+      ),
+    );
   }
 }

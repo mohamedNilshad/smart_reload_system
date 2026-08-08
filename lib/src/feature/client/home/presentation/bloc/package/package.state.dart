@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 
 abstract class PackageState extends Equatable {
   const PackageState();
@@ -16,14 +17,16 @@ class PackageRequestInitial extends PackageState {
 class PackageLoading extends PackageState {
   final bool requesting;
   final bool fetching;
-  const PackageLoading({this.fetching = false, this.requesting = false});
+  final bool fetchingActPackage;
+  const PackageLoading({this.fetching = false, this.requesting = false, this.fetchingActPackage = false});
 }
 
 class PackageSuccess extends PackageState {
   final bool? isRequested;
   final List<PackageModel>? packages;
+  final List<PackageRequestModel>? actPackages;
 
-  const PackageSuccess({this.isRequested, this.packages});
+  const PackageSuccess({this.isRequested, this.packages, this.actPackages});
 
   @override
   List<Object?> get props => [isRequested];

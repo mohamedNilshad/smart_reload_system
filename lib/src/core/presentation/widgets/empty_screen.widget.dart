@@ -5,8 +5,9 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/ti
 import 'package:smart_reload_system/src/core/presentation/widgets/gif_builder.widget.dart';
 
 class EmptyScreenWidget extends StatelessWidget {
+  final String message;
 
-  const EmptyScreenWidget({super.key});
+  const EmptyScreenWidget({super.key, this.message = "No results found"});
 
   @override
   Widget build(BuildContext context) {
@@ -17,8 +18,8 @@ class EmptyScreenWidget extends StatelessWidget {
         children: [
           GifBuilder(url: ImageStrings.emptyScreen),
 
-          const TitleText(
-            text: 'No results found',
+          TitleText(
+            text: message,
             isBold: false,
             color: AppColors.darkerGrey,
           ),

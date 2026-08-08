@@ -1,13 +1,15 @@
 import 'package:equatable/equatable.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 
 class PackageRequestModel extends Equatable {
+  final String? id;
   final String clientVendorId;
   final String connectionId;
   final String? packageDetailsId;
+  final PackageModel? packageModel;
   final DateTime requestDate;
   final double? amount;
-
   final DateTime? activatedDate;
   final DateTime? expireDate;
   final bool? isPaid;
@@ -15,12 +17,13 @@ class PackageRequestModel extends Equatable {
   final String? paymentId;
 
   const PackageRequestModel({
+    this.id,
     required this.clientVendorId,
     required this.connectionId,
     required this.requestDate,
     this.packageDetailsId,
+    this.packageModel,
     this.amount,
-
     this.isPaid,
     this.activatedDate,
     this.expireDate,
@@ -30,9 +33,11 @@ class PackageRequestModel extends Equatable {
 
   factory PackageRequestModel.fromJson(Map<String, dynamic> json, {String? id}) {
     return PackageRequestModel(
+      id: id,
       clientVendorId: json['clientVendorId'] as String? ?? '',
       connectionId: json['connectionId'] as String? ?? '',
       packageDetailsId: json['packageDetailsId'] as String? ?? '',
+      packageModel: json['packageModel'] as PackageModel?,
       amount: json['amount'] as double?,
       requestDate: (json['requestDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       isPaid: json['isPaid'] as bool? ?? false,
@@ -40,6 +45,23 @@ class PackageRequestModel extends Equatable {
       expireDate: (json['expireDate'] as Timestamp?)?.toDate(),
       paidDate: (json['paidDate'] as Timestamp?)?.toDate(),
       paymentId: (json['paymentId'] as String?),
+    );
+  }
+
+  PackageRequestModel copyWith({PackageModel? newPackageModel}) {
+    return PackageRequestModel(
+      id: id,
+      clientVendorId: clientVendorId,
+      connectionId: connectionId,
+      packageDetailsId: packageDetailsId,
+      packageModel: newPackageModel ?? packageModel,
+      amount: amount,
+      requestDate: requestDate,
+      isPaid: isPaid,
+      activatedDate:activatedDate,
+      expireDate: expireDate,
+      paidDate: paidDate,
+      paymentId: paymentId,
     );
   }
 
@@ -60,9 +82,11 @@ class PackageRequestModel extends Equatable {
 
   @override
   List<Object?> get props => [
+    id,
     clientVendorId,
     connectionId,
     packageDetailsId,
+    packageModel,
     amount,
     requestDate,
     isPaid,

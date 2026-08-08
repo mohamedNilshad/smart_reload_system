@@ -24,3 +24,11 @@ class FetchPackages extends PackageEvent {
   @override
   List<Object?> get props => [type, serviceProvider];
 }
+
+class FetchActivatedPackages extends PackageEvent {
+  final String connectionId;
+  const FetchActivatedPackages({required this.connectionId});
+
+  @override
+  List<Object?> get props => [connectionId];
+}

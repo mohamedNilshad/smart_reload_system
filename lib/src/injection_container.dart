@@ -25,6 +25,7 @@ import 'package:smart_reload_system/src/feature/client/home/data/datasource/home
 import 'package:smart_reload_system/src/feature/client/home/data/repository/home.repo_impl.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/repository/home.repo.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/add_new_connection.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_activated_packages.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_banner_news.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_connections.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_packages.usecase.dart';
@@ -87,6 +88,7 @@ Future<void> init() async{
   sl.registerLazySingleton(() => StartPaymentUseCase(sl()));
   sl.registerLazySingleton(() => RequestPackageUseCase(sl()));
   sl.registerLazySingleton(() => GetPackagesUseCase(sl()));
+  sl.registerLazySingleton(() => GetActivatedPackagesUseCase(sl()));
   sl.registerLazySingleton(() => WatchUnreadCountUseCase(sl()));
   sl.registerLazySingleton(() => GetNotificationsUseCase(sl()));
   sl.registerLazySingleton(() => MarkAsReadUseCase(sl()));
@@ -108,7 +110,7 @@ Future<void> init() async{
   sl.registerLazySingleton(() => SessionCubit(watchAuthStateUseCase: sl(), getCachedUserUseCase: sl()));
   sl.registerLazySingleton(() => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()));
   sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl(), addNewConnectionUseCase: sl()));
-  sl.registerLazySingleton(() => PackageBloc(requestPackageUseCase: sl(), getPackageUseCase: sl()));
+  sl.registerLazySingleton(() => PackageBloc(requestPackageUseCase: sl(), getPackageUseCase: sl(), getActivatedPackagesUseCase: sl()));
   sl.registerLazySingleton(() => PaymentBloc(startPaymentUseCase: sl()));
   sl.registerLazySingleton(() => UnreadCountCubit(watchUnreadCountUseCase: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton(() => NotificationBloc(getNotificationsUseCase: sl(), markAsReadUseCase: sl(), markAllAsReadUseCase: sl()));
