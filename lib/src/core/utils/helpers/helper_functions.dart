@@ -99,9 +99,16 @@ class HelperFunctions {
     }
   }
 
-  static String formatCurrency(double amount) {
-    final NumberFormat currencyFormatter = NumberFormat.currency(locale: 'en_US', symbol: '\$');
-    return currencyFormatter.format(amount);
+  static String formatCurrency(double? amount) {
+    return "Rs. ${(amount ?? 0.0).toStringAsFixed(0)}";
+  }
+
+  static String? formatValidity(double? validity, String? period){
+    int count = (validity ?? 0.0).toInt();
+
+    if(count == 0) return null;
+
+    return "$count $period${count >1 ? 's' : ''}";
   }
 
   static bool isIOS(){
@@ -261,6 +268,11 @@ class HelperFunctions {
     String finalText = 'remaining';
     return '$dayText$hourText$minuteText$finalText';
 
+  }
+
+  static bool isExpired({required DateTime expDate, DateTime? customNow}) {
+    final now = customNow ?? DateTime.now();
+    return now.isAfter(expDate);
   }
 
   static Future<String?> getFCMToken() async {

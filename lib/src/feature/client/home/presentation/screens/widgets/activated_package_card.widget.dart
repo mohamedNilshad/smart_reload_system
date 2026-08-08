@@ -13,13 +13,28 @@ import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart
 class ActivatedPackageCard extends StatelessWidget {
   final String title;
   final String description;
-  final DateTime expDate;
-  final DateTime actDate;
+  final DateTime? expDate;
+  final DateTime? actDate;
+  final DateTime reqDate;
   final double price;
   final bool isExpand;
+  final bool status;
   final String validity;
   final void Function()? onTap;
-  const ActivatedPackageCard({super.key, required this.title, required this.price, required this.validity, required this.description, required this.actDate, required this.expDate, this.isExpand = false, required this.onTap});
+
+  const ActivatedPackageCard({
+    super.key,
+    required this.title,
+    required this.price,
+    required this.status,
+    required this.validity,
+    required this.description,
+    required this.reqDate,
+    this.actDate,
+    this.expDate,
+    this.isExpand = false,
+    required this.onTap
+  });
 
 
   double calDate(DateTime startDate, DateTime endDate){
@@ -37,8 +52,10 @@ class ActivatedPackageCard extends StatelessWidget {
     return progress;
   }
 
+
   @override
   Widget build(BuildContext context) {
+    double screenWidth = HelperFunctions.screenWidth(context);
     return Padding(
       padding: const EdgeInsets.only(top: Sizes.sm, bottom: Sizes.sm),
       child: Column(
@@ -59,13 +76,17 @@ class ActivatedPackageCard extends StatelessWidget {
                         contentPadding: EdgeInsets.zero,
                         title: TitleText(text: title),
                         subtitle: SubTitleText(text: description, color: AppColors.darkerGrey),
-                        trailing: Visibility(
-                          visible: calDate(actDate, expDate) > 0.75,
+                        trailing: status ? Visibility(
+                          visible: calDate(actDate!, expDate!) > 0.75,
                           child: CChip(
                             label: "Expiring soon",
                             bgColor: AppColors.accent,
-                            fontColor: AppColors.warning,
+                            fontColor: AppColors.black,
                           ),
+                        ) : CChip(
+                          label: "Pending",
+                          bgColor: AppColors.info,
+                          fontColor: AppColors.black,
                         ),
                       ),
                       Container(
@@ -83,11 +104,11 @@ class ActivatedPackageCard extends StatelessWidget {
                                 CSvgBuilder(
                                   path: SvgStrings.clock,
                                   width: 18,
-                                  colorFilter: ColorFilter.mode(AppColors.accent, BlendMode.srcIn),
+                                  colorFilter: ColorFilter.mode(status ? AppColors.accent : AppColors.primary, BlendMode.srcIn),
                                 ),
                                 LabelText(
-                                  text: HelperFunctions.calculateRemainingTime(expDate),
-                                  color: AppColors.accent,
+                                  text: status ? HelperFunctions.calculateRemainingTime(expDate!) : "Req. Date: ${HelperFunctions.formatDateTime(reqDate)}",
+                                  color: status ? AppColors.accent : AppColors.primary,
                                 ),
                               ],
                             ),
@@ -128,16 +149,16 @@ class ActivatedPackageCard extends StatelessWidget {
                 spacing: 10,
                 children: [
                   Row(
-                    spacing: HelperFunctions.screenWidth(context)/4,
+                    spacing: 10,
                     children: [
-                      _buildDetailsColumn("Activated date", HelperFunctions.formatDateTime(actDate)),
-                      _buildDetailsColumn("Price", "Rs. ${price.toStringAsFixed(0)}"),
+                      _buildDetailsColumn("Activated date", status ? HelperFunctions.formatDateTime(actDate!) : "N/A", width: screenWidth/1.8),
+                      _buildDetailsColumn("Price", HelperFunctions.formatCurrency(price)),
                     ],
                   ),
                   Row(
-                    spacing: HelperFunctions.screenWidth(context)/4,
+                    spacing: 10,
                     children: [
-                      _buildDetailsColumn("Exp. date", HelperFunctions.formatDateTime(expDate)),
+                      _buildDetailsColumn("Exp. date", status ? HelperFunctions.formatDateTime(expDate!) : "N/A", width: screenWidth/1.8),
                       _buildDetailsColumn("Validity", validity),
                     ],
                   ),
@@ -151,8 +172,8 @@ class ActivatedPackageCard extends StatelessWidget {
   }
 
 
-  Widget buildDateProgressBar({required DateTime startDate, required DateTime endDate}) {
-    double progress = calDate(startDate, endDate);
+  Widget buildDateProgressBar({DateTime? startDate, DateTime? endDate}) {
+    double progress = !status ? 0.0 : calDate(startDate!, endDate!);
 
     // Calculate remaining days for display
     return LinearProgressIndicator(
@@ -175,13 +196,16 @@ class ActivatedPackageCard extends StatelessWidget {
     }
   }
 
-  Widget _buildDetailsColumn(String title, String subtitle){
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        LabelText(text: title, color: AppColors.darkGrey,),
-        LabelText(text: subtitle, isBold: true,),
-      ],
+  Widget _buildDetailsColumn(String title, String subtitle, {double? width}){
+    return SizedBox(
+      width: width,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          LabelText(text: title, color: AppColors.darkGrey,),
+          LabelText(text: subtitle, isBold: true,),
+        ],
+      ),
     );
   }
 }

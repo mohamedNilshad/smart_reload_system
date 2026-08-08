@@ -41,10 +41,12 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
 
   bool fetchingActPackage = true;
   List<PackageRequestModel> actPackageDetails = [];
-  List<PackageRequestModel> pendingPackageDetails = [];
+  List<PackageRequestModel> allPackageDetails = [];
+
   List<PackageRequestModel> dataPackages = [];
   List<PackageRequestModel> voicePackages = [];
   List<PackageRequestModel> comboPackages = [];
+
 
   int expandId = -1;
   double screenWidth = 0.0;
@@ -62,14 +64,20 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
   
   void initValue(List<PackageRequestModel> packages){
     setState(() {
+      allPackageDetails.clear();
+      actPackageDetails.clear();
+      dataPackages.clear();
+      voicePackages.clear();
+      comboPackages.clear();
+
+      allPackageDetails = packages;
 
       for (var pc in packages) {
-        if(pc.activatedDate != null){
+        if(pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)){
           actPackageDetails.add(pc);
-        }else {
-          pendingPackageDetails.add(pc);
         }
       }
+
 
       for (var p in actPackageDetails) {
         if(p.packageModel?.packageType == PackageType.Data.name){
@@ -108,6 +116,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
           if((state.isRequested != null) && (state.isRequested == true)){
             Navigator.of(context).pop();
             AppSnackbar.showSuccess(context, 'Reload request submitted!');
+            context.read<PackageBloc>().add(FetchActivatedPackages(connectionId: connectionModel.id!));
           }
           if(state.actPackages != null){
             initValue(state.actPackages!);
@@ -151,7 +160,6 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
               ),
               child: Visibility(
                 visible: isMobile,
-
                 replacement: SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.all(Sizes.sm),
@@ -286,7 +294,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
           },
         ),
       ),
-      buttonText: 'Continue',
+      buttonText: 'Request Reload',
       isLoading: _isLoadingNotifier,
       onSubmit: () {
         if(amountController.text.isNotEmpty && _formKey.currentState!.validate()){
@@ -316,10 +324,9 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
         shrinkWrap: !isMobile,
         scrollDirection: Axis.vertical,
         physics: isMobile ? null : NeverScrollableScrollPhysics(),
+        padding: EdgeInsetsGeometry.only(bottom: 100),
         itemBuilder: (context, index){
           final item = packages[index];
-          int count = (item.packageModel?.packageValidity ?? 0.0).toInt();
-          String validity = "$count ${item.packageModel?.validityPeriod}${count >1 ? 's' : ''}";
 
           return ActivatedPackageCard(
             onTap: () {
@@ -331,11 +338,13 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
             },
             title: item.packageModel?.packageName ?? "-",
             price: item.amount ?? 0.0,
-            expDate: item.expireDate!,
+            expDate: item.expireDate,
+            reqDate: item.requestDate,
             isExpand: expandId == index,
             description: item.packageModel?.packageDescription ?? "-",
-            actDate: item.activatedDate!,
-            validity: validity,
+            actDate: item.activatedDate,
+            status: (item.activatedDate != null),
+            validity: HelperFunctions.formatValidity(item.packageModel?.packageValidity, item.packageModel?.validityPeriod) ?? "",
           );
         },
       ),
@@ -405,13 +414,16 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                   crossAxisAlignment: CrossAxisAlignment.start,
                   spacing: 5,
                   children: [
-                    SubTitleText(text: "Last Reload Date: 25 Jul 2026"),
-                    TitleText(text: "Package Title"),
-                    BodyText(text: "Package description"),
+                    BodyText(text: "Reload History"),
+                    TitleText(text: "Total reloads (${allPackageDetails.length})"),
+                    SubTitleText(text: "click to see all"),
+                    // SubTitleText(text: "Last request: ${HelperFunctions.formatDateTime(actPackageDetails.last.requestDate)}"),
                   ],
                 ),
                 TextButton(
-                  onPressed: (){},
+                  onPressed: (){
+                    Navigator.of(context).pushNamed(RouteConstants.reloadHistoryClientScreen, arguments: allPackageDetails);
+                  },
                   child: Text("See All"),
                 ),
               ],
