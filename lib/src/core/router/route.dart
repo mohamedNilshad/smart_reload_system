@@ -113,11 +113,15 @@ class AppRouter {
 
       case RouteConstants.reloadHistoryClientScreen:
 
-        final packageList = settings.arguments as List<PackageRequestModel>;
+        final args = settings.arguments as ({
+          List<PackageRequestModel> packageList,
+          ConnectionModel connection,
+          bool isMobile,
+        });
 
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.reloadHistoryClientScreen),
-          builder: (context) => ReloadHistoryClientScreen(packageList: packageList),
+          builder: (context) => ReloadHistoryClientScreen(packageList: args.packageList, connection: args.connection, isMobile: args.isMobile),
         );
 
       case RouteConstants.settingsScreen:

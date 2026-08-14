@@ -233,9 +233,13 @@ class HelperFunctions {
     return DateFormat('h:mm a').format(dateTime);
   }
 
-  static String formatDateTime(DateTime dateTime) {
+  static String formatDateTime(DateTime dateTime, {bool withTime = true}) {
     // 'MMM dd, yyyy, hh:mm a' -> Oct 02, 2026, 01:16 PM
-    return DateFormat('MMM dd, yyyy, hh:mm a').format(dateTime);
+    if(withTime){
+      return DateFormat('MMM dd, yyyy, hh:mm a').format(dateTime);
+    }
+    return DateFormat('MMM dd, yyyy').format(dateTime);
+
   }
 
   static String calculateRemainingTime(DateTime futureDate) {

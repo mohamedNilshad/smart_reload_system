@@ -78,7 +78,6 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
         }
       }
 
-
       for (var p in actPackageDetails) {
         if(p.packageModel?.packageType == PackageType.Data.name){
           dataPackages.add(p);
@@ -191,9 +190,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                               labelColor: AppColors.primary,
                               unselectedLabelColor: AppColors.darkerGrey,
                               indicatorColor: AppColors.primary,
-                              labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                fontSize: 14,
-                              ),
+                              labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 14),
                               tabs: const [
                                 Tab(text: 'Data'),
                                 Tab(text: 'Voice'),
@@ -422,7 +419,14 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                 ),
                 TextButton(
                   onPressed: (){
-                    Navigator.of(context).pushNamed(RouteConstants.reloadHistoryClientScreen, arguments: allPackageDetails);
+                    Navigator.of(context).pushNamed(
+                      RouteConstants.reloadHistoryClientScreen,
+                      arguments: (
+                       packageList: allPackageDetails,
+                       connection: connectionModel,
+                       isMobile: isMobile,
+                      ),
+                    );
                   },
                   child: Text("See All"),
                 ),

@@ -7,8 +7,9 @@ class BodyText extends StatelessWidget {
   final TextOverflow? overflow;
   final int? maxLines;
   final double? size;
+  final bool isBold;
   final TextAlign? textAlign;
-  const BodyText({super.key, required this.text, this.color, this.overflow, this.maxLines, this.size, this.textAlign});
+  const BodyText({super.key, required this.text, this.color, this.overflow, this.maxLines, this.size, this.isBold = false, this.textAlign});
 
   @override
   Widget build(BuildContext context) {
@@ -18,6 +19,7 @@ class BodyText extends StatelessWidget {
       style: Theme.of(context).textTheme.bodySmall?.copyWith(
         color: color ?? AppColors.black,
         overflow: overflow,
+        fontWeight: isBold ? FontWeight.bold : null,
         fontSize: size,
       ),
       textAlign: textAlign,

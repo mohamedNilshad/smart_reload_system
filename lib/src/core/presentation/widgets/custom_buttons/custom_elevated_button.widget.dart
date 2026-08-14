@@ -8,21 +8,30 @@ class CElevatedButton extends StatelessWidget {
   final String label;
   final bool isLoading;
   final Color? bgColor;
-  const CElevatedButton({super.key, required this.onPressed, required this.label, this.isLoading = false, this.bgColor});
+  final Color? fgColor;
+  final Color? loadingColor;
+  final double? width;
+  final double? height;
+  const CElevatedButton({super.key, required this.onPressed, required this.label, this.isLoading = false, this.width,this.height, this.fgColor, this.loadingColor, this.bgColor});
 
   @override
   Widget build(BuildContext context) {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
-        minimumSize: Size(HelperFunctions.screenWidth(context), Sizes.buttonHeight),
+        minimumSize: Size(width ?? HelperFunctions.screenWidth(context), height ?? Sizes.buttonHeight),
         backgroundColor: bgColor,
       ),
-      child: isLoading ? const SizedBox(
+      child: isLoading ? SizedBox(
         width: 20,
         height: 20,
-        child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
-      ) : Text(label),
+        child: CircularProgressIndicator(strokeWidth: 2, color: loadingColor ?? Colors.white),
+      ) : Text(
+        label,
+        style: TextStyle(
+          color: fgColor,
+        ),
+      ),
     );
   }
 }

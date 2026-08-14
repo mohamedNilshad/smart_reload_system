@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
+import 'package:smart_reload_system/src/feature/client/payment/presentation/screens/payment.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/profile.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/home.client.screen.dart';
 
@@ -17,7 +18,7 @@ class _MainClientScreenState extends State<MainClientScreen> {
   List<Widget> screens = [
     HomeClientScreen(),
     TempScreen(title: "Family screen"),
-    TempScreen(title: "Invoice screen"),
+    PaymentScreen(),
     ProfileScreen(),
   ];
 
