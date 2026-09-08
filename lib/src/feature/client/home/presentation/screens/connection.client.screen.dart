@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:smart_reload_system/src/core/bloc/payment/payment.bloc.dart';
+import 'package:smart_reload_system/src/core/bloc/payment/payment.event.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/custom_elevated_button.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/body_text.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/headline_text.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/empty_screen.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widget.dart';
@@ -35,6 +39,9 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
   final _isLoadingNotifier = ValueNotifier<bool>(false);
   double screenWidth = 0.0;
   final List<Map<String, String>> connectionsNumbers = [];
+
+  bool paymentBtnLoading = false;
+  double paymentAmount = 0.0;
 
 
   @override
@@ -126,6 +133,85 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                   padding: const EdgeInsets.fromLTRB(Sizes.ssm, Sizes.ssm, Sizes.ssm, 100 ),
                   child: Column(
                     children: [
+                      Stack(
+                        children: [
+                          Container(
+                            width: screenWidth,
+                            padding: EdgeInsets.all(Sizes.sm),
+                            decoration: BoxDecoration(
+                              gradient: AppColors.linerGradient,
+                              borderRadius: BorderRadius.circular(12.0),
+                            ),
+                            child: Column(
+                              spacing: 10,
+                              children: [
+                                SubTitleText(text: "TOTAL PAYABLE", color: AppColors.white),
+                                HeadlineText(text: "RS. $paymentAmount", color: AppColors.white),
+                                InkWell(
+                                  onTap: paymentBtnLoading ? null : (){
+                                    context.read<PaymentBloc>().add(
+                                      StartPaymentRequested(
+                                        amount: paymentAmount,
+                                        address: "Kandy Sri Lanka",
+                                        city: "Kandy",
+                                        email: "nilshad@gmail.com",
+                                        firstName: "Mohamed",
+                                        itemDescription: "",
+                                        lastName: "Nilshad",
+                                        orderId: "SRS-${DateTime.now().microsecondsSinceEpoch}",
+                                        phone: "0776198355",
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    width: double.infinity,
+                                    padding: EdgeInsets.all(Sizes.sm),
+                                    margin: EdgeInsets.symmetric(horizontal: Sizes.xl),
+                                    alignment: AlignmentGeometry.center,
+                                    decoration: BoxDecoration(
+                                        color: AppColors.white,
+                                        borderRadius: BorderRadius.circular(25.0)
+                                    ),
+                                    child: paymentBtnLoading ? SizedBox(
+                                      width: 20,
+                                      height: 20,
+                                      child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.black),
+                                    ) : Text(
+                                      "Pay Now",
+                                      style: TextStyle(color: AppColors.black, fontWeight: FontWeight.bold, fontSize: 14.0),
+                                    ),
+                                  ),
+                                ),
+                                TextButton(
+                                  onPressed: (){},
+                                  child: Text(
+                                    "See details",
+                                    style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      color: AppColors.grey,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Positioned(
+                            top: 5,
+                            left: 5,
+                            child: InkWell(
+                              onTap: (){
+                                //navigate to payment screen
+                              },
+                              child: CircleAvatar(
+                                backgroundColor: AppColors.darkerGrey.withValues(alpha: 0.5),
+                                child: Icon(Icons.history_rounded, color: AppColors.white),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
                       Container(
                         margin: EdgeInsets.symmetric(vertical: Sizes.sm),
                         alignment: AlignmentGeometry.topStart,
