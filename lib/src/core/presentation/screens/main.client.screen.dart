@@ -38,7 +38,7 @@ class _MainClientScreenState extends State<MainClientScreen> {
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.monetization_on_rounded),
-            label: 'Invoice',
+            label: 'Payment',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

@@ -7,7 +7,6 @@ import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
-import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/custom_elevated_button.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_chip.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/body_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/headline_text.widget.dart';
@@ -65,21 +64,18 @@ class _PaymentScreenState extends State<PaymentScreen> {
             children: [
               Container(
                 width: screenWidth,
-                margin: EdgeInsets.symmetric(horizontal: Sizes.sm),
-                padding: EdgeInsets.all(Sizes.md),
+                padding: EdgeInsets.symmetric(horizontal: Sizes.md, vertical: Sizes.xl),
                 decoration: BoxDecoration(
                   gradient: AppColors.linerGradient,
-                  borderRadius: BorderRadius.circular(16.0),
+                  borderRadius: BorderRadius.circular(12.0),
                 ),
                 child: Column(
                   spacing: 10,
                   children: [
                     SubTitleText(text: "TOTAL PAYABLE", color: AppColors.white),
                     HeadlineText(text: "RS. $amount", color: AppColors.white),
-                    CElevatedButton(
-                      isLoading: btnLoading,
-                      loadingColor: AppColors.black,
-                      onPressed: btnLoading ? null : (){
+                    InkWell(
+                      onTap: btnLoading ? null : (){
                         context.read<PaymentBloc>().add(
                           StartPaymentRequested(
                             amount: amount,
@@ -94,12 +90,25 @@ class _PaymentScreenState extends State<PaymentScreen> {
                           ),
                         );
                       },
-                      bgColor: btnLoading ? AppColors.buttonDisabled : AppColors.white,
-                      fgColor: AppColors.black,
-                      width: 150,
-                      height: 30,
-                      label: "Pay",
-                    )
+                      child: Container(
+                        width: double.infinity,
+                        padding: EdgeInsets.all(Sizes.sm),
+                        margin: EdgeInsets.symmetric(horizontal: Sizes.xl),
+                        alignment: AlignmentGeometry.center,
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(25.0)
+                        ),
+                        child: btnLoading ? SizedBox(
+                          width: 20,
+                          height: 20,
+                          child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.black),
+                        ) : Text(
+                          "Pay Now",
+                          style: TextStyle(color: AppColors.black, fontWeight: FontWeight.bold, fontSize: 14.0),
+                        ),
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -110,24 +119,41 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   physics: NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
 
-                    return Padding(
-                      padding: const EdgeInsets.only(bottom: 8.0),
-                      child: ListTile(
+                    return Container(
+                      padding: EdgeInsets.all(Sizes.ssm),
+                      margin: EdgeInsetsGeometry.only(bottom: 10.0),
+                      decoration: BoxDecoration(
+                        color: AppColors.white,
+                        borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Row(
+                        spacing: 10,
+                        children: [
+                          CircleAvatar(
+                            radius: 25,
+                            backgroundColor: AppColors.green.withValues(alpha: 0.2),
+                            child: Icon(Icons.check_circle_outline_rounded, color: AppColors.green, size: 35,),
+                          ),
+                          Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            spacing: 5.0,
+                            children: [
+                              TitleText(text: "INV-1001", color: AppColors.darkerGrey),
+                              BodyText(text: "2023-10-01", size: 10, color: AppColors.darkGrey),
+                            ],
+                          ),
 
-                        tileColor: AppColors.grey,
-                        leading: CircleAvatar(
-                          backgroundColor: AppColors.green.withValues(alpha: 0.3),
-                          child: Icon(Icons.check, color: AppColors.green),
-                        ),
-                        title: TitleText(text: "INV-1001"),
-                        subtitle: BodyText(text: "2023-10-01", size: 10, color: AppColors.darkerGrey),
-                        trailing: Column(
-                          spacing: 5,
-                          children: [
-                            SubHeadlineText(text: "Rs. 1500"),
-                            CChip(label: "paid", bgColor: AppColors.green,)
-                          ],
-                        ),
+                          Spacer(),
+                          Column(
+                            spacing: 5,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SubHeadlineText(text: "Rs. 1500", color: AppColors.darkerGrey, size: 16.0,),
+                              CChip(label: "paid", bgColor: AppColors.green,)
+                            ],
+                          ),
+                        ],
                       ),
                     );
                   }
