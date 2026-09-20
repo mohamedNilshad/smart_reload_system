@@ -74,12 +74,22 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
             final userDoc = await firestore.collection('users').doc(vendorId).get();
             if (userDoc.exists) {
               final vendorName = userDoc['fullName'] as String? ?? 'Unknown';
+              final vendorEmail = userDoc['email'] as String? ?? '';
+              final vendorPhone = userDoc['phoneNumber'] as String? ?? 'Unknown';
+              final lastPaidDate = (data['lastPaidDate'] as Timestamp?)?.toDate();
+              final lastPaidAmount = data['lastPaidAmount'] as double?;
+              final currentPaymentBalance = data['currentPaymentBalance'] as double?;
               vendors.add(
                 VendorModel(
                   clientVendorId: doc.id,
                   vendorId: vendorId,
                   vendorName: vendorName,
+                  vendorEmail: vendorEmail,
+                  vendorPhone: vendorPhone,
                   connectionCount: connectionCount,
+                  currentPaymentBalance: (currentPaymentBalance == null) ? 0.0: -currentPaymentBalance,
+                  lastPaidAmount: lastPaidAmount,
+                  lastPaidDate: lastPaidDate,
                 ),
               );
             }

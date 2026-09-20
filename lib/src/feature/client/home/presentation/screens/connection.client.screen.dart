@@ -2,11 +2,13 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/bloc/payment/payment.bloc.dart';
 import 'package:smart_reload_system/src/core/bloc/payment/payment.event.dart';
+import 'package:smart_reload_system/src/core/bloc/payment/payment.state.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/presentation/progress_indicators/custom.circular_progress_indicator.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/custom_elevated_button.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/body_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/headline_text.widget.dart';
@@ -17,8 +19,12 @@ import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widge
 import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loading.widget.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
+import 'package:smart_reload_system/src/feature/client/auth/domain/entity/client.entity.dart';
+import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.state.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.event.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.state.dart' as c;
@@ -29,13 +35,8 @@ import 'package:smart_reload_system/src/feature/client/payment/presentation/bloc
 import 'package:smart_reload_system/src/feature/client/payment/presentation/bloc/payment.client.state.dart';
 
 class ConnectionClientScreen extends StatefulWidget {
-  final String name;
-  final String clientVendorId;
-  const ConnectionClientScreen({
-    super.key,
-    required this.name,
-    required this.clientVendorId,
-  });
+  final VendorModel vendor;
+  const ConnectionClientScreen({super.key, required this.vendor});
 
   @override
   State<ConnectionClientScreen> createState() => _ConnectionClientScreenState();
@@ -49,16 +50,21 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
 
   bool paymentBtnLoading = false;
   bool payableLoading = false;
-  bool payableAmountLoading = false;
+  bool payableAmountLoading = true;
   double paymentAmount = 0.0;
   List<PackageRequestModel> payableList = [];
-
+  late VendorModel vendor;
+  late UserEntity user;
 
   @override
   void initState() {
     super.initState();
+    final sessionState = context.read<SessionCubit>().state;
+    if (sessionState is SessionAuthenticated) user = sessionState.user;
+
+    vendor = widget.vendor;
     context.read<ConnectionBloc>().add(const ConnectionsReset());
-    context.read<ConnectionBloc>().add(ConnectionsRequested(widget.clientVendorId));
+    context.read<ConnectionBloc>().add(ConnectionsRequested(vendor.clientVendorId));
     //context.read<PaymentClientBloc>().add(FetchPayableDetails(clientVendorId :widget.clientVendorId));
   }
 
@@ -81,13 +87,16 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
 
   void calPayAmount(){
     setState(() {
+      paymentAmount = 0.0;
       payableAmountLoading = true;
       for (var item in payableList) {
         paymentAmount += item.amount ?? 0.0;
       }
+      payableAmountLoading = false;
     });
-    payableAmountLoading = false;
+
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -96,18 +105,18 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
       appBar: customAppBar(
         onPressed: () => Navigator.of(context).pop(),
         icon: Icons.arrow_back_ios_new_rounded,
-        title: widget.name,
+        title: vendor.vendorName,
       ),
       body: RefreshIndicator(
         onRefresh: () async {
           context.read<ConnectionBloc>().add(const ConnectionsReset());
-          context.read<ConnectionBloc>().add(ConnectionsRequested(widget.clientVendorId));
+          context.read<ConnectionBloc>().add(ConnectionsRequested(vendor.clientVendorId));
           await Future.delayed(const Duration(milliseconds: 500));
         },
         child: BlocConsumer<ConnectionBloc, c.ConnectionState>(
           listener: (context, state){
             if (state is c.ConnectionSuccess){
-              context.read<PaymentClientBloc>().add(FetchPayableDetails(clientVendorId :widget.clientVendorId));
+              context.read<PaymentClientBloc>().add(FetchPayableDetails(clientVendorId :vendor.clientVendorId));
 
             }
           },
@@ -141,7 +150,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
             if (state is c.ConnectionFailure) {
               return FallbackWidget(
                   onPressed: () {
-                    context.read<ConnectionBloc>().add(ConnectionsRequested(widget.clientVendorId));
+                    context.read<ConnectionBloc>().add(ConnectionsRequested(vendor.clientVendorId));
                   }
               );
             }
@@ -155,23 +164,45 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
               List<ConnectionModel> approvedList = state.connections.where((c) => c.status == true).toList();
               List<ConnectionModel> pendingList = state.connections.where((c) => c.status == false).toList();
 
-              return BlocListener<PaymentClientBloc, PaymentClientState>(
-                listener: (context, pState) {
+              return MultiBlocListener(
+                listeners: [
+                  BlocListener<PaymentClientBloc, PaymentClientState>(
+                    listener: (context, pState) {
 
-                  if(pState is PaymentLoading){
-                    payableLoading = pState.isFetching;
-                  }
-                  if (pState is PayableSuccess) {
-                    setState(() {
-                      payableLoading = false;
-                      payableList = pState.payableList;
-                      if(payableList.isNotEmpty) calPayAmount();
-                    });
-                  } else if (pState is PaymentFailure) {
-                    setState(()  => payableLoading = false);
-                    AppSnackbar.showError(context, pState.message);
-                  }
-                },
+                      if(pState is PaymentLoading){
+                        payableLoading = pState.isFetching;
+                      }
+                      if (pState is PayableSuccess) {
+                        setState(() {
+                          payableLoading = false;
+                          payableList = pState.payableList;
+                          if(payableList.isNotEmpty) calPayAmount();
+                        });
+                      } else if (pState is PaymentFailure) {
+                        setState(()  => payableLoading = false);
+                        AppSnackbar.showError(context, pState.message);
+                      }
+                    },
+                  ),
+
+                  BlocListener<PaymentBloc, PaymentState>(
+                    listener: (context, state) {
+                      paymentBtnLoading = state is PaymentProcessing;
+                      if (state is PaymentSuccess) {
+                        AppSnackbar.showInfo(context, "Payment Successful! ${state.paymentId}");
+
+                        setState(() {
+                          paymentBtnLoading = false;
+                          ///update all the tables(client_vendor, commission, commission_history, payment_details, requested_packages, wallet)
+                          context.read<PaymentClientBloc>().add(FetchPayableDetails(clientVendorId :vendor.clientVendorId));
+                        });
+                      } else if (state is PaymentFailureState) {
+                        setState(() => paymentBtnLoading = false);
+                        AppSnackbar.showError(context, state.message);
+                      }
+                    },
+                  ),
+                ],
                 child: SingleChildScrollView(
                   child: Padding(
                     padding: const EdgeInsets.fromLTRB(Sizes.ssm, Sizes.ssm, Sizes.ssm, 100 ),
@@ -190,7 +221,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                                 spacing: 10,
                                 children: [
                                   SubTitleText(text: "TOTAL PAYABLE", color: AppColors.white),
-                                  payableAmountLoading ? CCircularProgressIndicator(color: AppColors.white): HeadlineText(text: "RS. $paymentAmount", color: AppColors.white),
+                                  (payableAmountLoading) ? CCircularProgressIndicator(color: AppColors.white, radius: 25,): HeadlineText(text: "RS. $paymentAmount", color: AppColors.white),
                                   InkWell(
                                     onTap: paymentBtnLoading || payableAmountLoading || (paymentAmount == 0.0) ? null : (){
                                       context.read<PaymentBloc>().add(
@@ -227,7 +258,17 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                                     ),
                                   ),
                                   TextButton(
-                                    onPressed: (){},
+                                    onPressed: (){
+                                      InvoiceItemsBottomSheet.show(
+                                        context,
+                                        total: paymentAmount,
+                                        clientName: user.fullName,
+                                        clientEmail: user.email,
+                                        clientPhone: user.phoneNumber,
+                                        vendor: widget.vendor,
+                                        items: payableList.reversed.toList(),
+                                      );
+                                    },
                                     child: Text(
                                       "See details",
                                       style: TextStyle(
@@ -336,12 +377,12 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
           onPressed: () {
             Navigator.of(context).pushNamed(
               RouteConstants.addNewConnectionClientScreen,
-              arguments: (clientVendorId: widget.clientVendorId, connectionNumbers: connectionsNumbers)
+              arguments: (clientVendorId: vendor.clientVendorId, connectionNumbers: connectionsNumbers)
             ).then((result){
 
               if(result != null && result == true && context.mounted){
                 context.read<ConnectionBloc>().add(const ConnectionsReset());
-                context.read<ConnectionBloc>().add(ConnectionsRequested(widget.clientVendorId));
+                context.read<ConnectionBloc>().add(ConnectionsRequested(vendor.clientVendorId));
               }
             });
           },

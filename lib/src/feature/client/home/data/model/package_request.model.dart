@@ -1,11 +1,13 @@
 import 'package:equatable/equatable.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 
 class PackageRequestModel extends Equatable {
   final String? id;
   final String clientVendorId;
   final String connectionId;
+  final ConnectionModel? connectionModel;
   final String? packageDetailsId;
   final PackageModel? packageModel;
   final DateTime requestDate;
@@ -23,6 +25,7 @@ class PackageRequestModel extends Equatable {
     required this.requestDate,
     this.packageDetailsId,
     this.packageModel,
+    this.connectionModel,
     this.amount,
     this.isPaid,
     this.activatedDate,
@@ -38,6 +41,7 @@ class PackageRequestModel extends Equatable {
       connectionId: json['connectionId'] as String? ?? '',
       packageDetailsId: json['packageDetailsId'] as String? ?? '',
       packageModel: json['packageModel'] as PackageModel?,
+      connectionModel: json['connectionModel'] as ConnectionModel?,
       amount: json['amount'] as double?,
       requestDate: (json['requestDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       isPaid: json['isPaid'] as bool? ?? false,

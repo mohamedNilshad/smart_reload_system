@@ -7,6 +7,7 @@ import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/verify_email_client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
+import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection_details.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/package_details.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/reload_history.client.screen.dart';
@@ -71,14 +72,11 @@ class AppRouter {
 
       case RouteConstants.connectionClientScreen:
 
-        final args = settings.arguments as ({
-          String name,
-          String clientVendorId,
-        });
+        final VendorModel vendor = settings.arguments as VendorModel;
 
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.connectionClientScreen),
-          builder: (context) => ConnectionClientScreen(name: args.name, clientVendorId: args.clientVendorId),
+          builder: (context) => ConnectionClientScreen(vendor: vendor),
         );
 
       case RouteConstants.addNewConnectionClientScreen:
