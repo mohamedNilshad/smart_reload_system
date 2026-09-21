@@ -4,14 +4,19 @@ import 'package:smart_reload_system/src/core/error/exceptions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
-import 'package:smart_reload_system/src/feature/client/payment/domain/entity/payment.entity.dart';
 
 abstract class PaymentClientRemoteDataSource {
-  Future<PaymentEntity> createPayment({
-    required double amount,
-    required String currency,
-    required String paymentMethod,
-    required String description,
+  Future<bool> createPayment({
+    required double lastPaidAmount,
+    required String clientVendorId,
+    required DateTime lastPaidDate,
+    required List<String> reqPackageIdList,
+
+    required String vendorId,
+    required double vendorComAmount,
+
+    required String paymentRefNumber,
+    required String invoiceNo,
   });
   Future<List<PackageRequestModel>> fetchPayables({required String clientVendorId});
 }
@@ -26,11 +31,17 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
   });
 
   @override
-  Future<PaymentEntity> createPayment({
-    required double amount,
-    required String currency,
-    required String paymentMethod,
-    required String description,
+  Future<bool> createPayment({
+    required double lastPaidAmount,
+    required String clientVendorId,
+    required DateTime lastPaidDate,
+    required List<String> reqPackageIdList,
+
+    required String vendorId,
+    required double vendorComAmount,
+
+    required String paymentRefNumber,
+    required String invoiceNo,
   }) async {
     try {
       final userId = firebaseAuth.currentUser?.uid;
@@ -38,30 +49,74 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
         throw ServerException('User not authenticated');
       }
 
-      final docRef = await firestore.collection('payments').add({
-        'userId': userId,
-        'amount': amount,
-        'currency': currency,
-        'status': 'pending',
-        'paymentMethod': paymentMethod,
-        'description': description,
-        'createdAt': FieldValue.serverTimestamp(),
+      ///client_vendor update
+      await firestore.collection('client_vendor').doc(clientVendorId).update({
+        'currentPaymentBalance': 0.0,//value can change in vendor side
+        'lastPaidAmount': lastPaidAmount,
+        'lastPaidDate': Timestamp.fromDate(lastPaidDate)
       });
 
-      final doc = await docRef.get();
-      final data = doc.data() as Map<String, dynamic>;
+      ///commission update
+      final comSnapshot = await firestore
+          .collection('commission')
+          .where('vendorId', isEqualTo: vendorId)
+          .limit(1)
+          .get();
 
-      return PaymentEntity(
-        id: doc.id,
-        userId: userId,
-        amount: amount,
-        currency: currency,
-        status: data['status'] ?? 'pending',
-        paymentMethod: paymentMethod,
-        description: description,
-        createdAt: (data['createdAt'] as Timestamp).toDate(),
-        updatedAt: null,
-      );
+      if (comSnapshot.docs.isNotEmpty) {
+        // Existing vendor commission
+        await comSnapshot.docs.first.reference.update({
+          'comAmount': FieldValue.increment(vendorComAmount),
+          'modifyDate': Timestamp.fromDate(lastPaidDate),
+        });
+      } else {
+        // New vendor commission
+        await firestore.collection('commission').add({
+          'vendorId': vendorId,
+          'comAmount': vendorComAmount,
+          'modifyDate': Timestamp.fromDate(lastPaidDate),
+        });
+      }
+
+      ///commission_history
+      await firestore.collection('commission_history').add({
+        'clientVendorId': clientVendorId,
+        'comAmount': vendorComAmount,
+        'date': Timestamp.fromDate(lastPaidDate),
+        'totalAmount': lastPaidAmount
+      });
+
+
+      ///payment_details
+      final docPayRef = await firestore.collection('payment_details').add({
+        'clientVendorId': clientVendorId,
+        'paidDate': Timestamp.fromDate(lastPaidDate),
+        'paidAmount': lastPaidAmount,
+        'invoiceNo': invoiceNo,
+        'paymentRefNumber': paymentRefNumber
+      });
+
+      final payDoc = await docPayRef.get();
+
+
+      ///requested_packages
+      final rPackageBatch = firestore.batch();
+
+      for (var rId in reqPackageIdList) {
+        final docRef = firestore
+            .collection('requested_packages')
+            .doc(rId);
+
+        rPackageBatch.update(docRef, {
+          'isPaid': true,
+          'paymentId': payDoc.id,
+          'paidDate': lastPaidDate
+        });
+      }
+
+      await rPackageBatch.commit();
+
+      return true;
     } on FirebaseException catch (e) {
       throw ServerException(e.message ?? 'Firebase error occurred');
     } catch (e) {

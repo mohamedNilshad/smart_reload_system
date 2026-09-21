@@ -176,11 +176,21 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                         setState(() {
                           payableLoading = false;
                           payableList = pState.payableList;
-                          if(payableList.isNotEmpty) calPayAmount();
+                          if(payableList.isNotEmpty) {
+                            calPayAmount();
+                          }else{
+                            payableAmountLoading = false;
+                          }
                         });
+
+                      } else if (pState is PaymentClientSuccess) {
+                        if(pState.isPaymentCreated){
+                          context.read<PaymentClientBloc>().add(FetchPayableDetails(clientVendorId :vendor.clientVendorId));
+                        }
+
                       } else if (pState is PaymentFailure) {
                         setState(()  => payableLoading = false);
-                        AppSnackbar.showError(context, pState.message);
+                        AppSnackbar.showError(context, pState.message, showUp: true);
                       }
                     },
                   ),
@@ -188,14 +198,21 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                   BlocListener<PaymentBloc, PaymentState>(
                     listener: (context, state) {
                       paymentBtnLoading = state is PaymentProcessing;
-                      if (state is PaymentSuccess) {
-                        AppSnackbar.showInfo(context, "Payment Successful! ${state.paymentId}");
 
-                        setState(() {
-                          paymentBtnLoading = false;
-                          ///update all the tables(client_vendor, commission, commission_history, payment_details, requested_packages, wallet)
-                          context.read<PaymentClientBloc>().add(FetchPayableDetails(clientVendorId :vendor.clientVendorId));
-                        });
+                      if (state is PaymentSuccess) {
+                        AppSnackbar.showInfo(context, "Payment Successful! ${state.paymentId}", showUp: true);
+
+                        context.read<PaymentClientBloc>().add(CreatePayment(
+                          clientVendorId: vendor.clientVendorId,
+                          lastPaidAmount: paymentAmount,
+                          lastPaidDate: state.paymentDate,
+                          reqPackageIdList: payableList.map((e) => e.id ?? "").toList(),
+                          vendorId: vendor.vendorId,
+                          vendorComAmount: 0.0,
+                          paymentRefNumber: state.paymentId,
+                          invoiceNo: "INV-${DateTime.now().microsecondsSinceEpoch}",
+                        ));
+                        setState(() => paymentBtnLoading = false);
                       } else if (state is PaymentFailureState) {
                         setState(() => paymentBtnLoading = false);
                         AppSnackbar.showError(context, state.message);
@@ -229,12 +246,12 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                                           amount: paymentAmount,
                                           address: "Kandy Sri Lanka",
                                           city: "Kandy",
-                                          email: "nilshad@gmail.com",
-                                          firstName: "Mohamed",
+                                          email: user.email,
+                                          firstName: user.fullName,
                                           itemDescription: "",
-                                          lastName: "Nilshad",
+                                          lastName: "SRS",
                                           orderId: "SRS-${DateTime.now().microsecondsSinceEpoch}",
-                                          phone: "0776198355",
+                                          phone: user.phoneNumber,
                                         ),
                                       );
                                     },
@@ -244,7 +261,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                                       margin: EdgeInsets.symmetric(horizontal: Sizes.xl),
                                       alignment: AlignmentGeometry.center,
                                       decoration: BoxDecoration(
-                                          color: AppColors.white,
+                                          color: (paymentAmount == 0.0) ? AppColors.buttonDisabled : AppColors.white,
                                           borderRadius: BorderRadius.circular(25.0)
                                       ),
                                       child: paymentBtnLoading ? SizedBox(
@@ -257,27 +274,32 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                                       ),
                                     ),
                                   ),
-                                  TextButton(
-                                    onPressed: (){
-                                      InvoiceItemsBottomSheet.show(
-                                        context,
-                                        total: paymentAmount,
-                                        clientName: user.fullName,
-                                        clientEmail: user.email,
-                                        clientPhone: user.phoneNumber,
-                                        vendor: widget.vendor,
-                                        items: payableList.reversed.toList(),
-                                      );
-                                    },
-                                    child: Text(
-                                      "See details",
-                                      style: TextStyle(
-                                        decoration: TextDecoration.underline,
-                                        color: AppColors.grey,
-                                        fontWeight: FontWeight.bold,
+                                  if((paymentAmount != 0.0))...{
+                                    TextButton(
+                                      onPressed: (){
+                                        InvoiceItemsBottomSheet.show(
+                                          context,
+                                          total: paymentAmount,
+                                          clientName: user.fullName,
+                                          clientEmail: user.email,
+                                          clientPhone: user.phoneNumber,
+                                          vendor: widget.vendor,
+                                          items: payableList.reversed.toList(),
+                                        );
+                                      },
+                                      child: Text(
+                                        "See details",
+                                        style: TextStyle(
+                                          decoration: TextDecoration.underline,
+                                          color: AppColors.grey,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
                                     ),
-                                  ),
+                                  }else...{
+                                    SizedBox(height: 10.0),
+                                  }
+
                                 ],
                               ),
                             ),

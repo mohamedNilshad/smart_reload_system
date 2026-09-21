@@ -11,9 +11,10 @@ class PaymentProcessing extends PaymentState {}
 
 class PaymentSuccess extends PaymentState {
   final String paymentId;
-  const PaymentSuccess(this.paymentId);
+  final DateTime paymentDate;
+  const PaymentSuccess(this.paymentId, this.paymentDate);
   @override
-  List<Object?> get props => [paymentId];
+  List<Object?> get props => [paymentId, paymentDate];
 }
 
 class PaymentFailureState extends PaymentState {

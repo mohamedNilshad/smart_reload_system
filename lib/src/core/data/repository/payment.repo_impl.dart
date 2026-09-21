@@ -9,7 +9,7 @@ class PaymentRepoImpl implements PaymentRepo {
   PaymentRepoImpl(this.remoteDataSource);
 
   @override
-  Future<Either<Failure, String>> startOneTimePayment({
+  Future<Either<Failure, Map<String, dynamic>>> startOneTimePayment({
     required String orderId,
     required double amount,
     required String itemDescription,

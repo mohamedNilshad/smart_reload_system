@@ -4,7 +4,7 @@ import 'package:smart_reload_system/src/core/constants/constant.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
 
 abstract class PaymentRemoteDataSource {
-  Future<String> startOneTimePayment({
+  Future<Map<String, dynamic>> startOneTimePayment({
     required String orderId,
     required double amount,
     required String itemDescription,
@@ -26,7 +26,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
   static const _isSandbox = true; // flip to false for production
 
   @override
-  Future<String> startOneTimePayment({
+  Future<Map<String, dynamic>> startOneTimePayment({
     required String orderId,
     required double amount,
     required String itemDescription,
@@ -36,7 +36,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
     required String phone,
     required String address,
     required String city,
-  }) {
+  }) async {
     final completer = Completer<String>();
 
     final paymentObject = {
@@ -57,13 +57,37 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
       "country": "Sri Lanka",
     };
 
-    PayHere.startPayment(
-      paymentObject,
-      (paymentId) { if (!completer.isCompleted) completer.complete(paymentId);},
-      (error) {if (!completer.isCompleted) completer.completeError(ServerException(error));},
-      () { if (!completer.isCompleted) completer.completeError(ServerException('Payment was cancelled.'));},
-    );
+    try{
+      PayHere.startPayment(
+        paymentObject,
+            (paymentId) {
+          if (!completer.isCompleted) {
+            completer.complete(paymentId);
+          }
+        },
+            (error) {
+          if (!completer.isCompleted) {
+            completer.completeError(
+              ServerException(error),
+            );
+          }
+        },
+            () {
+          if (!completer.isCompleted) {
+            completer.completeError(
+              ServerException('Payment was cancelled.'),
+            );
+          }
+        },
+      );
 
-    return completer.future;
+      final paymentId = await completer.future;
+      return {
+        'paymentId': paymentId,
+        'paymentDate': DateTime.now().toIso8601String(),
+      };
+    }catch(e){
+      throw ServerException(e.toString());
+    }
   }
 }

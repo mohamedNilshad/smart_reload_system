@@ -7,7 +7,7 @@ class StartPaymentUseCase {
   final PaymentRepo repo;
   StartPaymentUseCase(this.repo);
 
-  Future<Either<Failure, String>> call({
+  Future<Either<Failure, Map<String, dynamic>>> call({
     required String orderId,
     required double amount,
     required String itemDescription,

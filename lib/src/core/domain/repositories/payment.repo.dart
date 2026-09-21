@@ -2,7 +2,7 @@ import 'package:dartz/dartz.dart';
 import 'package:smart_reload_system/src/core/error/failures.dart';
 
 abstract class PaymentRepo {
-  Future<Either<Failure, String>> startOneTimePayment({
+  Future<Either<Failure, Map<String, dynamic>>> startOneTimePayment({
     required String orderId,
     required double amount,
     required String itemDescription,

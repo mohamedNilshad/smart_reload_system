@@ -14,7 +14,8 @@ class PaymentInitial extends PaymentClientState {
 
 class PaymentLoading extends PaymentClientState {
   final bool isFetching;
-  const PaymentLoading({this.isFetching =false});
+  final bool isCreating;
+  const PaymentLoading({this.isFetching =false, this.isCreating =false});
 }
 
 class PayableSuccess extends PaymentClientState {
@@ -24,6 +25,15 @@ class PayableSuccess extends PaymentClientState {
 
   @override
   List<Object?> get props => [payableList];
+}
+
+class PaymentClientSuccess extends PaymentClientState {
+  final bool isPaymentCreated;
+
+  const PaymentClientSuccess(this.isPaymentCreated);
+
+  @override
+  List<Object?> get props => [isPaymentCreated];
 }
 
 class PaymentFailure extends PaymentClientState {

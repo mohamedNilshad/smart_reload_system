@@ -26,7 +26,7 @@ class PaymentBloc extends Bloc<PaymentEvent, PaymentState> {
     );
     result.fold(
           (failure) => emit(PaymentFailureState(failure.message)),
-          (paymentId) => emit(PaymentSuccess(paymentId)),
+          (paymentRef) => emit(PaymentSuccess(paymentRef['paymentId'], DateTime.parse(paymentRef['paymentDate']))),
     );
   }
 }

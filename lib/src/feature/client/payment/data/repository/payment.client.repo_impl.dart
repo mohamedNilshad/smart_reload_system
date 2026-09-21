@@ -12,18 +12,28 @@ class PaymentClientRepoImpl implements PaymentClientRepo {
   PaymentClientRepoImpl({required this.remoteDataSource});
 
   @override
-  Future<Either<Failure, PaymentEntity>> createPayment({
-    required double amount,
-    required String currency,
-    required String paymentMethod,
-    required String description,
+  Future<Either<Failure, bool>> createPayment({
+    required double lastPaidAmount,
+    required String clientVendorId,
+    required DateTime lastPaidDate,
+    required List<String> reqPackageIdList,
+
+    required String vendorId,
+    required double vendorComAmount,
+
+    required String paymentRefNumber,
+    required String invoiceNo,
   }) async {
     try {
       final payment = await remoteDataSource.createPayment(
-        amount: amount,
-        currency: currency,
-        paymentMethod: paymentMethod,
-        description: description,
+        lastPaidAmount: lastPaidAmount,
+        clientVendorId: clientVendorId,
+        lastPaidDate: lastPaidDate,
+        reqPackageIdList: reqPackageIdList,
+        vendorId: vendorId,
+        vendorComAmount: vendorComAmount,
+        paymentRefNumber: paymentRefNumber,
+        invoiceNo: invoiceNo,
       );
       return Right(payment);
     } on ServerException catch (e) {
