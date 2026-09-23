@@ -284,7 +284,7 @@ class InvoicePdfService {
           child: pw.Column(
             children: [
               _row('Subtotal', money(data.subtotal)),
-              _row('Service charge', money(data.serviceCharge)),
+              _row('Service charge(${data.getCommissionPercentage}%)', money(data.calCommission)),
               _row('Balance from last payment', money(data.vendor.currentPaymentBalance ?? 0.0)),
               pw.SizedBox(height: 8),
               pw.Container(

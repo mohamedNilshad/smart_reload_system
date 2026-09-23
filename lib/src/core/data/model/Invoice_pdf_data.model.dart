@@ -8,7 +8,7 @@ class InvoicePdfData extends Equatable {
   final String clientEmail;
   final String clientPhone;
   final List<PackageRequestModel> requests;
-  final double serviceCharge;
+  final String serviceCharge;
   final String currency;
 
   const InvoicePdfData({
@@ -17,9 +17,21 @@ class InvoicePdfData extends Equatable {
     required this.clientPhone,
     required this.clientEmail,
     required this.requests,
-    this.serviceCharge = 0,
+    this.serviceCharge = "0+0",
     this.currency = 'Rs. ',
   });
+
+  Map<String, dynamic> toJson() {
+    return {
+      'vendor': vendor.toJsonEnc(),
+      'clientName': clientName,
+      'clientEmail': clientEmail,
+      'clientPhone': clientPhone,
+      'requests': requests.map((e) => e.toJsonEnc()).toList(),
+      'serviceCharge': serviceCharge,
+      'currency': currency,
+    };
+  }
 
   /// Amount for one line: the request's own amount, else the package price.
   static double amountOf(PackageRequestModel r) =>
@@ -28,7 +40,15 @@ class InvoicePdfData extends Equatable {
   double get subtotal => requests.fold<double>(0, (sum, r) => sum + amountOf(r));
 
   /// Subtotal + service charge + balance carried over from the last payment.
-  double get total => subtotal + serviceCharge - (vendor.currentPaymentBalance ?? 0.0);
+  double get total => subtotal + calCommission +  - (vendor.currentPaymentBalance ?? 0.0);
+
+  double get calCommission => (subtotal/100 ) * getCommissionPercentage;
+
+  double get getCommissionPercentage {
+    final vCom = double.parse(serviceCharge.split("+")[0]);
+    final aCom = double.parse(serviceCharge.split("+")[1]);
+    return vCom+aCom;
+  }
 
   @override
   List<Object?> get props => [

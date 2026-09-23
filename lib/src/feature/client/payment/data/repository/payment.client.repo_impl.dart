@@ -1,9 +1,8 @@
 import 'package:dartz/dartz.dart';
+import 'package:smart_reload_system/src/core/data/model/Invoice_pdf_data.model.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
 import 'package:smart_reload_system/src/core/error/failures.dart';
-import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 import 'package:smart_reload_system/src/feature/client/payment/data/datasource/payment.client.remote_datasource.dart';
-import 'package:smart_reload_system/src/feature/client/payment/domain/entity/payment.entity.dart';
 import 'package:smart_reload_system/src/feature/client/payment/domain/repository/payment.client.repo.dart';
 
 class PaymentClientRepoImpl implements PaymentClientRepo {
@@ -22,7 +21,7 @@ class PaymentClientRepoImpl implements PaymentClientRepo {
     required double vendorComAmount,
 
     required String paymentRefNumber,
-    required String invoiceNo,
+    required InvoicePdfData invoiceData,
   }) async {
     try {
       final payment = await remoteDataSource.createPayment(
@@ -33,7 +32,7 @@ class PaymentClientRepoImpl implements PaymentClientRepo {
         vendorId: vendorId,
         vendorComAmount: vendorComAmount,
         paymentRefNumber: paymentRefNumber,
-        invoiceNo: invoiceNo,
+        invoiceData: invoiceData,
       );
       return Right(payment);
     } on ServerException catch (e) {
@@ -42,7 +41,7 @@ class PaymentClientRepoImpl implements PaymentClientRepo {
   }
 
   @override
-  Future<Either<Failure, List<PackageRequestModel>>> fetchPayables({required String clientVendorId}) async {
+  Future<Either<Failure, Map<String, dynamic>>> fetchPayables({required String clientVendorId}) async {
     try {
       final result = await remoteDataSource.fetchPayables(clientVendorId: clientVendorId);
       return Right(result);

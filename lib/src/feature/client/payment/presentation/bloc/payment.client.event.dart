@@ -1,4 +1,5 @@
 import 'package:equatable/equatable.dart';
+import 'package:smart_reload_system/src/core/data/model/Invoice_pdf_data.model.dart';
 
 abstract class PaymentClientEvent extends Equatable {
   const PaymentClientEvent();
@@ -23,7 +24,7 @@ class CreatePayment extends PaymentClientEvent {
   final String vendorId;
   final double vendorComAmount;
   final String paymentRefNumber;
-  final String invoiceNo;
+  final InvoicePdfData invoiceData;
 
   const CreatePayment({
     required this.clientVendorId,
@@ -33,11 +34,11 @@ class CreatePayment extends PaymentClientEvent {
     required this.vendorId,
     required this.vendorComAmount,
     required this.paymentRefNumber,
-    required this.invoiceNo,
+    required this.invoiceData,
   });
 
   @override
-  List<Object?> get props => [clientVendorId, lastPaidAmount, lastPaidDate, reqPackageIdList, vendorId, vendorComAmount, paymentRefNumber, invoiceNo];
+  List<Object?> get props => [clientVendorId, lastPaidAmount, lastPaidDate, reqPackageIdList, vendorId, vendorComAmount, paymentRefNumber, invoiceData];
 }
 
 class PaymentReset extends PaymentClientEvent {

@@ -59,6 +59,22 @@ class ConnectionModel extends Equatable {
     };
   }
 
+  Map<String, dynamic> toJsonEnc() {
+    return {
+      'id': id,
+      'clientVendorId': clientVendorId,
+      'connectionCategory': connectionCategory,
+      'connectionType': connectionType,
+      'connectionName': connectionName,
+      'connectionNumber': connectionNumber,
+      'lastReloadDate': lastReloadDate?.toIso8601String(),
+      'billingType': billingType,
+      'serviceProvider': serviceProvider,
+      'status': status,
+      'isActive': isActive,
+    };
+  }
+
   @override
   List<Object?> get props => [
     clientVendorId,

@@ -52,6 +52,20 @@ class VendorModel extends Equatable {
     };
   }
 
+  Map<String, dynamic> toJsonEnc() {
+    return {
+      'clientVendorId': clientVendorId,
+      'vendorId': vendorId,
+      'vendorName': vendorName,
+      'vendorEmail': vendorEmail,
+      'vendorPhone': vendorPhone,
+      'connectionCount': connectionCount,
+      'lastPaidDate': lastPaidDate?.toIso8601String(),
+      'lastPaidAmount': lastPaidAmount,
+      'currentPaymentBalance': currentPaymentBalance,
+    };
+  }
+
   @override
   List<Object?> get props => [clientVendorId, vendorId, vendorName, vendorEmail, vendorPhone, connectionCount, lastPaidDate, lastPaidAmount, currentPaymentBalance];
 }

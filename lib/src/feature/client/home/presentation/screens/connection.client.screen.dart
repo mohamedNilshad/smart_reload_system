@@ -5,6 +5,7 @@ import 'package:smart_reload_system/src/core/bloc/payment/payment.event.dart';
 import 'package:smart_reload_system/src/core/bloc/payment/payment.state.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
+import 'package:smart_reload_system/src/core/data/model/Invoice_pdf_data.model.dart';
 import 'package:smart_reload_system/src/core/presentation/progress_indicators/custom.circular_progress_indicator.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
@@ -56,6 +57,9 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
   late VendorModel vendor;
   late UserEntity user;
 
+  InvoicePdfData? invoiceData;
+  String serviceCharge = "0+0";
+
   @override
   void initState() {
     super.initState();
@@ -65,7 +69,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
     vendor = widget.vendor;
     context.read<ConnectionBloc>().add(const ConnectionsReset());
     context.read<ConnectionBloc>().add(ConnectionsRequested(vendor.clientVendorId));
-    //context.read<PaymentClientBloc>().add(FetchPayableDetails(clientVendorId :widget.clientVendorId));
+
   }
 
   @override
@@ -85,16 +89,32 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
     }
   }
 
-  void calPayAmount(){
-    setState(() {
+  Future<void> calPayAmount() async {
+    setState(()  {
       paymentAmount = 0.0;
       payableAmountLoading = true;
-      for (var item in payableList) {
-        paymentAmount += item.amount ?? 0.0;
+
+      if(payableList.isNotEmpty){
+        for (var item in payableList) {
+          paymentAmount += item.amount ?? 0.0;
+        }
       }
-      payableAmountLoading = false;
+
+      invoiceData = InvoicePdfData(
+        vendor: widget.vendor,
+        clientName: user.fullName,
+        clientEmail: user.email,
+        clientPhone: user.phoneNumber,
+        requests: payableList.reversed.toList(),
+        serviceCharge: serviceCharge,
+        currency: 'Rs. ',
+      );
+
+      paymentAmount += invoiceData?.calCommission ?? 0.0;
+
     });
 
+    setState(() => payableAmountLoading = false);
   }
 
 
@@ -176,11 +196,14 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                         setState(() {
                           payableLoading = false;
                           payableList = pState.payableList;
-                          if(payableList.isNotEmpty) {
-                            calPayAmount();
-                          }else{
-                            payableAmountLoading = false;
-                          }
+                          serviceCharge = pState.serviceCharge;
+
+                          // if(payableList.isNotEmpty) {
+                          //   calPayAmount();
+                          // }else{
+                          //   payableAmountLoading = false;
+                          // }
+                          calPayAmount();
                         });
 
                       } else if (pState is PaymentClientSuccess) {
@@ -189,7 +212,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                         }
 
                       } else if (pState is PaymentFailure) {
-                        setState(()  => payableLoading = false);
+                        setState(() => payableLoading = false);
                         AppSnackbar.showError(context, pState.message, showUp: true);
                       }
                     },
@@ -210,7 +233,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                           vendorId: vendor.vendorId,
                           vendorComAmount: 0.0,
                           paymentRefNumber: state.paymentId,
-                          invoiceNo: "INV-${DateTime.now().microsecondsSinceEpoch}",
+                          invoiceData: invoiceData!,
                         ));
                         setState(() => paymentBtnLoading = false);
                       } else if (state is PaymentFailureState) {
@@ -238,7 +261,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                                 spacing: 10,
                                 children: [
                                   SubTitleText(text: "TOTAL PAYABLE", color: AppColors.white),
-                                  (payableAmountLoading) ? CCircularProgressIndicator(color: AppColors.white, radius: 25,): HeadlineText(text: "RS. $paymentAmount", color: AppColors.white),
+                                  (payableAmountLoading) ? CCircularProgressIndicator(color: AppColors.white, radius: 25): HeadlineText(text: "RS. $paymentAmount", color: AppColors.white),
                                   InkWell(
                                     onTap: paymentBtnLoading || payableAmountLoading || (paymentAmount == 0.0) ? null : (){
                                       context.read<PaymentBloc>().add(
@@ -280,11 +303,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                                         InvoiceItemsBottomSheet.show(
                                           context,
                                           total: paymentAmount,
-                                          clientName: user.fullName,
-                                          clientEmail: user.email,
-                                          clientPhone: user.phoneNumber,
-                                          vendor: widget.vendor,
-                                          items: payableList.reversed.toList(),
+                                          invoiceData: invoiceData!,
                                         );
                                       },
                                       child: Text(

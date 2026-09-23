@@ -26,7 +26,7 @@ class PaymentClientBloc extends Bloc<PaymentClientEvent, PaymentClientState> {
 
     result.fold(
           (failure) => emit(PaymentFailure(failure.message)),
-          (list) => emit(PayableSuccess(list)),
+          (result) => emit(PayableSuccess(payableList: result["packages"], serviceCharge: result["serviceCharge"])),
     );
   }
 
@@ -45,7 +45,7 @@ class PaymentClientBloc extends Bloc<PaymentClientEvent, PaymentClientState> {
       vendorId: event.vendorId,
       vendorComAmount: event.vendorComAmount,
       paymentRefNumber: event.paymentRefNumber,
-      invoiceNo: event.invoiceNo,
+      invoiceData: event.invoiceData,
     );
 
     result.fold(

@@ -1,4 +1,5 @@
 import 'package:dartz/dartz.dart';
+import 'package:smart_reload_system/src/core/data/model/Invoice_pdf_data.model.dart';
 import 'package:smart_reload_system/src/core/error/failures.dart';
 import 'package:smart_reload_system/src/feature/client/payment/domain/repository/payment.client.repo.dart';
 
@@ -17,7 +18,7 @@ class CreatePaymentUseCase {
     required double vendorComAmount,
 
     required String paymentRefNumber,
-    required String invoiceNo,
+    required InvoicePdfData invoiceData,
   }) {
     return repo.createPayment(
       lastPaidDate: lastPaidDate,
@@ -27,7 +28,7 @@ class CreatePaymentUseCase {
       vendorId: vendorId,
       vendorComAmount: vendorComAmount,
       paymentRefNumber: paymentRefNumber,
-      invoiceNo: invoiceNo
+      invoiceData: invoiceData
     );
   }
 }

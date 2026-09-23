@@ -84,6 +84,24 @@ class PackageRequestModel extends Equatable {
     };
   }
 
+  Map<String, dynamic> toJsonEnc() {
+    return {
+      'id': id,
+      'clientVendorId': clientVendorId,
+      'connectionId': connectionId,
+      'packageDetailsId': packageDetailsId,
+      'amount': amount,
+      'requestDate': requestDate.toIso8601String(),
+      'isPaid': isPaid,
+      'activatedDate': (activatedDate != null) ? (activatedDate!).toIso8601String() : null,
+      'expireDate': (expireDate != null) ? (expireDate!).toIso8601String() : null,
+      'paidDate': (paidDate != null) ? (paidDate!).toIso8601String() : null,
+      'paymentId': paymentId,
+      'connectionModel': connectionModel?.toJsonEnc(),
+      'packageModel': packageModel?.toJsonEnc(),
+    };
+  }
+
   @override
   List<Object?> get props => [
     id,

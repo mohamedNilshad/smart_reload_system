@@ -5,39 +5,25 @@ import 'package:smart_reload_system/src/core/data/model/Invoice_pdf_data.model.d
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/services/pdf_generator.service.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
-import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
-import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
 
 class InvoiceItemsBottomSheet extends StatefulWidget {
   const InvoiceItemsBottomSheet({
     super.key,
-    required this.vendor,
-    required this.clientName,
-    required this.clientPhone,
-    required this.clientEmail,
-    required this.items,
+    required this.invoiceData,
     required this.scrollController,
     this.total = 0.0,
     this.title = 'Invoice items',
   });
 
-  final VendorModel vendor;
-  final String clientName;
-  final String clientEmail;
-  final String clientPhone;
-  final List<PackageRequestModel> items;
   final ScrollController scrollController;
+  final InvoicePdfData invoiceData;
   final String title;
   final double total;
 
   /// Call this to display the sheet.
   static Future<void> show(
       BuildContext context, {
-        required VendorModel vendor,
-        required String clientName,
-        required String clientEmail,
-        required String clientPhone,
-        required List<PackageRequestModel> items,
+        required InvoicePdfData invoiceData,
         String title = 'Invoice items',
         required double total,
       }) {
@@ -53,12 +39,8 @@ class InvoiceItemsBottomSheet extends StatefulWidget {
         minChildSize: 0.4,
         maxChildSize: 0.92,
         builder: (_, controller) => InvoiceItemsBottomSheet(
-          items: items,
+          invoiceData: invoiceData,
           title: title,
-          clientName: clientName,
-          clientPhone: clientPhone,
-          clientEmail: clientEmail,
-          vendor: vendor,
           total: total,
           scrollController: controller,
         ),
@@ -80,17 +62,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
     if (_isDownloading) return;
     setState(() => _isDownloading = true);
     try {
-      await const InvoicePdfService().open(
-        InvoicePdfData(
-          vendor: widget.vendor,
-          clientName: widget.clientName,
-          clientEmail: widget.clientEmail,
-          clientPhone: widget.clientPhone,
-          requests: widget.items,
-          serviceCharge: 50,
-          currency: 'Rs. ',
-        ),
-      );
+      await const InvoicePdfService().open(widget.invoiceData);
     } catch (e) {
       if (mounted) {
         AppSnackbar.showError(context, 'Could not create the PDF');
@@ -160,7 +132,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
 
           // Items
           Expanded(
-            child: widget.items.isEmpty
+            child: widget.invoiceData.requests.isEmpty
                 ? Center(
               child: Text(
                 'No items',
@@ -170,14 +142,14 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
                 : ListView.separated(
               controller: widget.scrollController,
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
-              itemCount: widget.items.length,
+              itemCount: widget.invoiceData.requests.length,
               separatorBuilder: (_, _) => Divider(
                 height: 1,
                 color: AppColors.grey,
               ),
               itemBuilder: (_, index) {
-                final item = widget.items[index];
-                final isExpended = _expendedId == item.id;
+                final item = widget.invoiceData.requests[index];
+                final isExpended = (_expendedId == item.id);
                 return Padding(
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   child: Column(
@@ -304,17 +276,40 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
               top: false,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text('Total', style: text.titleMedium),
-                    Text(
-                      _money(widget.total),
-                      style: text.titleLarge?.copyWith(
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.primary,
-                      ),
+
+
+                    buildBottomRow(
+                      title: 'Sub total',
+                      titleStyle: text.labelMedium!,
+                      subtitle: widget.invoiceData.subtotal,
+                      subtitleStyle: text.labelMedium!
                     ),
+
+                    buildBottomRow(
+                      title: 'Service charge (${widget.invoiceData.getCommissionPercentage}%)',
+                      titleStyle: text.labelMedium!,
+                      subtitle: widget.invoiceData.calCommission,
+                      subtitleStyle: text.labelMedium!
+                    ),
+
+                    buildBottomRow(
+                      title: 'Previous balance',
+                      titleStyle: text.labelMedium!,
+                      subtitle: widget.invoiceData.vendor.currentPaymentBalance ?? 0.0,
+                      subtitleStyle: text.labelMedium!
+                    ),
+
+                    buildBottomRow(
+                      title: 'Total',
+                      titleStyle: text.titleMedium!,
+                      subtitle: widget.total,
+                      subtitleStyle: text.titleLarge!,
+                      isTotal: true,
+                    ),
+
                   ],
                 ),
               ),
@@ -322,6 +317,28 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
           ),
         ],
       ),
+    );
+  }
+
+  Widget buildBottomRow({
+    required String title,
+    required double subtitle,
+    required TextStyle titleStyle,
+    required TextStyle subtitleStyle,
+    bool isTotal = false,
+  }){
+    return  Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(title, style: titleStyle),
+        Text(
+          _money(subtitle),
+          style: subtitleStyle.copyWith(
+            fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
+            color: isTotal ? AppColors.black : AppColors.darkerGrey,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -1,6 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:smart_reload_system/src/core/data/model/Invoice_pdf_data.model.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
+import 'package:smart_reload_system/src/core/services/encryption.service.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
@@ -16,9 +18,9 @@ abstract class PaymentClientRemoteDataSource {
     required double vendorComAmount,
 
     required String paymentRefNumber,
-    required String invoiceNo,
+    required InvoicePdfData invoiceData,
   });
-  Future<List<PackageRequestModel>> fetchPayables({required String clientVendorId});
+  Future<Map<String, dynamic>> fetchPayables({required String clientVendorId});
 }
 
 class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource {
@@ -41,7 +43,7 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
     required double vendorComAmount,
 
     required String paymentRefNumber,
-    required String invoiceNo,
+    required InvoicePdfData invoiceData,
   }) async {
     try {
       final userId = firebaseAuth.currentUser?.uid;
@@ -86,7 +88,21 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
         'totalAmount': lastPaidAmount
       });
 
+      ///add invoice data
+      final encryptionService = EncryptionService();
+      final encryptedInvoice = await encryptionService.encryptData(
+        invoiceData.toJson(),
+      );
 
+      final docInvoiceRef = await firestore.collection('invoice_data').add({
+        'clientVendorId': clientVendorId,
+        'invoiceDate': Timestamp.fromDate(lastPaidDate),
+        'paidAmount': lastPaidAmount,
+        'data': encryptedInvoice,
+      });
+
+
+      String invoiceNo = docInvoiceRef.id;
       ///payment_details
       final docPayRef = await firestore.collection('payment_details').add({
         'clientVendorId': clientVendorId,
@@ -125,7 +141,7 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
   }
 
   @override
-  Future<List<PackageRequestModel>> fetchPayables({required String clientVendorId}) async {
+  Future<Map<String, dynamic>> fetchPayables({required String clientVendorId}) async {
     try {
       final userId = firebaseAuth.currentUser?.uid;
       if (userId == null) {
@@ -203,7 +219,22 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
         );
       }
 
-      return packages;
+      final serviceChargeSnapshot = await firestore
+          .collection('system_config')
+          .doc("commissionPercentage")
+          .get();
+      String serviceChargeValue = "0+0";
+      if (serviceChargeSnapshot.exists) {
+        final serviceChargeData = serviceChargeSnapshot.data();
+        if (serviceChargeData != null && serviceChargeData.containsKey('percentage')) {
+          serviceChargeValue = serviceChargeData['percentage'];
+        }
+      }
+
+      return {
+        'packages': packages,
+        'serviceCharge': serviceChargeValue,
+      };
 
     } on FirebaseException catch (e) {
       throw ServerException(e.message ?? 'Failed to fetch payables details');

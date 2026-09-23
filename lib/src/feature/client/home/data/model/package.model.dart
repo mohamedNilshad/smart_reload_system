@@ -51,6 +51,21 @@ class PackageModel extends Equatable {
     };
   }
 
+
+  Map<String, dynamic> toJsonEnc() {
+    return {
+      'id': id,
+      'telecomType': telecomType,
+      'serviceProvider': serviceProvider,
+      'packageType': packageType,
+      'packageName': packageName,
+      'packageDescription': packageDescription,
+      'packagePrice': packagePrice,
+      'packageValidity': packageValidity,
+      'validityPeriod': validityPeriod,
+    };
+  }
+
   @override
   List<Object?> get props => [
     id,

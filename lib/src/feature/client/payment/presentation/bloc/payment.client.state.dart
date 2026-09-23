@@ -20,11 +20,12 @@ class PaymentLoading extends PaymentClientState {
 
 class PayableSuccess extends PaymentClientState {
   final List<PackageRequestModel> payableList;
+  final String serviceCharge;
 
-  const PayableSuccess(this.payableList);
+  const PayableSuccess({required this.payableList, required this.serviceCharge});
 
   @override
-  List<Object?> get props => [payableList];
+  List<Object?> get props => [payableList, serviceCharge];
 }
 
 class PaymentClientSuccess extends PaymentClientState {
