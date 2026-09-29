@@ -1,5 +1,6 @@
 import 'package:equatable/equatable.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
+import 'package:smart_reload_system/src/feature/client/payment/data/model/paid_invoice_data.model.dart';
 
 abstract class PaymentClientState extends Equatable {
   const PaymentClientState();
@@ -15,7 +16,8 @@ class PaymentInitial extends PaymentClientState {
 class PaymentLoading extends PaymentClientState {
   final bool isFetching;
   final bool isCreating;
-  const PaymentLoading({this.isFetching =false, this.isCreating =false});
+  final bool isFetchingPaidInvoices;
+  const PaymentLoading({this.isFetching =false, this.isCreating =false, this.isFetchingPaidInvoices =false});
 }
 
 class PayableSuccess extends PaymentClientState {
@@ -35,6 +37,15 @@ class PaymentClientSuccess extends PaymentClientState {
 
   @override
   List<Object?> get props => [isPaymentCreated];
+}
+
+class PaidInvoicesSuccess extends PaymentClientState {
+  final List<PaidInvoiceDataModel> paidInvoices;
+
+  const PaidInvoicesSuccess({required this.paidInvoices});
+
+  @override
+  List<Object?> get props => [paidInvoices];
 }
 
 class PaymentFailure extends PaymentClientState {

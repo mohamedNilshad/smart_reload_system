@@ -26,13 +26,27 @@ class VendorModel extends Equatable {
 
   factory VendorModel.fromJson(Map<String, dynamic> json, {String? id}) {
     return VendorModel(
-      clientVendorId: id!,
+      clientVendorId: id ?? "",
       vendorId: json['vendorId'] as String,
       vendorName: json['vendorName'] as String,
       vendorEmail: json['vendorEmail'] as String,
       vendorPhone: json['vendorPhone'] as String,
       connectionCount: json['connectionCount'] as int,
       lastPaidDate: (json['lastPaidDate'] as Timestamp?)?.toDate(),
+      lastPaidAmount: json['lastPaidAmount'] as double?,
+      currentPaymentBalance: json['currentPaymentBalance'] as double?,
+    );
+  }
+
+  factory VendorModel.fromJsonEnc(Map<String, dynamic> json, {String? id}) {
+    return VendorModel(
+      clientVendorId: id ?? "",
+      vendorId: json['vendorId'] as String,
+      vendorName: json['vendorName'] as String,
+      vendorEmail: json['vendorEmail'] as String,
+      vendorPhone: json['vendorPhone'] as String,
+      connectionCount: json['connectionCount'] as int,
+      lastPaidDate: DateTime.parse(json['lastPaidDate']),
       lastPaidAmount: json['lastPaidAmount'] as double?,
       currentPaymentBalance: json['currentPaymentBalance'] as double?,
     );

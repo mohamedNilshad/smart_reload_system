@@ -52,6 +52,24 @@ class PackageRequestModel extends Equatable {
     );
   }
 
+  factory PackageRequestModel.fromJsonEnc(Map<String, dynamic> json, {String? id}) {
+    return PackageRequestModel(
+      id: id,
+      clientVendorId: json['clientVendorId'] as String? ?? '',
+      connectionId: json['connectionId'] as String? ?? '',
+      packageDetailsId: json['packageDetailsId'] as String? ?? '',
+      packageModel: json['packageModel'] == null ? null : PackageModel.fromJson(json['packageModel']),
+      connectionModel: ConnectionModel.fromJson(json['connectionModel']),
+      amount: json['amount'] as double?,
+      requestDate: DateTime.parse(json['requestDate']),
+      isPaid: json['isPaid'] as bool? ?? false,
+      activatedDate: json['activatedDate'] == null ? null : DateTime.parse(json['activatedDate']),
+      expireDate: json['expireDate'] == null ? null : DateTime.parse(json['expireDate']),
+      paidDate: json['paidDate'] == null ? null : DateTime.parse(json['paidDate']),
+      paymentId: (json['paymentId'] as String?),
+    );
+  }
+
   PackageRequestModel copyWith({PackageModel? newPackageModel}) {
     return PackageRequestModel(
       id: id,

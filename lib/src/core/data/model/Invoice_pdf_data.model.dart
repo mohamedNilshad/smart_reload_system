@@ -21,6 +21,22 @@ class InvoicePdfData extends Equatable {
     this.currency = 'Rs. ',
   });
 
+
+  factory InvoicePdfData.fromJson(Map<String, dynamic> json) {
+    return InvoicePdfData(
+      vendor: VendorModel.fromJsonEnc(json['vendor'] as Map<String, dynamic>),
+      clientName: json['clientName'] as String? ?? '',
+      clientEmail: json['clientEmail'] as String? ?? '',
+      clientPhone: json['clientPhone'] as String? ?? '',
+      requests: (json['requests'] as List<dynamic>?)
+              ?.map((e) => PackageRequestModel.fromJsonEnc(e as Map<String, dynamic>))
+              .toList() ??
+          [],
+      serviceCharge: json['serviceCharge'] as String? ?? '0+0',
+      currency: json['currency'] as String? ?? 'Rs. ',
+    );
+  }
+
   Map<String, dynamic> toJson() {
     return {
       'vendor': vendor.toJsonEnc(),

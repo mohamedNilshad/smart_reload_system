@@ -47,6 +47,7 @@ import 'package:smart_reload_system/src/feature/client/payment/data/datasource/p
 import 'package:smart_reload_system/src/feature/client/payment/data/repository/payment.client.repo_impl.dart';
 import 'package:smart_reload_system/src/feature/client/payment/domain/repository/payment.client.repo.dart';
 import 'package:smart_reload_system/src/feature/client/payment/domain/usecase/create_payment.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/payment/domain/usecase/get_paid_invoices.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/payment/domain/usecase/get_payable_details.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/profile/data/datasource/profile.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/client/profile/data/repository/profile.repo_impl.dart';
@@ -108,6 +109,7 @@ Future<void> init() async{
   sl.registerLazySingleton(() => AddNewConnectionUseCase(sl()));
   sl.registerLazySingleton(() => GetPayableDetailsUseCase(sl()));
   sl.registerLazySingleton(() => CreatePaymentUseCase(sl()));
+  sl.registerLazySingleton(() => GetPaidInvoicesUsecase(sl()));
 
 
   /// Bloc
@@ -123,7 +125,7 @@ Future<void> init() async{
   sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl(), addNewConnectionUseCase: sl()));
   sl.registerLazySingleton(() => PackageBloc(requestPackageUseCase: sl(), getPackageUseCase: sl(), getActivatedPackagesUseCase: sl()));
   sl.registerLazySingleton(() => PaymentBloc(startPaymentUseCase: sl()));
-  sl.registerLazySingleton(() => PaymentClientBloc(getPayableDetailsUseCase: sl(), createPaymentUseCase: sl()));
+  sl.registerLazySingleton(() => PaymentClientBloc(getPayableDetailsUseCase: sl(), createPaymentUseCase: sl(), getPaidInvoicesUseCase: sl()));
   sl.registerLazySingleton(() => UnreadCountCubit(watchUnreadCountUseCase: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton(() => NotificationBloc(getNotificationsUseCase: sl(), markAsReadUseCase: sl(), markAllAsReadUseCase: sl()));
   sl.registerLazySingleton(() => ProfileBloc(updateProfileUseCase: sl(), updatePasswordUseCase: sl()));

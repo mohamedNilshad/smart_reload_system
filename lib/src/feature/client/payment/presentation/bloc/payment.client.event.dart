@@ -16,6 +16,14 @@ class FetchPayableDetails extends PaymentClientEvent {
   List<Object?> get props => [clientVendorId];
 }
 
+class FetchPaidInvoices extends PaymentClientEvent {
+  final String clientVendorId;
+  const FetchPaidInvoices({required this.clientVendorId});
+
+  @override
+  List<Object?> get props => [clientVendorId];
+}
+
 class CreatePayment extends PaymentClientEvent {
   final String clientVendorId;
   final double lastPaidAmount;

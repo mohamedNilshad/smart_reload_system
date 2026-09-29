@@ -37,8 +37,8 @@ class _MainClientScreenState extends State<MainClientScreen> {
             label: 'Family',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.monetization_on_rounded),
-            label: 'Payment',
+            icon: Icon(Icons.receipt_long_rounded),
+            label: 'Invoice',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.person),

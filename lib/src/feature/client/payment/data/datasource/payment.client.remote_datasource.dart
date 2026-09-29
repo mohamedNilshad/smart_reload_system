@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/data/model/Invoice_pdf_data.model.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
 import 'package:smart_reload_system/src/core/services/encryption.service.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
+import 'package:smart_reload_system/src/feature/client/payment/data/model/paid_invoice_data.model.dart';
 
 abstract class PaymentClientRemoteDataSource {
   Future<bool> createPayment({
@@ -21,6 +23,7 @@ abstract class PaymentClientRemoteDataSource {
     required InvoicePdfData invoiceData,
   });
   Future<Map<String, dynamic>> fetchPayables({required String clientVendorId});
+  Future<List<PaidInvoiceDataModel>> fetchPaidInvoices({required String clientVendorId});
 }
 
 class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource {
@@ -94,7 +97,13 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
         invoiceData.toJson(),
       );
 
+      final countSnapshot = await firestore.collection('invoice_data').count().get();
+
+      final count = (countSnapshot.count ?? 0) + 1;
+      final invoiceNo = "INV-${count.toString().padLeft(4, '0')}";
+
       final docInvoiceRef = await firestore.collection('invoice_data').add({
+        'invoiceNo': invoiceNo,
         'clientVendorId': clientVendorId,
         'invoiceDate': Timestamp.fromDate(lastPaidDate),
         'paidAmount': lastPaidAmount,
@@ -102,13 +111,13 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
       });
 
 
-      String invoiceNo = docInvoiceRef.id;
+      String invoiceId= docInvoiceRef.id;
       ///payment_details
       final docPayRef = await firestore.collection('payment_details').add({
         'clientVendorId': clientVendorId,
         'paidDate': Timestamp.fromDate(lastPaidDate),
         'paidAmount': lastPaidAmount,
-        'invoiceNo': invoiceNo,
+        'invoiceId': invoiceId,
         'paymentRefNumber': paymentRefNumber
       });
 
@@ -240,6 +249,54 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
       throw ServerException(e.message ?? 'Failed to fetch payables details');
     } catch (e) {
       throw ServerException('An error occurred while fetching payables details');
+    }
+  }
+
+
+  @override
+  Future<List<PaidInvoiceDataModel>> fetchPaidInvoices({required String clientVendorId}) async {
+    try {
+      final userId = firebaseAuth.currentUser?.uid;
+      if (userId == null) {
+        throw ServerException('User not authenticated');
+      }
+
+      final List<PaidInvoiceDataModel> paidInvoices = [];
+      final List<String> clientVendorIdList = [];
+
+      final clientVendorIdSnapshot = await firestore
+          .collection('client_vendor')
+          .where('clientId', isEqualTo: userId)
+          .get();
+
+      for (final doc in clientVendorIdSnapshot.docs) {
+        clientVendorIdList.add(doc.id);
+      }
+
+      final paidInvoicesSnapshot = await firestore
+          .collection('invoice_data')
+          .where('clientVendorId', whereIn: clientVendorIdList)
+          .orderBy('invoiceDate', descending: true)
+          .get();
+
+
+      for (final doc in paidInvoicesSnapshot.docs) {
+        final data = doc.data();
+        final encInvoiceData = await EncryptionService().decryptData(data['data']);
+
+        data['invoiceData'] = InvoicePdfData.fromJson(encInvoiceData);
+        final invoiceData = PaidInvoiceDataModel.fromJson(data, id: doc.id);
+        paidInvoices.add(invoiceData);
+      }
+
+      return paidInvoices;
+    } on FirebaseException catch (e) {
+      debugPrint(e.toString());
+      throw ServerException(e.message ?? 'Failed to fetch paid invoices');
+    } catch (e, st) {
+      debugPrint(e.toString());
+      debugPrint(st.toString());
+      throw ServerException('An error occurred while fetching paid invoices');
     }
   }
 }

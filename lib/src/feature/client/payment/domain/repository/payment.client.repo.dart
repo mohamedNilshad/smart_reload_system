@@ -1,6 +1,7 @@
 import 'package:dartz/dartz.dart';
 import 'package:smart_reload_system/src/core/error/failures.dart';
 import 'package:smart_reload_system/src/core/data/model/Invoice_pdf_data.model.dart';
+import 'package:smart_reload_system/src/feature/client/payment/data/model/paid_invoice_data.model.dart';
 
 abstract class PaymentClientRepo {
   Future<Either<Failure, bool>> createPayment({
@@ -17,4 +18,5 @@ abstract class PaymentClientRepo {
   });
 
   Future<Either<Failure, Map<String, dynamic>>> fetchPayables({required String clientVendorId});
+  Future<Either<Failure, List<PaidInvoiceDataModel>>> fetchPaidInvoices({required String clientVendorId});
 }
