@@ -13,12 +13,14 @@ class InvoiceItemsBottomSheet extends StatefulWidget {
     required this.scrollController,
     this.total = 0.0,
     this.title = 'Invoice items',
+    this.isPaid = false,
   });
 
   final ScrollController scrollController;
   final InvoicePdfData invoiceData;
   final String title;
   final double total;
+  final bool isPaid;
 
   /// Call this to display the sheet.
   static Future<void> show(
@@ -26,6 +28,7 @@ class InvoiceItemsBottomSheet extends StatefulWidget {
         required InvoicePdfData invoiceData,
         String title = 'Invoice items',
         required double total,
+        bool isPaid = false,
       }) {
     return showModalBottomSheet<void>(
       context: context,
@@ -43,6 +46,7 @@ class InvoiceItemsBottomSheet extends StatefulWidget {
           title: title,
           total: total,
           scrollController: controller,
+          isPaid: isPaid,
         ),
       ),
     );
@@ -62,7 +66,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
     if (_isDownloading) return;
     setState(() => _isDownloading = true);
     try {
-      await const InvoicePdfService().open(widget.invoiceData);
+      await const InvoicePdfService().open(widget.invoiceData, widget.isPaid);
     } catch (e) {
       if (mounted) {
         AppSnackbar.showError(context, 'Could not create the PDF');
@@ -295,12 +299,14 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
                       subtitleStyle: text.labelMedium!
                     ),
 
-                    buildBottomRow(
-                      title: 'Previous balance',
-                      titleStyle: text.labelMedium!,
-                      subtitle: widget.invoiceData.vendor.currentPaymentBalance ?? 0.0,
-                      subtitleStyle: text.labelMedium!
-                    ),
+                    if(widget.invoiceData.vendor.currentPaymentBalance != null && widget.invoiceData.vendor.currentPaymentBalance! > 0.0)...{
+                      buildBottomRow(
+                          title: 'Previous balance',
+                          titleStyle: text.labelMedium!,
+                          subtitle: widget.invoiceData.vendor.currentPaymentBalance!,
+                          subtitleStyle: text.labelMedium!
+                      ),
+                    },
 
                     buildBottomRow(
                       title: 'Total',
@@ -308,6 +314,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
                       subtitle: widget.total,
                       subtitleStyle: text.titleLarge!,
                       isTotal: true,
+                      isPaid: widget.isPaid,
                     ),
 
                   ],
@@ -326,6 +333,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
     required TextStyle titleStyle,
     required TextStyle subtitleStyle,
     bool isTotal = false,
+    bool isPaid = false,
   }){
     return  Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -335,7 +343,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
           _money(subtitle),
           style: subtitleStyle.copyWith(
             fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
-            color: isTotal ? AppColors.black : AppColors.darkerGrey,
+            color: isTotal ? (isPaid ? AppColors.green : AppColors.black) : AppColors.darkerGrey,
           ),
         ),
       ],

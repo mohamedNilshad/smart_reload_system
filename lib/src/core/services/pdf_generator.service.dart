@@ -6,6 +6,8 @@ import 'package:open_file/open_file.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
+import 'package:smart_reload_system/src/core/constants/font_strings.dart';
+import 'package:smart_reload_system/src/core/constants/image_strings.dart';
 import 'package:smart_reload_system/src/core/data/model/Invoice_pdf_data.model.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
@@ -19,16 +21,14 @@ class InvoicePdfService {
   static final _border = PdfColor.fromHex('#E5E7EB');
   static final _zebra = PdfColor.fromHex('#F7F8FA');
 
-  Future<Uint8List> build(InvoicePdfData data) async {
-    final regular = pw.Font.ttf(
-      await rootBundle.load('assets/fonts/NotoSans-Regular.ttf'),
-    );
-    final bold = pw.Font.ttf(
-      await rootBundle.load('assets/fonts/NotoSans-Bold.ttf'),
-    );
-    // For scripts Noto Sans doesn't cover (Sinhala, Tamil, Arabic, ...), bundle
-    // that script's Noto font and add it here, e.g.
-    // pw.Font.ttf(await rootBundle.load('assets/fonts/NotoSansSinhala-Regular.ttf'))
+  Future<Uint8List> build(InvoicePdfData data,{required bool isPaid}) async {
+    final regular = pw.Font.ttf(await rootBundle.load(FontStrings.notosans_regular));
+    final bold = pw.Font.ttf(await rootBundle.load(FontStrings.notosans_bold));
+    pw.MemoryImage? paidImage;
+    if(isPaid){
+      paidImage = pw.MemoryImage((await rootBundle.load(ImageStrings.paidImage)).buffer.asUint8List());
+    }
+
     final fallback = <pw.Font>[];
 
     final doc = pw.Document(
@@ -53,11 +53,27 @@ class InvoicePdfService {
           ),
         ),
         build: (_) => [
-          _header(data.vendor, data.clientEmail, data.clientPhone, data.clientName),
-          pw.SizedBox(height: 24),
-          _itemsTable(data, money),
-          pw.SizedBox(height: 24),
-          _bottom(data, money),
+          pw.Stack(
+              children: [
+                pw.Column(
+                  crossAxisAlignment: pw.CrossAxisAlignment.start,
+                  children: [
+                    _header(data.vendor, data.clientEmail, data.clientPhone, data.clientName),
+                    pw.SizedBox(height: 20),
+                    _itemsTable(data, money),
+                    pw.SizedBox(height: 20),
+                    _bottom(data, money),
+                  ],
+                ),
+                if (isPaid)...{
+                  pw.Positioned(
+                    bottom: 50,
+                    right: 20,
+                    child: pw.Image(paidImage!, width: 120, height: 120),
+                  ),
+                },
+              ]),
+
         ],
       ),
     );
@@ -67,8 +83,8 @@ class InvoicePdfService {
 
   /// Builds the PDF, writes it to the temporary directory (cleared by the OS,
   /// not visible in the user's files) and opens it in the system PDF viewer.
-  Future<void> open(InvoicePdfData data) async {
-    final bytes = await build(data);
+  Future<void> open(InvoicePdfData data, bool isPaid) async {
+    final bytes = await build(data, isPaid: isPaid);
     final dir = await getTemporaryDirectory();
     final file = File(
       '${dir.path}/invoice_${DateTime.now().millisecondsSinceEpoch}.pdf',

@@ -4,6 +4,7 @@ import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/body_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_headline_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
@@ -67,40 +68,50 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   physics: NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     final item = paidInvoiceData[index];
-                    return Container(
-                      padding: EdgeInsets.all(Sizes.ssm),
-                      margin: EdgeInsetsGeometry.only(bottom: 10.0),
-                      decoration: BoxDecoration(
-                        color: AppColors.white,
-                        borderRadius: BorderRadius.circular(10.0),
-                      ),
-                      child: Row(
-                        spacing: 10,
-                        children: [
-                          CircleAvatar(
-                            radius: 25,
-                            backgroundColor: AppColors.green.withValues(alpha: 0.2),
-                            child: Icon(Icons.check_circle_outline_rounded, color: AppColors.green, size: 35,),
-                          ),
-                          Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.start,
+                    return InkWell(
+                      onTap: (){
+                        InvoiceItemsBottomSheet.show(
+                          context,
+                          total: item.paidAmount,
+                          invoiceData: item.invoiceData,
+                          isPaid: true,
+                        );
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(Sizes.ssm),
+                        margin: EdgeInsetsGeometry.only(bottom: 10.0),
+                        decoration: BoxDecoration(
+                          color: AppColors.white,
+                          borderRadius: BorderRadius.circular(10.0),
+                        ),
+                        child: Row(
+                          spacing: 10,
+                          children: [
+                            CircleAvatar(
+                              radius: 25,
+                              backgroundColor: AppColors.green.withValues(alpha: 0.2),
+                              child: Icon(Icons.check_circle_outline_rounded, color: AppColors.green, size: 35,),
+                            ),
+                            Column(
+                              mainAxisSize: MainAxisSize.min,
+                              crossAxisAlignment: CrossAxisAlignment.start,
 
-                            children: [
-                              TitleText(text: item.invoiceData.vendor.vendorName, color: AppColors.darkerGrey),
-                              BodyText(text: "INV-${item.id}", size: 10, color: AppColors.darkGrey),
-                            ],
-                          ),
+                              children: [
+                                TitleText(text: item.invoiceData.vendor.vendorName, color: AppColors.darkerGrey),
+                                BodyText(text: "INV-${item.id}", size: 10, color: AppColors.darkGrey),
+                              ],
+                            ),
 
-                          Spacer(),
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              SubHeadlineText(text: "Rs. ${item.paidAmount.toStringAsFixed(2)}", color: AppColors.darkerGrey, size: 16.0,),
-                              BodyText(text: HelperFunctions.formatDateTime(item.invoiceDate, withTime: false), size: 10, color: AppColors.darkGrey),
-                            ],
-                          ),
-                        ],
+                            Spacer(),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                SubHeadlineText(text: "Rs. ${item.paidAmount.toStringAsFixed(2)}", color: AppColors.darkerGrey, size: 16.0,),
+                                BodyText(text: HelperFunctions.formatDateTime(item.invoiceDate, withTime: false), size: 10, color: AppColors.darkGrey),
+                              ],
+                            ),
+                          ],
+                        ),
                       ),
                     );
                   }
