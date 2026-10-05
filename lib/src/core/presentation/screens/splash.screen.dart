@@ -112,7 +112,11 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     final state = _pendingSessionState!;
     if (state is SessionAuthenticated) {
       FloatingButtonOverlay.show(context);
-      Navigator.of(context).pushReplacementNamed(RouteConstants.mainClientScreen);
+      if(state.user.role == 'vendor'){
+        Navigator.of(context).pushReplacementNamed(RouteConstants.mainVendorScreen);
+      }else{
+        Navigator.of(context).pushReplacementNamed(RouteConstants.mainClientScreen);
+      }
     } else if (state is SessionUnauthenticated) {
       Navigator.of(context).pushReplacementNamed(RouteConstants.loginClientScreen);
     }

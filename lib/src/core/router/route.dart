@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/presentation/screens/main.client.screen.dart';
+import 'package:smart_reload_system/src/core/presentation/screens/main.vendor.screen.dart';
 import 'package:smart_reload_system/src/core/presentation/screens/splash.screen.dart';
 import 'package:smart_reload_system/src/core/presentation/screens/unknown.screen.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
@@ -18,9 +19,7 @@ import 'package:smart_reload_system/src/feature/client/profile/presentation/scre
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/login_client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/reset_password.client.screen.dart';
-import 'package:smart_reload_system/src/feature/vendor/auth/presentation/screens/login_vendor.screen.dart';
 import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/register_client.screen.dart';
-import 'package:smart_reload_system/src/feature/vendor/auth/presentation/screens/register_vendor.screen.dart';
 
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
@@ -38,24 +37,11 @@ class AppRouter {
           builder: (context) => LoginClientScreen(),
         );
 
-      case RouteConstants.loginVendorScreen:
-        return MaterialPageRoute(
-          settings: const RouteSettings(name: RouteConstants.loginVendorScreen),
-          builder: (context) => LoginVendorScreen(),
-        );
-
       case RouteConstants.forgotPasswordClientScreen:
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.forgotPasswordClientScreen),
           builder: (context) => ForgotPasswordClientScreen(),
         );
-
-      case RouteConstants.registerVendorScreen:
-        return MaterialPageRoute(
-          settings: const RouteSettings(name: RouteConstants.registerVendorScreen),
-          builder: (context) => RegisterVendorScreen(),
-        );
-
 
       case RouteConstants.registerClientScreen:
         return MaterialPageRoute(
@@ -144,6 +130,13 @@ class AppRouter {
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.resetPasswordClientScreen),
           builder: (context) => const ResetPasswordClientScreen(),
+        );
+
+      ///VENDOR
+      case RouteConstants.mainVendorScreen:
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.mainVendorScreen),
+          builder: (context) => const MainVendorScreen(),
         );
     }
 

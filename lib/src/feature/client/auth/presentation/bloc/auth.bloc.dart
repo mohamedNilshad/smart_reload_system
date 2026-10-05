@@ -30,11 +30,11 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   }
 
   Future<void> _onLogin(LoginRequested event, Emitter<AuthState> emit) async {
-    emit(AuthLoading());
+    emit(AuthLoading(isClient: event.isClient, isVendor: !event.isClient));
     final result = await loginUseCase(phoneNumber: event.phoneNumber, password: event.password);
     result.fold(
           (failure) => emit(AuthFailureState(failure.message)),
-          (user) => emit(AuthSuccess(user)),
+          (user) => emit(AuthSuccess(user, event.isClient)),
     );
   }
 
@@ -58,7 +58,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
     );
     result.fold(
           (failure) => emit(AuthFailureState(failure.message)),
-          (user) => emit(AuthSuccess(user)),
+          (user) => emit(AuthSuccess(user, true)),
     );
   }
 

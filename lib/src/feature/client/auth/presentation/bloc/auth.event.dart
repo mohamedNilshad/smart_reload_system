@@ -9,9 +9,10 @@ abstract class AuthEvent extends Equatable {
 class LoginRequested extends AuthEvent {
   final String phoneNumber;
   final String password;
-  const LoginRequested({required this.phoneNumber, required this.password});
+  final bool isClient;
+  const LoginRequested({required this.phoneNumber, required this.password, this.isClient = false});
   @override
-  List<Object> get props => [phoneNumber, password];
+  List<Object> get props => [phoneNumber, password, isClient];
 }
 
 class RegisterRequested extends AuthEvent {

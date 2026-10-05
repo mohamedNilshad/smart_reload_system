@@ -42,7 +42,12 @@ class _LoginClientScreenState extends State<LoginClientScreen> {
               if (state is AuthFailureState) {
                 AppSnackbar.showError(context, state.message);
               } else if (state is AuthSuccess) {
-                Navigator.pushNamedAndRemoveUntil(context, RouteConstants.mainClientScreen, (r) => false);
+                if(state.isClient){
+                  Navigator.pushNamedAndRemoveUntil(context, RouteConstants.mainClientScreen, (r) => false);
+                }else{
+                  Navigator.pushNamedAndRemoveUntil(context, RouteConstants.mainVendorScreen, (r) => false);
+                }
+
               }
             },
             child: SingleChildScrollView(
@@ -101,25 +106,39 @@ class _LoginClientScreenState extends State<LoginClientScreen> {
                               BlocBuilder<AuthBloc, AuthState>(
                                   builder: (context, state) {
                                     if (state is AuthLoading) return const CircularProgressIndicator();
-                                    return PrimaryButton(
-                                      onPressed: (){
-                                        if (_formKey.currentState!.validate()) {
-                                          context.read<AuthBloc>().add(LoginRequested(
-                                            phoneNumber: _phoneController.text.trim(),
-                                            password: _passwordController.text.trim(),
-                                          ));
-                                        }
-                                      },
-                                      title: "Login as Client",
+
+                                    return Column(
+                                      spacing: Sizes.spaceBtwInputField,
+                                      children: [
+                                        PrimaryButton(
+                                          onPressed: (){
+                                            if (_formKey.currentState!.validate()) {
+                                              context.read<AuthBloc>().add(LoginRequested(
+                                                phoneNumber: _phoneController.text.trim(),
+                                                password: _passwordController.text.trim(),
+                                                isClient: true,
+                                              ));
+                                            }
+                                          },
+                                          title: "Login as Client",
+                                        ),
+
+                                        COutlineButton(
+                                          onPressed: (){
+                                            if (_formKey.currentState!.validate()) {
+                                              context.read<AuthBloc>().add(LoginRequested(
+                                                phoneNumber: _phoneController.text.trim(),
+                                                password: _passwordController.text.trim(),
+                                              ));
+                                            }
+                                          },
+                                          title: "Login as Vendor",
+                                        ),
+                                      ],
                                     );
                                   }
                               ),
-                              COutlineButton(
-                                onPressed: (){
-                                  Navigator.pushNamed(context, RouteConstants.loginVendorScreen);
-                                },
-                                title: "Login as Vendor",
-                              ),
+
                             ],
                           ),
                         ),

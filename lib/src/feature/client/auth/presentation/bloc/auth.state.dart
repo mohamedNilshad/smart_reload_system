@@ -8,13 +8,18 @@ abstract class AuthState extends Equatable {
 }
 
 class AuthInitial extends AuthState {}
-class AuthLoading extends AuthState {}
+class AuthLoading extends AuthState {
+  final bool isClient;
+  final bool isVendor;
+  const AuthLoading({this.isClient = false, this.isVendor = false});
+}
 
 class AuthSuccess extends AuthState {
   final UserEntity user;
-  const AuthSuccess(this.user);
+  final bool isClient;
+  const AuthSuccess(this.user, this.isClient);
   @override
-  List<Object> get props => [user];
+  List<Object> get props => [user, isClient];
 }
 
 class AuthLogoutSuccess extends AuthState {}

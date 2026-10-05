@@ -52,6 +52,8 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       return UserEntity.fromJson(doc.data()!);
     } on fb.FirebaseAuthException catch (e) {
       throw ServerException(_mapFirebaseError(e));
+    } catch(e) {
+      throw ServerException('An unexpected error occurred: $e');
     }
   }
 

@@ -21,4 +21,8 @@ class RouteConstants {
   static const String editProfileClientScreen = "EditProfileClientScreen";
   static const String resetPasswordClientScreen = "ResetPasswordClientScreen";
 
+
+  ///VENDOR
+  static const String mainVendorScreen = "MainVendorScreen";
+
 }
