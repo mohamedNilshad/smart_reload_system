@@ -8,17 +8,17 @@ import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/router/route.dart';
 import 'package:smart_reload_system/src/core/theme/theme.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/navigator_key.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/auth.bloc.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/auth.bloc.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/packaget.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/unread_count.cubit.dart';
-import 'package:smart_reload_system/src/feature/client/profile/presentation/bloc/profile.bloc.dart';
+import 'package:smart_reload_system/src/core/features/profile/presentation/bloc/profile.bloc.dart';
 import 'package:smart_reload_system/src/injection_container.dart';
 
-import 'feature/client/payment/presentation/bloc/payment.client.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/payment/presentation/bloc/payment.client.bloc.dart';
 
 class App extends StatelessWidget {
   final ThemeMode theme;

@@ -1,5 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:smart_reload_system/src/core/bloc/payment/payment.bloc.dart';
@@ -7,20 +9,23 @@ import 'package:smart_reload_system/src/core/data/datasource/payment.remote_data
 import 'package:smart_reload_system/src/core/data/repository/payment.repo_impl.dart';
 import 'package:smart_reload_system/src/core/domain/repositories/payment.repo.dart';
 import 'package:smart_reload_system/src/core/domain/usecases/start_payment.usecase.dart';
+import 'package:smart_reload_system/src/core/features/auth/domain/usecase/clear_cached_user.usecase.dart';
+import 'package:smart_reload_system/src/core/features/auth/domain/usecase/update_cached_user.usecase.dart';
+import 'package:smart_reload_system/src/core/features/auth/domain/usecase/update_user_realtime.usecase.dart';
 import 'package:smart_reload_system/src/core/services/notification.service.dart';
-import 'package:smart_reload_system/src/feature/client/auth/data/datasource/auth.local_datasource.dart';
-import 'package:smart_reload_system/src/feature/client/auth/data/datasource/auth.remote_datasource.dart';
-import 'package:smart_reload_system/src/feature/client/auth/data/repositories/auth.repo_impl.dart';
-import 'package:smart_reload_system/src/feature/client/auth/domain/repository/auth.repo.dart';
-import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/get_cached_user.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/login.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/logout.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/reauthenticate.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/register.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/verify_email.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/auth/domain/usecase/watch_auth_state.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/auth.bloc.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/core/features/auth/data/datasource/auth.local_datasource.dart';
+import 'package:smart_reload_system/src/core/features/auth/data/datasource/auth.remote_datasource.dart';
+import 'package:smart_reload_system/src/core/features/auth/data/repositories/auth.repo_impl.dart';
+import 'package:smart_reload_system/src/core/features/auth/domain/repository/auth.repo.dart';
+import 'package:smart_reload_system/src/core/features/auth/domain/usecase/get_cached_user.usecase.dart';
+import 'package:smart_reload_system/src/core/features/auth/domain/usecase/login.usecase.dart';
+import 'package:smart_reload_system/src/core/features/auth/domain/usecase/logout.usecase.dart';
+import 'package:smart_reload_system/src/core/features/auth/domain/usecase/reauthenticate.usecase.dart';
+import 'package:smart_reload_system/src/core/features/auth/domain/usecase/register.usecase.dart';
+import 'package:smart_reload_system/src/core/features/auth/domain/usecase/verify_email.usecase.dart';
+import 'package:smart_reload_system/src/core/features/auth/domain/usecase/watch_user_realtime.usecase.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/auth.bloc.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/datasource/home.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/repository/home.repo_impl.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/repository/home.repo.dart';
@@ -49,12 +54,12 @@ import 'package:smart_reload_system/src/feature/client/payment/domain/repository
 import 'package:smart_reload_system/src/feature/client/payment/domain/usecase/create_payment.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/payment/domain/usecase/get_paid_invoices.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/payment/domain/usecase/get_payable_details.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/profile/data/datasource/profile.remote_datasource.dart';
-import 'package:smart_reload_system/src/feature/client/profile/data/repository/profile.repo_impl.dart';
-import 'package:smart_reload_system/src/feature/client/profile/domain/repository/profile.repo.dart';
-import 'package:smart_reload_system/src/feature/client/profile/domain/usecase/update_password.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/profile/domain/usecase/update_profile.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/profile/presentation/bloc/profile.bloc.dart';
+import 'package:smart_reload_system/src/core/features/profile/data/datasource/profile.remote_datasource.dart';
+import 'package:smart_reload_system/src/core/features/profile/data/repository/profile.repo_impl.dart';
+import 'package:smart_reload_system/src/core/features/profile/domain/repository/profile.repo.dart';
+import 'package:smart_reload_system/src/core/features/profile/domain/usecase/update_password.usecase.dart';
+import 'package:smart_reload_system/src/core/features/profile/domain/usecase/update_profile.usecase.dart';
+import 'package:smart_reload_system/src/core/features/profile/presentation/bloc/profile.bloc.dart';
 
 import 'package:smart_reload_system/src/feature/client/payment/presentation/bloc/payment.client.bloc.dart';
 
@@ -65,11 +70,19 @@ Future<void> init() async{
   /// External
   sl.registerLazySingleton(() => fb.FirebaseAuth.instance);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
+  // sl.registerLazySingleton(() => FirebaseDatabase.instance);
+  sl.registerLazySingleton<FirebaseDatabase>(
+        () => FirebaseDatabase.instanceFor(
+      app: Firebase.app(),
+      databaseURL:
+      'https://smart-reload-system-default-rtdb.asia-southeast1.firebasedatabase.app',
+    ),
+  );
   sl.registerLazySingleton(() => const FlutterSecureStorage());
   sl.registerLazySingleton(() => NotificationService());
 
   /// Data source
-  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(firebaseAuth: sl(), firestore: sl()));
+  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(firebaseAuth: sl(), firestore: sl(), database: sl()));
   sl.registerLazySingleton<PaymentRemoteDataSource>(() => PaymentRemoteDataSourceImpl());
   sl.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl(sl()));
   sl.registerLazySingleton<HomeRemoteDataSource>(() => HomeRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()));
@@ -82,14 +95,17 @@ Future<void> init() async{
   sl.registerLazySingleton<HomeRepo>(() => HomeRepoImpl(remoteDataSource: sl()));
   sl.registerLazySingleton<PaymentRepo>(() => PaymentRepoImpl(sl()));
   sl.registerLazySingleton<NotificationRepo>(() => NotificationRepoImpl(sl()));
-  sl.registerLazySingleton<ProfileRepo>(() => ProfileRepoImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<ProfileRepo>(() => ProfileRepoImpl(remoteDataSource: sl(), remoteAuthDataSource: sl()));
   sl.registerLazySingleton<PaymentClientRepo>(() => PaymentClientRepoImpl(remoteDataSource: sl()));
 
   /// Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
   sl.registerLazySingleton(() => RegisterUseCase(sl()));
-  sl.registerLazySingleton(() => WatchAuthStateUseCase(sl()));
+  sl.registerLazySingleton(() => WatchUserRealtimeUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateUserRealtimeUseCase(sl()));
   sl.registerLazySingleton(() => GetCachedUserUseCase(sl()));
+  sl.registerLazySingleton(() => UpdateCachedUserUseCase(sl()));
+  sl.registerLazySingleton(() => ClearCachedUserUseCase(sl()));
   sl.registerLazySingleton(() => ReauthenticateUseCase(sl()));
   sl.registerLazySingleton(() => LogoutUseCase(sl()));
   sl.registerLazySingleton(() => GetBannerNewsUseCase(sl()));
@@ -120,7 +136,14 @@ Future<void> init() async{
     reauthenticateUseCase: sl(),
     verifyEmailUseCase: sl(),
   ));
-  sl.registerLazySingleton(() => SessionCubit(watchAuthStateUseCase: sl(), getCachedUserUseCase: sl()));
+  sl.registerLazySingleton(() => SessionCubit(
+      watchUserRealtimeUseCase: sl(),
+      getCachedUserUseCase: sl(),
+      firebaseAuth: sl(),
+      logoutUseCase: sl(),
+      updateCachedUserUseCase: sl(),
+      clearCachedUserUseCase: sl()
+  ));
   sl.registerLazySingleton(() => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()));
   sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl(), addNewConnectionUseCase: sl()));
   sl.registerLazySingleton(() => PackageBloc(requestPackageUseCase: sl(), getPackageUseCase: sl(), getActivatedPackagesUseCase: sl()));

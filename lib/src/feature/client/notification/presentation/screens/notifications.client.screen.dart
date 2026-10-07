@@ -11,8 +11,8 @@ import 'package:smart_reload_system/src/core/presentation/widgets/empty_screen.w
 import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loading.widget.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.state.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.event.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.state.dart';

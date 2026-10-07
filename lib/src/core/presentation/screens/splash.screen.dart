@@ -6,8 +6,8 @@ import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/presentation/effects/arc_painter.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/seeder_button.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.state.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -107,6 +107,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
   }
 
   void _tryNavigate() {
+
     if (!_animationFinished || _pendingSessionState == null) return;
 
     final state = _pendingSessionState!;
@@ -118,7 +119,7 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
         Navigator.of(context).pushReplacementNamed(RouteConstants.mainClientScreen);
       }
     } else if (state is SessionUnauthenticated) {
-      Navigator.of(context).pushReplacementNamed(RouteConstants.loginClientScreen);
+      Navigator.of(context).pushReplacementNamed(RouteConstants.loginScreen);
     }
   }
 
@@ -139,10 +140,12 @@ class _SplashScreenState extends State<SplashScreen> with TickerProviderStateMix
     const borderRadius = 12.0;
     return BlocListener<SessionCubit, SessionState>(
       listener: (context, state) {
+
         if (state is SessionAuthenticated || state is SessionUnauthenticated) {
           _pendingSessionState = state;
           _tryNavigate();
         }
+
         // SessionInitial: keep waiting, nothing to store yet
       },
       child: Scaffold(

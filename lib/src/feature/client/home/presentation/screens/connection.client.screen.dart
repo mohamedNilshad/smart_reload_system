@@ -20,9 +20,9 @@ import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widge
 import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loading.widget.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
-import 'package:smart_reload_system/src/feature/client/auth/domain/entity/client.entity.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.state.dart';
+import 'package:smart_reload_system/src/core/domain/entity/user.entity.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';

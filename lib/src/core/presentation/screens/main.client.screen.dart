@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
+import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/feature/client/payment/presentation/screens/payment.client.screen.dart';
-import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/profile.client.screen.dart';
+import 'package:smart_reload_system/src/core/features/profile/presentation/screens/profile.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/home.client.screen.dart';
 
 class MainClientScreen extends StatefulWidget {
@@ -25,39 +29,51 @@ class _MainClientScreenState extends State<MainClientScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_filled),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.family_restroom_rounded),
-            label: 'Family',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_rounded),
-            label: 'Invoice',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        unselectedItemColor: AppColors.darkGrey,
-        unselectedLabelStyle: TextStyle(color: AppColors.darkGrey),
-        showUnselectedLabels: true,
-        selectedItemColor: AppColors.primary,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index){
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+    return BlocListener<SessionCubit, SessionState>(
+      listener: (context, state) {
+
+        if (state is SessionUnauthenticated) {
+          Navigator.of(context).pushNamedAndRemoveUntil(
+            RouteConstants.loginScreen, (route) => false,
+          );
+        }
+
+        // SessionInitial: keep waiting, nothing to store yet
+      },
+      child: Scaffold(
+        bottomNavigationBar: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_filled),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.family_restroom_rounded),
+              label: 'Family',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.receipt_long_rounded),
+              label: 'Invoice',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          unselectedItemColor: AppColors.darkGrey,
+          unselectedLabelStyle: TextStyle(color: AppColors.darkGrey),
+          showUnselectedLabels: true,
+          selectedItemColor: AppColors.primary,
+          type: BottomNavigationBarType.fixed,
+          onTap: (index){
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+        ),
+        body: screens[_selectedIndex],
       ),
-      body: screens[_selectedIndex],
     );
   }
 

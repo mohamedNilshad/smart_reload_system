@@ -10,8 +10,8 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_tile.wi
 import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loading.widget.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.cubit.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/bloc/session.state.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.event.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.state.dart';

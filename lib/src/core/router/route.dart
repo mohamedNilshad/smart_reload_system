@@ -5,7 +5,7 @@ import 'package:smart_reload_system/src/core/presentation/screens/main.vendor.sc
 import 'package:smart_reload_system/src/core/presentation/screens/splash.screen.dart';
 import 'package:smart_reload_system/src/core/presentation/screens/unknown.screen.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/verify_email_client.screen.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/screens/verify_email.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
@@ -14,12 +14,12 @@ import 'package:smart_reload_system/src/feature/client/home/presentation/screens
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/reload_history.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/widgets/add_new_connection.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/screens/notifications.client.screen.dart';
-import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/edit_profile.client.screen.dart';
-import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/profile.client.screen.dart';
+import 'package:smart_reload_system/src/core/features/profile/presentation/screens/edit_profile.screen.dart';
+import 'package:smart_reload_system/src/core/features/profile/presentation/screens/profile.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection.client.screen.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/login_client.screen.dart';
-import 'package:smart_reload_system/src/feature/client/profile/presentation/screens/reset_password.client.screen.dart';
-import 'package:smart_reload_system/src/feature/client/auth/presentation/screens/register_client.screen.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/screens/login.screen.dart';
+import 'package:smart_reload_system/src/core/features/profile/presentation/screens/reset_password.screen.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/screens/register_client.screen.dart';
 
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
@@ -31,16 +31,16 @@ class AppRouter {
           builder: (context) => const SplashScreen(),
         );
 
-      case RouteConstants.loginClientScreen:
+      case RouteConstants.loginScreen:
         return MaterialPageRoute(
-          settings: const RouteSettings(name: RouteConstants.loginClientScreen),
-          builder: (context) => LoginClientScreen(),
+          settings: const RouteSettings(name: RouteConstants.loginScreen),
+          builder: (context) => LoginScreen(),
         );
 
-      case RouteConstants.forgotPasswordClientScreen:
+      case RouteConstants.forgotPasswordScreen:
         return MaterialPageRoute(
-          settings: const RouteSettings(name: RouteConstants.forgotPasswordClientScreen),
-          builder: (context) => ForgotPasswordClientScreen(),
+          settings: const RouteSettings(name: RouteConstants.forgotPasswordScreen),
+          builder: (context) => ForgotPasswordScreen(),
         );
 
       case RouteConstants.registerClientScreen:
@@ -120,16 +120,16 @@ class AppRouter {
           builder: (context) => const NotificationScreen(),
         );
 
-      case RouteConstants.editProfileClientScreen:
+      case RouteConstants.editProfileScreen:
         return MaterialPageRoute(
-          settings: const RouteSettings(name: RouteConstants.editProfileClientScreen),
-          builder: (context) => const EditProfileClientScreen(),
+          settings: const RouteSettings(name: RouteConstants.editProfileScreen),
+          builder: (context) => const EditProfileScreen(),
         );
 
-      case RouteConstants.resetPasswordClientScreen:
+      case RouteConstants.resetPasswordScreen:
         return MaterialPageRoute(
-          settings: const RouteSettings(name: RouteConstants.resetPasswordClientScreen),
-          builder: (context) => const ResetPasswordClientScreen(),
+          settings: const RouteSettings(name: RouteConstants.resetPasswordScreen),
+          builder: (context) => const ResetPasswordScreen(),
         );
 
       ///VENDOR
