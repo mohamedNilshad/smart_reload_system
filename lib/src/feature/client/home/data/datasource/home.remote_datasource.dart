@@ -6,6 +6,7 @@ import 'package:smart_reload_system/src/feature/client/home/data/model/connectio
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
+import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 abstract class HomeRemoteDataSource {
   Future<List<BannerNewsModel>> getBannerNews();
@@ -38,10 +39,21 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
           .map((doc) => BannerNewsModel.fromJson(doc.data(), id: doc.id))
           .toList();
 
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.getBannerNews',
+        stackTrace: st,
+      );
       throw ServerException(e.message ?? 'Failed to fetch banner news');
-    } catch (e) {
-      throw ServerException('An error occurred while fetching banner news');
+
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.getBannerNews',
+        stackTrace: st,
+      );
+      throw Exception('An error occurred while fetching banner news');
     }
   }
 
@@ -101,10 +113,20 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       }
 
       return vendors;
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.getVendors',
+        stackTrace: st,
+      );
       throw ServerException(e.message ?? 'Failed to fetch vendors');
-    } catch (e) {
-      throw ServerException('An error occurred while fetching vendors');
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.getVendors',
+        stackTrace: st,
+      );
+      throw Exception('An error occurred while fetching vendors');
     }
   }
 
@@ -119,10 +141,21 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
       return connectionSnapshot.docs.map((doc) => ConnectionModel.fromJson(doc.data(), id: doc.id)).toList();
 
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.getConnections',
+        stackTrace: st,
+      );
       throw ServerException(e.message ?? 'Failed to fetch connections');
-    } catch (e) {
-      throw ServerException('An error occurred while fetching connections');
+
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.getConnections',
+        stackTrace: st,
+      );
+      throw Exception('An error occurred while fetching connections');
     }
   }
 
@@ -133,10 +166,20 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       await firestore.collection("requested_packages").add(packageRequestModel.toJson());
       //send push notification
       return true;
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.requestPackage',
+        stackTrace: st,
+      );
       throw ServerException(e.message ?? 'Failed to fetch connections');
-    } catch (e) {
-      throw ServerException('An error occurred while fetching connections');
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.requestPackage',
+        stackTrace: st,
+      );
+      throw Exception('An error occurred while fetching connections');
     }
   }
 
@@ -147,10 +190,21 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       await firestore.collection("connections").add(connectionModel.toJson());
       //send push notification
       return true;
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.addNewConnection',
+        stackTrace: st,
+      );
       throw ServerException(e.message ?? 'Failed to add connections');
-    } catch (e) {
-      throw ServerException('An error occurred while adding connections');
+
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.addNewConnection',
+        stackTrace: st,
+      );
+      throw Exception('An error occurred while adding connections');
     }
   }
 
@@ -166,10 +220,21 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
       return packageSnapshot.docs.map((doc) => PackageModel.fromJson(doc.data(), id: doc.id)).toList();
 
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.getPackages',
+        stackTrace: st,
+      );
       throw ServerException(e.message ?? 'Failed to fetch packages');
-    } catch (e) {
-      throw ServerException('An error occurred while fetching packages');
+
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.getPackages',
+        stackTrace: st,
+      );
+      throw Exception('An error occurred while fetching packages');
     }
   }
 
@@ -197,10 +262,20 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
 
       return apList;
 
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.getActivatedPackages',
+        stackTrace: st,
+      );
       throw ServerException(e.message ?? 'Failed to fetch activated packages');
-    } catch (e) {
-      throw ServerException('An error occurred while fetching activated packages');
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.getActivatedPackages',
+        stackTrace: st,
+      );
+      throw Exception('An error occurred while fetching activated packages');
     }
   }
 

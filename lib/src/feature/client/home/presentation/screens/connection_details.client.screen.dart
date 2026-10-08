@@ -24,6 +24,7 @@ import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/pa
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/package.event.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/package.state.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/widgets/activated_package_card.widget.dart';
+import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 class ConnectionDetailsClientScreen extends StatefulWidget {
   final ConnectionModel connectionModel;
@@ -63,34 +64,44 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
   }
   
   void initValue(List<PackageRequestModel> packages){
-    setState(() {
-      allPackageDetails.clear();
-      actPackageDetails.clear();
-      dataPackages.clear();
-      voicePackages.clear();
-      comboPackages.clear();
+    try{
+      setState(() {
+        allPackageDetails.clear();
+        actPackageDetails.clear();
+        dataPackages.clear();
+        voicePackages.clear();
+        comboPackages.clear();
 
-      allPackageDetails = packages;
+        allPackageDetails = packages;
 
-      for (var pc in packages) {
-        if(pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)){
-          actPackageDetails.add(pc);
+        for (var pc in packages) {
+          if(pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)){
+            actPackageDetails.add(pc);
+          }
         }
-      }
 
-      for (var p in actPackageDetails) {
-        if(p.packageModel?.packageType == PackageType.Data.name){
-          dataPackages.add(p);
-        }else if(p.packageModel?.packageType == PackageType.Voice.name){
-          voicePackages.add(p);
-        }else if(p.packageModel?.packageType == PackageType.Combo.name){
-          comboPackages.add(p);
+        for (var p in actPackageDetails) {
+          if(p.packageModel?.packageType == PackageType.Data.name){
+            dataPackages.add(p);
+          }else if(p.packageModel?.packageType == PackageType.Voice.name){
+            voicePackages.add(p);
+          }else if(p.packageModel?.packageType == PackageType.Combo.name){
+            comboPackages.add(p);
+          }
         }
-      }
-      fetchingActPackage = false;
-      //show history only
-      isUtility = (connectionModel.connectionCategory.toLowerCase() == ConCategory.Utility.name.toLowerCase()) || (connectionModel.connectionType.toLowerCase() == TelecomType.TV.name.toLowerCase());
-    });
+        fetchingActPackage = false;
+        //show history only
+        isUtility = (connectionModel.connectionCategory.toLowerCase() == ConCategory.Utility.name.toLowerCase()) || (connectionModel.connectionType.toLowerCase() == TelecomType.TV.name.toLowerCase());
+      });
+    }catch(e, st){
+      ErrorLogger.log(
+        e,
+        location: 'ConnectionDetailsClientScreen.initValue',
+        stackTrace: st,
+      );
+      setState(() => fetchingActPackage = false);
+      AppSnackbar.showError(context, "Failed to load activated packages");
+    }
   }
 
   @override

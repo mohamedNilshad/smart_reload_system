@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:payhere_mobilesdk_flutter/payhere_mobilesdk_flutter.dart';
 import 'package:smart_reload_system/src/core/constants/constant.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
+import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 abstract class PaymentRemoteDataSource {
   Future<Map<String, dynamic>> startOneTimePayment({
@@ -86,7 +87,12 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
         'paymentId': paymentId,
         'paymentDate': DateTime.now().toIso8601String(),
       };
-    }catch(e){
+    }catch(e, st){
+      ErrorLogger.log(
+        e,
+        location: 'PaymentRemoteDataSourceImpl.startOneTimePayment',
+        stackTrace: st,
+      );
       throw ServerException(e.toString());
     }
   }

@@ -79,34 +79,6 @@ class AuthRepoImpl implements AuthRepo {
       return Left(AuthFailure(e.message));
     }
   }
-  //
-  // @override
-  // Stream<UserEntity?> get authStateChanges {
-  //   return remoteDataSource.authStateChanges.map((user) {
-  //     // Keep the cache in sync with whatever Firebase confirms.
-  //     if (user != null) {
-  //       localDataSource.cacheUser(user);
-  //     } else {
-  //       localDataSource.clearCachedUser();
-  //     }
-  //     return user;
-  //   });
-  // }
-
-  @override
-  Stream<UserEntity?> get authStateChanges {
-
-    return remoteDataSource.authStateChanges.map((user) {
-
-      if (user != null) {
-        localDataSource.cacheUser(user);
-      } else {
-        localDataSource.clearCachedUser();
-      }
-
-      return user;
-    });
-  }
 
   @override
   Stream<UserEntity?> watchUser(String uid) {

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
 import 'package:smart_reload_system/src/feature/client/notification/domain/entity/notification.entity.dart';
+import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 abstract class NotificationRemoteDataSource {
   Stream<int> watchUnreadCount(String uid);
@@ -18,13 +19,20 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
 
   @override
   Stream<int> watchUnreadCount(String uid) {
-    // Real-time listener on the filtered query itself — Firestore's count()
-    // aggregation doesn't support live listeners, so we stream the actual
-    // matching docs. Fine here since unread counts are small.
-    return _collection(uid)
-        .where('isRead', isEqualTo: false)
-        .snapshots()
-        .map((snapshot) => snapshot.size);
+    try{
+      return _collection(uid)
+          .where('isRead', isEqualTo: false)
+          .snapshots()
+          .map((snapshot) => snapshot.size);
+
+    }catch(e, st){
+      ErrorLogger.log(
+        e,
+        location: 'NotificationRemoteDataSourceImpl.watchUnreadCount',
+        stackTrace: st,
+      );
+      throw ServerException('Failed to watch unread notifications count.');
+    }
   }
 
   @override
@@ -32,7 +40,12 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
     try {
       final snapshot = await _collection(uid).orderBy('createdAt', descending: true).get();
       return snapshot.docs.map((doc) => NotificationEntity.fromFirestore(doc)).toList();
-    } catch (e) {
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'NotificationRemoteDataSourceImpl.getNotifications',
+        stackTrace: st,
+      );
       throw ServerException('Failed to load notifications.');
     }
   }
@@ -41,7 +54,12 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
   Future<void> markAsRead({required String uid, required String notificationId}) async {
     try {
       await _collection(uid).doc(notificationId).update({'isRead': true});
-    } catch (e) {
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'NotificationRemoteDataSourceImpl.markAsRead',
+        stackTrace: st,
+      );
       throw ServerException('Failed to update notification.');
     }
   }
@@ -55,7 +73,12 @@ class NotificationRemoteDataSourceImpl implements NotificationRemoteDataSource {
         batch.update(doc.reference, {'isRead': true});
       }
       await batch.commit();
-    } catch (e) {
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'NotificationRemoteDataSourceImpl.markAllAsRead',
+        stackTrace: st,
+      );
       throw ServerException('Failed to update notifications.');
     }
   }

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
-import 'package:smart_reload_system/src/core/constants/sizes.dart';
 
 class CTextButtonTheme{
   CTextButtonTheme._();

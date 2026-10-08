@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:smart_reload_system/src/core/domain/entity/user.entity.dart';
+import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 abstract class AuthLocalDataSource {
   Future<void> cacheUser(UserEntity user);
@@ -16,7 +17,16 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
 
   @override
   Future<void> cacheUser(UserEntity user) async {
-    await secureStorage.write(key: _key, value: jsonEncode(user.toJson()));
+    try{
+      await secureStorage.write(key: _key, value: jsonEncode(user.toJson()));
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'AuthLocalDataSourceImpl.cacheUser',
+        stackTrace: st,
+      );
+      throw Exception('Failed to cache user: $e');
+    }
   }
 
   @override
@@ -25,13 +35,28 @@ class AuthLocalDataSourceImpl implements AuthLocalDataSource {
     if (jsonStr == null) return null;
     try {
       return UserEntity.fromJson(jsonDecode(jsonStr) as Map<String, dynamic>);
-    } catch (_) {
-      return null; // corrupted cache — treat as no cache
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'AuthLocalDataSourceImpl.getCachedUser',
+        stackTrace: st,
+      );
+      throw Exception('Failed to get cached user: $e');
     }
   }
 
   @override
   Future<void> clearCachedUser() async {
-    await secureStorage.delete(key: _key);
+    try{
+      await secureStorage.delete(key: _key);
+    }catch(e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'AuthLocalDataSourceImpl.clearCachedUser',
+        stackTrace: st,
+      );
+      throw Exception('Failed to clear cached user: $e');
+    }
+
   }
 }

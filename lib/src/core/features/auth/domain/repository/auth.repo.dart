@@ -23,8 +23,6 @@ abstract class AuthRepo {
 
   Future<Either<Failure, void>> logout();
 
-  Stream<UserEntity?> get authStateChanges;
-
   Stream<UserEntity?> watchUser(String uid);
 
   Future<void> updateUser(String uid, Map<String, dynamic> data);

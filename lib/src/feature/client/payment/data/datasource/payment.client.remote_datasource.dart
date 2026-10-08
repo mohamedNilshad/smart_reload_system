@@ -1,6 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/data/model/Invoice_pdf_data.model.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
 import 'package:smart_reload_system/src/core/services/encryption.service.dart';
@@ -8,6 +7,7 @@ import 'package:smart_reload_system/src/feature/client/home/data/model/connectio
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 import 'package:smart_reload_system/src/feature/client/payment/data/model/paid_invoice_data.model.dart';
+import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 abstract class PaymentClientRemoteDataSource {
   Future<bool> createPayment({
@@ -142,10 +142,20 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
       await rPackageBatch.commit();
 
       return true;
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'PaymentClientRemoteDataSourceImpl.processPayment',
+        stackTrace: st,
+      );
       throw ServerException(e.message ?? 'Firebase error occurred');
-    } catch (e) {
-      throw ServerException(e.toString());
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'PaymentClientRemoteDataSourceImpl.processPayment',
+        stackTrace: st,
+      );
+      throw Exception(e.toString());
     }
   }
 
@@ -245,10 +255,21 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
         'serviceCharge': serviceChargeValue,
       };
 
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'PaymentClientRemoteDataSourceImpl.fetchPayablesDetails',
+        stackTrace: st,
+      );
       throw ServerException(e.message ?? 'Failed to fetch payables details');
-    } catch (e) {
-      throw ServerException('An error occurred while fetching payables details');
+
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'PaymentClientRemoteDataSourceImpl.fetchPayablesDetails',
+        stackTrace: st,
+      );
+      throw Exception('An error occurred while fetching payables details');
     }
   }
 
@@ -290,12 +311,21 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
       }
 
       return paidInvoices;
-    } on FirebaseException catch (e) {
-      debugPrint(e.toString());
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'PaymentClientRemoteDataSourceImpl.fetchPaidInvoices',
+        stackTrace: st,
+      );
+
       throw ServerException(e.message ?? 'Failed to fetch paid invoices');
     } catch (e, st) {
-      debugPrint(e.toString());
-      debugPrint(st.toString());
+      ErrorLogger.log(
+        e,
+        location: 'PaymentClientRemoteDataSourceImpl.fetchPaidInvoices',
+        stackTrace: st,
+      );
+
       throw ServerException('An error occurred while fetching paid invoices');
     }
   }

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
+import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 abstract class ProfileRemoteDataSource {
   Future<void> updateProfile({required String userId, required bool isEmailChanged, required String fullName, required String phoneNumber, required String email, required String nic});
@@ -24,10 +25,20 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
         'nic': nic,
       });
 
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'ProfileRemoteDataSourceImpl.updateProfile',
+        stackTrace: st,
+      );
       throw ServerException('Firebase error: ${e.message}');
-    } catch (e) {
-      throw ServerException('Failed to update profile: $e');
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'ProfileRemoteDataSourceImpl.updateProfile',
+        stackTrace: st,
+      );
+      throw Exception('Failed to update profile: $e');
     }
   }
 
@@ -39,10 +50,20 @@ class ProfileRemoteDataSourceImpl implements ProfileRemoteDataSource {
       final userId = user?.uid;
       if (userId == null) throw ServerException('User not authenticated');
       await user?.updatePassword(password);
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'ProfileRemoteDataSourceImpl.updatePassword',
+        stackTrace: st,
+      );
       throw ServerException('Firebase error: ${e.message}');
-    } catch (e) {
-      throw ServerException('Failed to update profile: $e');
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'ProfileRemoteDataSourceImpl.updatePassword',
+        stackTrace: st,
+      );
+      throw Exception('Failed to update password: $e');
     }
   }
 }
