@@ -12,8 +12,8 @@ class GifBuilder extends StatelessWidget {
       url,
       width: 80,
       height: 80,
-      color: isVendor ? AppColors.scaffoldVendor : AppColors.softGrey,
-      colorBlendMode: BlendMode.multiply,
+      color: isVendor ? null : AppColors.softGrey,
+      colorBlendMode: isVendor ? null : BlendMode.multiply,
     );
   }
 }

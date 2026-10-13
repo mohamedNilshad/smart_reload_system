@@ -11,11 +11,9 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/su
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loading.widget.dart';
-import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
-import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.event.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/screens/widget/notification_bell.widget.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.bloc.dart';
@@ -35,46 +33,6 @@ class _HomeVendorScreenState extends State<HomeVendorScreen> {
   List<Map<String, dynamic>> clientList = [];
   String vendorId = "";
 
-  final Set<String> processedRequestIds = {};
-
-  void handlePackageRequest1(Map<String, dynamic> requestMap) {
-
-    print("REQUEST: $requestMap");
-    print("LIST: $clientList");
-    requestMap.forEach((key, value) {
-
-      final request = (value as Map).cast<String, dynamic>();
-
-
-      final index = clientList.indexWhere((client) =>
-      client['client'].clientVendorId == request['clientVendorId'],
-      );
-
-
-      if (index == -1) return;
-
-      if (request['status'] == false) {
-        clientList[index]['count'] = clientList[index]['count'] - 1;
-        setState(() {});
-        return;
-      }
-
-      final updatedClient = {
-        "client": clientList[index]['client'],
-        "count": clientList[index]['count'] + 1,
-      };
-      clientList.removeAt(index);
-
-      clientList.insert(0, updatedClient);
-
-      setState(() {});
-    });
-
-
-
-  }
-
-  // in your State class
   final Map<String, bool> _handledStatus = {};
 
   void handlePackageRequest(Map<String, dynamic> requestMap) {
@@ -145,7 +103,6 @@ class _HomeVendorScreenState extends State<HomeVendorScreen> {
           body: BlocListener<HomeVendorBloc, HomeVendorState>(
             listener: (context, state) {
 
-
               if (state is HomeFailure) {
                 AppSnackbar.showError(context, state.message);
               }
@@ -159,19 +116,13 @@ class _HomeVendorScreenState extends State<HomeVendorScreen> {
                 }
 
                 handlePackageRequest(state.data['packageRequests']);
-                print("client.clientName");
-                print(clientList);
-
               }
-
 
             },
             child: BlocListener<PackageRequestCubit, PackageRequestState>(
               listener: (context, state) {
 
                 if (state is PackageRequestLoaded) {
-                  print("state.result : ${state.requests}");
-
                   handlePackageRequest(state.requests);
                 }
               },
@@ -183,7 +134,7 @@ class _HomeVendorScreenState extends State<HomeVendorScreen> {
                 child: BlocBuilder<HomeVendorBloc, HomeVendorState>(
                   builder: (context, state) {
                     // Show shimmer loading
-                     if (state is HomeLoading) {
+                    if (state is HomeLoading) {
                       return SingleChildScrollView(
                         physics: const AlwaysScrollableScrollPhysics(),
                         child: Padding(
@@ -197,11 +148,13 @@ class _HomeVendorScreenState extends State<HomeVendorScreen> {
                                 height: 18,
                                 width: 120,
                                 borderRadius: BorderRadius.circular(4),
+                                isDark: true,
                               ),
+
                               const SizedBox(height: 12),
-                              ShimmerVendorCard(),
-                              ShimmerVendorCard(),
-                              ShimmerVendorCard(),
+                              ShimmerClientCard(),
+                              ShimmerClientCard(),
+                              ShimmerClientCard(),
                             ],
                           ),
                         ),
@@ -295,7 +248,7 @@ class _HomeVendorScreenState extends State<HomeVendorScreen> {
             margin: EdgeInsets.all(2),
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(20.0),
-              color: Color(0xFF40404E),//AppColors.darkContainers,
+              color: AppColors.darkContainers,
               boxShadow: [
                 BoxShadow(
                   color: AppColors.black.withValues(alpha: 0.15),

@@ -6,7 +6,6 @@ import 'package:smart_reload_system/src/feature/client/home/data/model/connectio
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/data/datasource/home.remote_datasource.vendor.dart';
-import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/domain/repository/home.repo.vendor.dart';
 
 class HomeRepoVImpl implements HomeRepoV {

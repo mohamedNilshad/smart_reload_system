@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
+import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 
 class ShimmerLoading extends StatelessWidget {
   final double height;
   final double width;
   final BorderRadius? borderRadius;
   final EdgeInsets? margin;
+  final bool isDark;
+  final bool isCircle;
 
   const ShimmerLoading({
     super.key,
@@ -13,20 +16,23 @@ class ShimmerLoading extends StatelessWidget {
     this.width = double.infinity,
     this.borderRadius,
     this.margin,
+    this.isDark = false,
+    this.isCircle = false,
   });
 
   @override
   Widget build(BuildContext context) {
     return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
+      baseColor: isDark ? AppColors.darkContainers : Colors.grey[300]!,
+      highlightColor: isDark ? Colors.grey[200]! : Colors.grey[100]!,
       child: Container(
         margin: margin,
         height: height,
         width: width,
         decoration: BoxDecoration(
-          color: Colors.grey[300],
-          borderRadius: borderRadius ?? BorderRadius.circular(4),
+          color: isDark ? AppColors.darkContainers : Colors.grey[300],
+          borderRadius: isCircle ? null : (borderRadius ?? BorderRadius.circular(4)),
+          shape: isCircle ? BoxShape.circle : BoxShape.rectangle,
         ),
       ),
     );
@@ -120,6 +126,84 @@ class ShimmerVendorCard extends StatelessWidget {
                   height: 24,
                   width: 100,
                   borderRadius: BorderRadius.circular(12),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class ShimmerClientCard extends StatelessWidget {
+  final EdgeInsets? padding;
+
+  const ShimmerClientCard({super.key, this.padding});
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: AppColors.darkContainers,
+      child: Padding(
+        padding: padding ?? const EdgeInsets.all(12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              spacing: 10,
+              children: [
+                ShimmerLoading(
+                  height: 50,
+                  width: 50,
+                  isCircle: true,
+                  isDark: true,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                Column(
+                  spacing: 3,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ShimmerLoading(
+                      height: 15,
+                      width: 100,
+                      isDark: true,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    ShimmerLoading(
+                      height: 10,
+                      width: 130,
+                      isDark: true,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ],
+                ),
+                Spacer(),
+                ShimmerLoading(
+                  height: 30,
+                  width: 30,
+                  isCircle: true,
+                  isDark: true,
+                  borderRadius: BorderRadius.circular(4),
+                ),
+              ],
+            ),
+            Divider(thickness: 0.3),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                ShimmerLoading(
+                  height: 18,
+                  width: 80,
+                  isDark: true,
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                ShimmerLoading(
+                  height: 18,
+                  width: 80,
+                  isDark: true,
+                  borderRadius: BorderRadius.circular(4),
                 ),
               ],
             ),

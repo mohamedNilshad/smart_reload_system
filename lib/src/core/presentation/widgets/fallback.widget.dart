@@ -19,17 +19,17 @@ class FallbackWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         spacing: 10,
         children: [
-          GifBuilder(url: ImageStrings.serverError, isVendor: isVendor),
+          GifBuilder(url: isVendor ? ImageStrings.serverErrorDark : ImageStrings.serverError, isVendor: isVendor),
           TitleText(
             text: 'Unable to fetch details',
             isBold: false,
-            color: isVendor ? AppColors.darkerGrey : AppColors.white,
+            color: isVendor ? AppColors.grey : AppColors.white,
           ),
           SizedBox(
             width: HelperFunctions.screenWidth(context)/1.2,
             child: BodyText(
               text: 'Something went wrong while loading this screen.',
-              color: isVendor ? AppColors.darkerGrey : AppColors.white,
+              color: isVendor ? AppColors.darkGrey : AppColors.white,
               textAlign: TextAlign.center,
             ),
           ),

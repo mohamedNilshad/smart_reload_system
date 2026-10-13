@@ -4,7 +4,6 @@ import 'package:smart_reload_system/src/feature/client/home/data/model/banner_ne
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
-import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
 
 abstract class HomeRepoV {
   Future<Either<Failure, List<BannerNewsModel>>> getBannerNews();
