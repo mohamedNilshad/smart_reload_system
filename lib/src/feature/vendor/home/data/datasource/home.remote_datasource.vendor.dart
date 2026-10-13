@@ -1,31 +1,34 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart' as db;
+import 'package:flutter/foundation.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/banner_news.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
-import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
 import 'package:smart_reload_system/src/core/error/error_logger.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
 
-abstract class HomeRemoteDataSource {
+abstract class HomeRemoteDataSourceV {
   Future<List<BannerNewsModel>> getBannerNews();
-  Future<List<VendorModel>> getVendors();
+  Future<Map<String, dynamic>> getClients();
+
   Future<List<ConnectionModel>> getConnections(String clientVendorId);
   Future<bool> requestPackage(PackageRequestModel packageRequestModel);
   Future<bool> addNewConnection(ConnectionModel connectionModel);
   Future<List<PackageModel>> getPackages(String type, String serviceProvider);
   Future<List<PackageRequestModel>> getActivatedPackages(String connectionId);
+
+  Stream<Map<String, dynamic>> watchPackageRequests(String vendorId);
 }
 
-class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
+class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
   final FirebaseFirestore firestore;
   final FirebaseAuth firebaseAuth;
+  final db.FirebaseDatabase database;
 
-  HomeRemoteDataSourceImpl({
-    required this.firestore,
-    required this.firebaseAuth,
-  });
+  HomeRemoteDataSourceVImpl({required this.firestore, required this.firebaseAuth, required this.database});
 
   @override
   Future<List<BannerNewsModel>> getBannerNews() async {
@@ -42,7 +45,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     } on FirebaseException catch (e, st) {
       ErrorLogger.log(
         e,
-        location: 'HomeRemoteDataSourceImpl.getBannerNews',
+        location: 'HomeRemoteDataSourceVImpl.getBannerNews',
         stackTrace: st,
       );
       throw ServerException(e.message ?? 'Failed to fetch banner news');
@@ -50,7 +53,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
     } catch (e, st) {
       ErrorLogger.log(
         e,
-        location: 'HomeRemoteDataSourceImpl.getBannerNews',
+        location: 'HomeRemoteDataSourceVImpl.getBannerNews',
         stackTrace: st,
       );
       throw Exception('An error occurred while fetching banner news');
@@ -58,75 +61,122 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   }
 
   @override
-  Future<List<VendorModel>> getVendors() async {
+  Future<Map<String, dynamic>> getClients() async {
     try {
       final currentUser = firebaseAuth.currentUser;
       if (currentUser == null) {
         throw ServerException('User not authenticated');
       }
 
-      final clientId = currentUser.uid;
+      final vendorId = currentUser.uid;
 
       // Step 1: Fetch vendorId and connectionCount from client_vendor collection
       final clientVendorSnapshot = await firestore
           .collection('client_vendor')
-          .where('clientId', isEqualTo: clientId)
+          .where('vendorId', isEqualTo: vendorId)
           .get();
 
-      final vendors = <VendorModel>[];
+      final List<ClientModel> clients = [];
+
 
       // Step 2: For each vendor, fetch vendorName from users collection
       for (final doc in clientVendorSnapshot.docs) {
+
         final data = doc.data();
-        final vendorId = data['vendorId'] as String?;
+        final clientId = data['clientId'] as String?;
         final connectionCount = data['connectionCount'] as int? ?? 0;
 
-        if (vendorId != null) {
+        if (clientId != null) {
           try {
-            final userDoc = await firestore.collection('users').doc(vendorId).get();
+            final userDoc = await firestore.collection('users').doc(clientId).get();
             if (userDoc.exists) {
-              final vendorName = userDoc['fullName'] as String? ?? 'Unknown';
-              final vendorEmail = userDoc['email'] as String? ?? '';
-              final vendorPhone = userDoc['phoneNumber'] as String? ?? 'Unknown';
+
+              final clientName = userDoc['fullName'] as String? ?? 'Unknown';
+              final clientEmail = userDoc['email'] as String? ?? '';
+              final clientPhone = userDoc['phoneNumber'] as String? ?? 'Unknown';
               final lastPaidDate = (data['lastPaidDate'] as Timestamp?)?.toDate();
               final lastPaidAmount = data['lastPaidAmount'] as double?;
-              final currentPaymentBalance = data['currentPaymentBalance'] as double?;
-              vendors.add(
-                VendorModel(
+              final totalPayable = data['totalPayable'] as double?;
+              clients.add(
+                ClientModel(
                   clientVendorId: doc.id,
-                  vendorId: vendorId,
-                  vendorName: vendorName,
-                  vendorEmail: vendorEmail,
-                  vendorPhone: vendorPhone,
+                  clientId: clientId,
+                  clientName: clientName,
+                  clientEmail: clientEmail,
+                  clientPhone: clientPhone,
                   connectionCount: connectionCount,
-                  currentPaymentBalance: (currentPaymentBalance == null) ? 0.0: -currentPaymentBalance,
+                  totalPayable: (totalPayable == null) ? 0.0: totalPayable,
                   lastPaidAmount: lastPaidAmount,
                   lastPaidDate: lastPaidDate,
                 ),
               );
             }
-          } catch (e) {
+          } catch (e, st) {
             // Skip this vendor if user data fetch fails
+            ErrorLogger.log(
+              e,
+              location: 'HomeRemoteDataSourceImpl.getClients',
+              stackTrace: st,
+            );
             continue;
           }
         }
       }
 
-      return vendors;
+      // Step 3: Fetch package requests from Realtime Database
+      final snapshot = await database.ref('package_requests/$vendorId').get();
+
+      final value = snapshot.value;
+      Map<String, dynamic> packageRequests = {};
+
+      if (value is! Map) {
+        packageRequests = <String, dynamic>{};
+      } else {
+        packageRequests = Map<String, dynamic>.from(value);
+      }
+
+      return {
+        'clients' :clients,
+        'packageRequests' : packageRequests
+      };
     } on FirebaseException catch (e, st) {
       ErrorLogger.log(
         e,
-        location: 'HomeRemoteDataSourceImpl.getVendors',
+        location: 'HomeRemoteDataSourceImpl.getClients',
         stackTrace: st,
       );
-      throw ServerException(e.message ?? 'Failed to fetch vendors');
+      throw ServerException(e.message ?? 'Failed to fetch clients');
     } catch (e, st) {
       ErrorLogger.log(
         e,
-        location: 'HomeRemoteDataSourceImpl.getVendors',
+        location: 'HomeRemoteDataSourceImpl.getClients',
         stackTrace: st,
       );
-      throw Exception('An error occurred while fetching vendors');
+      throw Exception('An error occurred while fetching clients');
+    }
+  }
+
+  @override
+  Stream<Map<String, dynamic>> watchPackageRequests(String vendorId) {
+    try{
+      return database.ref('package_requests/$vendorId').onValue.asyncMap((event) async {
+        debugPrint("Package Request Data Changed: ${event.snapshot.value}");
+        final value = event.snapshot.value;
+
+        if (value is! Map) {
+          return <String, dynamic>{};
+        }
+
+        return Map<String, dynamic>.from(value);
+      });
+
+    }catch(e, st){
+      ErrorLogger.log(
+        e,
+        location: 'AuthRemoteDataSourceImpl.watchUser',
+        stackTrace: st,
+      );
+      throw Exception('An unexpected error occurred: $e');
     }
   }
 

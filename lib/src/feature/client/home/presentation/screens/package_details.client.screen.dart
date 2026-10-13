@@ -22,7 +22,8 @@ import 'package:smart_reload_system/src/feature/client/home/presentation/screens
 
 class PackageDetailsClientScreen extends StatefulWidget {
   final ConnectionModel connectionModel;
-  const PackageDetailsClientScreen({super.key, required this.connectionModel});
+  final String vendorId;
+  const PackageDetailsClientScreen({super.key, required this.connectionModel, required this.vendorId});
 
   @override
   State<PackageDetailsClientScreen> createState() => _PackageDetailsClientScreenState();
@@ -212,6 +213,7 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
 
                 final data = PackageRequestModel(
                   clientVendorId: connectionModel.clientVendorId,
+                  vendorId: widget.vendorId,
                   connectionId: connectionModel.id!,
                   requestDate: DateTime.now(),
                   packageDetailsId: item.id,

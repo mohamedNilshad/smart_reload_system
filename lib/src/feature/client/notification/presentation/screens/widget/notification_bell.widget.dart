@@ -5,7 +5,8 @@ import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/unread_count.cubit.dart';
 
 class NotificationBell extends StatelessWidget {
-  const NotificationBell({super.key});
+  final bool isVendor;
+  const NotificationBell({super.key, this.isVendor = false});
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +16,7 @@ class NotificationBell extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             IconButton(
-              icon: const Icon(Icons.notifications_outlined),
+              icon: Icon(Icons.notifications_outlined, color: isVendor ? AppColors.white : AppColors.black),
               onPressed: () => Navigator.of(context).pushNamed(RouteConstants.notificationClientScreen),
             ),
             if (count > 0)...{

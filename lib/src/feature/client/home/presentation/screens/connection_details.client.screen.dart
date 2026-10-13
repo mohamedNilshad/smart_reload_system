@@ -28,7 +28,8 @@ import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 class ConnectionDetailsClientScreen extends StatefulWidget {
   final ConnectionModel connectionModel;
-  const ConnectionDetailsClientScreen({super.key, required this.connectionModel});
+  final String vendorId;
+  const ConnectionDetailsClientScreen({super.key, required this.connectionModel, required this.vendorId});
 
   @override
   State<ConnectionDetailsClientScreen> createState() => _ConnectionDetailsClientScreenState();
@@ -268,7 +269,10 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
 
               if (result != null) {
                 if(result == 'Select a package' && context.mounted){
-                  Navigator.of(context).pushNamed(RouteConstants.packageDetailsClientScreen, arguments: connectionModel);
+                  Navigator.of(context).pushNamed(
+                      RouteConstants.packageDetailsClientScreen,
+                      arguments: (vendorId: widget.vendorId, connectionModel: connectionModel),
+                  );
                 }else{
                   showAmountSheet();
                 }
@@ -308,6 +312,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
         if(amountController.text.isNotEmpty && _formKey.currentState!.validate()){
           final data = PackageRequestModel(
             clientVendorId: connectionModel.clientVendorId,
+            vendorId: widget.vendorId,
             connectionId: connectionModel.id!,
             requestDate: DateTime.now(),
             amount: double.parse(amountController.text),

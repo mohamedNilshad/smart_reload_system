@@ -4,14 +4,17 @@ import 'package:smart_reload_system/src/feature/client/home/data/model/banner_ne
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
-import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
 
-abstract class HomeRepo {
+abstract class HomeRepoV {
   Future<Either<Failure, List<BannerNewsModel>>> getBannerNews();
-  Future<Either<Failure, List<VendorModel>>> getVendors();
+  Future<Either<Failure, Map<String, dynamic>>> getClients();
+
   Future<Either<Failure, List<ConnectionModel>>> getConnections(String clientVendorId);
   Future<Either<Failure, bool>> requestPackage(PackageRequestModel packageRequestModel);
   Future<Either<Failure, bool>> addNewConnection(ConnectionModel connectionModel);
   Future<Either<Failure, List<PackageModel>>> getPackages(String type, String serviceProvider);
   Future<Either<Failure, List<PackageRequestModel>>> getActivatedPackages(String connectionId);
+
+  Stream<Map<String, dynamic>> watchPackageRequests(String vendorId);
 }

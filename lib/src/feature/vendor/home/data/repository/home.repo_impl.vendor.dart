@@ -1,18 +1,18 @@
 import 'package:dartz/dartz.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
 import 'package:smart_reload_system/src/core/error/failures.dart';
-import 'package:smart_reload_system/src/feature/client/home/data/datasource/home.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/banner_news.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
-import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.model.dart';
-import 'package:smart_reload_system/src/feature/client/home/domain/repository/home.repo.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/data/datasource/home.remote_datasource.vendor.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/domain/repository/home.repo.vendor.dart';
 
-class HomeRepoImpl implements HomeRepo {
-  final HomeRemoteDataSource remoteDataSource;
+class HomeRepoVImpl implements HomeRepoV {
+  final HomeRemoteDataSourceV remoteDataSource;
 
-  HomeRepoImpl({required this.remoteDataSource});
+  HomeRepoVImpl({required this.remoteDataSource});
 
   @override
   Future<Either<Failure, List<BannerNewsModel>>> getBannerNews() async {
@@ -28,15 +28,20 @@ class HomeRepoImpl implements HomeRepo {
   }
 
   @override
-  Future<Either<Failure, List<VendorModel>>> getVendors() async {
+  Future<Either<Failure, Map<String, dynamic>>> getClients() async {
     try {
-      final result = await remoteDataSource.getVendors();
+      final result = await remoteDataSource.getClients();
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));
     } catch (e) {
       return Left(ServerFailure('An unexpected error occurred'));
     }
+  }
+
+  @override
+  Stream<Map<String, dynamic>> watchPackageRequests(String vendorId) {
+    return remoteDataSource.watchPackageRequests(vendorId);
   }
 
   @override

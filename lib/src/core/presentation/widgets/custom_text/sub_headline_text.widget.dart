@@ -5,14 +5,15 @@ class SubHeadlineText extends StatelessWidget {
   final String text;
   final Color? color;
   final double? size;
-  const SubHeadlineText({super.key, required this.text, this.color, this.size});
+  final bool isVendor;
+  const SubHeadlineText({super.key, required this.text, this.color, this.size, this.isVendor = false});
 
   @override
   Widget build(BuildContext context) {
     return Text(
       text,
       style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-        color: color ?? AppColors.black,
+        color: color ?? (isVendor ? AppColors.white : AppColors.black),
         fontWeight: FontWeight.bold,
         fontSize: size,
       ),

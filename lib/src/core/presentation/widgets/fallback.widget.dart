@@ -8,7 +8,8 @@ import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart
 
 class FallbackWidget extends StatelessWidget {
   final void Function() onPressed;
-  const FallbackWidget({super.key, required this.onPressed});
+  final bool isVendor;
+  const FallbackWidget({super.key, required this.onPressed, this.isVendor = false});
 
   @override
   Widget build(BuildContext context) {
@@ -18,17 +19,17 @@ class FallbackWidget extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.center,
         spacing: 10,
         children: [
-          GifBuilder(url: ImageStrings.serverError),
-          const TitleText(
+          GifBuilder(url: ImageStrings.serverError, isVendor: isVendor),
+          TitleText(
             text: 'Unable to fetch details',
             isBold: false,
-            color: AppColors.darkerGrey,
+            color: isVendor ? AppColors.darkerGrey : AppColors.white,
           ),
           SizedBox(
             width: HelperFunctions.screenWidth(context)/1.2,
-            child: const BodyText(
+            child: BodyText(
               text: 'Something went wrong while loading this screen.',
-              color: AppColors.darkerGrey,
+              color: isVendor ? AppColors.darkerGrey : AppColors.white,
               textAlign: TextAlign.center,
             ),
           ),
@@ -38,7 +39,7 @@ class FallbackWidget extends StatelessWidget {
             radius: 30,
             child: IconButton(
               onPressed: onPressed,
-              icon: const Icon(Icons.refresh, size: 30),
+              icon: Icon(Icons.refresh, size: 30, color: isVendor ? AppColors.secondary : AppColors.white),
             ),
           ),
         ],

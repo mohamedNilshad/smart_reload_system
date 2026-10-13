@@ -21,6 +21,7 @@ import 'package:smart_reload_system/src/core/features/auth/presentation/screens/
 import 'package:smart_reload_system/src/core/features/profile/presentation/screens/reset_password.screen.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/screens/register_client.screen.dart';
 
+
 class AppRouter {
   static Route<dynamic> onGenerateRoute(RouteSettings settings) {
     debugPrint("Navigating to ${settings.name}");
@@ -79,20 +80,28 @@ class AppRouter {
 
       case RouteConstants.connectionDetailsClientScreen:
 
-        final connectionModel = settings.arguments as ConnectionModel;
+        final args = settings.arguments as ({
+          ConnectionModel connectionModel,
+          String vendorId,
+        });
 
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.connectionDetailsClientScreen),
-          builder: (context) => ConnectionDetailsClientScreen(connectionModel: connectionModel),
+          builder: (context) => ConnectionDetailsClientScreen(connectionModel: args.connectionModel, vendorId: args.vendorId),
         );
 
       case RouteConstants.packageDetailsClientScreen:
 
-        final connectionModel = settings.arguments as ConnectionModel;
+        // final connectionModel = settings.arguments as ConnectionModel;
+
+        final args = settings.arguments as ({
+          ConnectionModel connectionModel,
+          String vendorId,
+        });
 
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.packageDetailsClientScreen),
-          builder: (context) => PackageDetailsClientScreen(connectionModel: connectionModel),
+          builder: (context) => PackageDetailsClientScreen(connectionModel: args.connectionModel, vendorId: args.vendorId),
         );
 
       case RouteConstants.reloadHistoryClientScreen:

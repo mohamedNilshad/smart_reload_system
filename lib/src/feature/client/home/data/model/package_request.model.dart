@@ -17,6 +17,7 @@ class PackageRequestModel extends Equatable {
   final bool? isPaid;
   final DateTime? paidDate;
   final String? paymentId;
+  final String? vendorId;
 
   const PackageRequestModel({
     this.id,
@@ -32,6 +33,7 @@ class PackageRequestModel extends Equatable {
     this.expireDate,
     this.paidDate,
     this.paymentId,
+    required this.vendorId,
   });
 
   factory PackageRequestModel.fromJson(Map<String, dynamic> json, {String? id}) {
@@ -49,6 +51,7 @@ class PackageRequestModel extends Equatable {
       expireDate: (json['expireDate'] as Timestamp?)?.toDate(),
       paidDate: (json['paidDate'] as Timestamp?)?.toDate(),
       paymentId: (json['paymentId'] as String?),
+      vendorId: (json['vendorId'] as String?),
     );
   }
 
@@ -67,6 +70,7 @@ class PackageRequestModel extends Equatable {
       expireDate: json['expireDate'] == null ? null : DateTime.parse(json['expireDate']),
       paidDate: json['paidDate'] == null ? null : DateTime.parse(json['paidDate']),
       paymentId: (json['paymentId'] as String?),
+      vendorId: (json['vendorId'] as String?),
     );
   }
 
@@ -84,6 +88,7 @@ class PackageRequestModel extends Equatable {
       expireDate: expireDate,
       paidDate: paidDate,
       paymentId: paymentId,
+      vendorId: vendorId,
     );
   }
 
@@ -99,6 +104,7 @@ class PackageRequestModel extends Equatable {
       'expireDate': (expireDate != null) ? Timestamp.fromDate(expireDate!) : null,
       'paidDate': (paidDate != null) ? Timestamp.fromDate(paidDate!) : null,
       'paymentId': paymentId,
+      'vendorId': vendorId,
     };
   }
 

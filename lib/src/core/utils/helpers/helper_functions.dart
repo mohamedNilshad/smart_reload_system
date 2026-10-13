@@ -100,7 +100,7 @@ class HelperFunctions {
   }
 
   static String formatCurrency(double? amount) {
-    return "Rs. ${(amount ?? 0.0).toStringAsFixed(0)}";
+    return "Rs. ${(amount ?? 0.0).toStringAsFixed(2)}";
   }
 
   static String? formatValidity(double? validity, String? period){

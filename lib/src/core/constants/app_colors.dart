@@ -8,6 +8,9 @@ class AppColors {
   static const Color secondary = Color(0xff5e66e0);
   static const Color accent = Color(0xFFFFB200);
 
+  static const Color scaffoldVendor = Color(0xFF232323);
+  static const Color bottomNavVendor = Color(0xFF020B22);
+
   ///Gradient Colors
   static const Gradient linerGradient =  LinearGradient(
     begin: Alignment.topLeft,
@@ -35,7 +38,7 @@ class AppColors {
 
 // ── Container Backgrounds ────────────────────────────────────────────────────
   static const Color lightContainers = Color(0xFFF2F3F7);
-  static Color       darkContainers  = const Color(0xFF2A2B35); // explicit instead of withAlpha hack
+  static Color       darkContainers  = const Color(0xFF40404E); // explicit instead of withAlpha hack
   static const Color darkTabBg       = Color(0xFF302034);       // kept — it works well
   static const Color selectedTabColor = Color(0xFFE8ECFA);
 

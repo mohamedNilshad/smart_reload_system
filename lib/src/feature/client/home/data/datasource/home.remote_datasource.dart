@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_database/firebase_database.dart' as db;
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/banner_news.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
@@ -21,10 +22,12 @@ abstract class HomeRemoteDataSource {
 class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   final FirebaseFirestore firestore;
   final FirebaseAuth firebaseAuth;
+  final db.FirebaseDatabase database;
 
   HomeRemoteDataSourceImpl({
     required this.firestore,
     required this.firebaseAuth,
+    required this.database,
   });
 
   @override
@@ -163,8 +166,18 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   Future<bool> requestPackage(PackageRequestModel packageRequestModel) async {
     try {
 
-      await firestore.collection("requested_packages").add(packageRequestModel.toJson());
-      //send push notification
+      // await firestore.collection("requested_packages").add(packageRequestModel.toJson());
+      final docRef = await firestore.collection("requested_packages").add(packageRequestModel.toJson());
+      final String documentId = docRef.id;
+
+
+      await database.ref('package_requests/${packageRequestModel.vendorId}/$documentId').update({
+        'clientVendorId': packageRequestModel.clientVendorId,
+        'status': true,
+        'onUpdate': DateTime.now().toIso8601String(),
+      });
+
+      ///send push notification
       return true;
     } on FirebaseException catch (e, st) {
       ErrorLogger.log(

@@ -125,7 +125,7 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
   }) async {
     try {
       final existing = await firestore.collection('phone_lookup').doc(phoneNumber).get();
-
+      debugPrint('Phone lookup successful: ${existing.exists}');
       if (existing.exists) {
         throw ServerException('This phone number is already registered.');
       }

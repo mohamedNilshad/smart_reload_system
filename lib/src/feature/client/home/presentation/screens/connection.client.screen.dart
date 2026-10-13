@@ -356,7 +356,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                                   Navigator.pushNamed(
                                     context,
                                     RouteConstants.connectionDetailsClientScreen,
-                                    arguments: connection,
+                                    arguments: (vendorId: vendor.vendorId, connectionModel: connection),
                                   );
                                 },
                                 conNumber: connection.connectionNumber,

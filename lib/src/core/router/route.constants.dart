@@ -22,5 +22,6 @@ class RouteConstants {
 
   ///VENDOR
   static const String mainVendorScreen = "MainVendorScreen";
+  static const String connectionVendorScreen = "ConnectionVendorScreen";
 
 }

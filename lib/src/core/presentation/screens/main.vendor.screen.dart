@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
-import 'package:smart_reload_system/src/feature/client/payment/presentation/screens/payment.client.screen.dart';
 import 'package:smart_reload_system/src/core/features/profile/presentation/screens/profile.screen.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/screens/home.client.screen.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/screens/home.vendor.screen.dart';
 
 class MainVendorScreen extends StatefulWidget {
   const MainVendorScreen({super.key});
@@ -16,7 +15,7 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
   int _selectedIndex = 0;
 
   List<Widget> screens = [
-    TempScreen(title: "Home screen"),
+    HomeVendorScreen(),
     TempScreen(title: "Invoice screen"),
     TempScreen(title: "Manage screen"),
     ProfileScreen(),
@@ -26,36 +25,42 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      bottomNavigationBar: BottomNavigationBar(
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home_filled),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.receipt_long_rounded),
-            label: 'Invoice',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.manage_accounts),
-            label: 'Manage',
-          ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.person),
-            label: 'Profile',
-          ),
-        ],
-        currentIndex: _selectedIndex,
-        unselectedItemColor: AppColors.darkGrey,
-        unselectedLabelStyle: TextStyle(color: AppColors.darkGrey),
-        showUnselectedLabels: true,
-        selectedItemColor: AppColors.primary,
-        type: BottomNavigationBarType.fixed,
-        onTap: (index){
-          setState(() {
-            _selectedIndex = index;
-          });
-        },
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          border: Border(top: BorderSide(color: AppColors.darkGrey, width: 0.5)),
+        ),
+        child: BottomNavigationBar(
+          items: const <BottomNavigationBarItem>[
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_filled),
+              label: 'Home',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.receipt_long_rounded),
+              label: 'Invoice',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.manage_accounts),
+              label: 'Manage',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person),
+              label: 'Profile',
+            ),
+          ],
+          currentIndex: _selectedIndex,
+          unselectedItemColor: AppColors.darkGrey,
+          backgroundColor: AppColors.bottomNavVendor,
+          unselectedLabelStyle: TextStyle(color: AppColors.darkGrey),
+          showUnselectedLabels: true,
+          selectedItemColor: AppColors.primary,
+          type: BottomNavigationBarType.fixed,
+          onTap: (index){
+            setState(() {
+              _selectedIndex = index;
+            });
+          },
+        ),
       ),
       body: screens[_selectedIndex],
     );

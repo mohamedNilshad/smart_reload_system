@@ -16,6 +16,8 @@ import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/pa
 import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/unread_count.cubit.dart';
 import 'package:smart_reload_system/src/core/features/profile/presentation/bloc/profile.bloc.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.bloc.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/package_request.cubit.dart';
 import 'package:smart_reload_system/src/injection_container.dart';
 
 import 'package:smart_reload_system/src/feature/client/payment/presentation/bloc/payment.client.bloc.dart';
@@ -39,6 +41,11 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => sl<NotificationBloc>()),
         BlocProvider(create: (_) => sl<UnreadCountCubit>()),
         BlocProvider(create: (_) => sl<ProfileBloc>()),
+
+        ///Vendor
+        BlocProvider(create: (_) => sl<HomeVendorBloc>()),
+        BlocProvider(create: (_) => sl<PackageRequestCubit>()),
+
       ],
       child: BlocBuilder<ThemeBloc, ThemeMode>(
           builder: (context, state) {

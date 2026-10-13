@@ -5,6 +5,7 @@ import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:get_it/get_it.dart';
 import 'package:smart_reload_system/src/core/bloc/payment/payment.bloc.dart';
+import 'package:smart_reload_system/src/core/constants/constant.dart';
 import 'package:smart_reload_system/src/core/data/datasource/payment.remote_datasource.dart';
 import 'package:smart_reload_system/src/core/data/repository/payment.repo_impl.dart';
 import 'package:smart_reload_system/src/core/domain/repositories/payment.repo.dart';
@@ -62,6 +63,13 @@ import 'package:smart_reload_system/src/core/features/profile/domain/usecase/upd
 import 'package:smart_reload_system/src/core/features/profile/presentation/bloc/profile.bloc.dart';
 
 import 'package:smart_reload_system/src/feature/client/payment/presentation/bloc/payment.client.bloc.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/data/datasource/home.remote_datasource.vendor.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/data/repository/home.repo_impl.vendor.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/domain/repository/home.repo.vendor.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/domain/usecase/get_clients.usecase.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/domain/usecase/watch_package_requests.usecase.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.bloc.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/package_request.cubit.dart';
 
 
 final sl = GetIt.instance;
@@ -71,11 +79,9 @@ Future<void> init() async{
   sl.registerLazySingleton(() => fb.FirebaseAuth.instance);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
   // sl.registerLazySingleton(() => FirebaseDatabase.instance);
-  sl.registerLazySingleton<FirebaseDatabase>(
-        () => FirebaseDatabase.instanceFor(
+  sl.registerLazySingleton<FirebaseDatabase>(() => FirebaseDatabase.instanceFor(
       app: Firebase.app(),
-      databaseURL:
-      'https://smart-reload-system-default-rtdb.asia-southeast1.firebasedatabase.app',
+      databaseURL: dbURL,
     ),
   );
   sl.registerLazySingleton(() => const FlutterSecureStorage());
@@ -85,7 +91,7 @@ Future<void> init() async{
   sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(firebaseAuth: sl(), firestore: sl(), database: sl()));
   sl.registerLazySingleton<PaymentRemoteDataSource>(() => PaymentRemoteDataSourceImpl());
   sl.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl(sl()));
-  sl.registerLazySingleton<HomeRemoteDataSource>(() => HomeRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton<HomeRemoteDataSource>(() => HomeRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl(), database: sl()));
   sl.registerLazySingleton<NotificationRemoteDataSource>(() => NotificationRemoteDataSourceImpl(sl()));
   sl.registerLazySingleton<ProfileRemoteDataSource>(() => ProfileRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()));
   sl.registerLazySingleton<PaymentClientRemoteDataSource>(() => PaymentClientRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()));
@@ -128,6 +134,8 @@ Future<void> init() async{
   sl.registerLazySingleton(() => GetPaidInvoicesUsecase(sl()));
 
 
+
+
   /// Bloc
   sl.registerLazySingleton(() => AuthBloc(
     loginUseCase: sl(),
@@ -144,6 +152,7 @@ Future<void> init() async{
       updateCachedUserUseCase: sl(),
       clearCachedUserUseCase: sl()
   ));
+
   sl.registerLazySingleton(() => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()));
   sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl(), addNewConnectionUseCase: sl()));
   sl.registerLazySingleton(() => PackageBloc(requestPackageUseCase: sl(), getPackageUseCase: sl(), getActivatedPackagesUseCase: sl()));
@@ -153,4 +162,30 @@ Future<void> init() async{
   sl.registerLazySingleton(() => NotificationBloc(getNotificationsUseCase: sl(), markAsReadUseCase: sl(), markAllAsReadUseCase: sl()));
   sl.registerLazySingleton(() => ProfileBloc(updateProfileUseCase: sl(), updatePasswordUseCase: sl()));
 
+
+  ///VENDORS
+  //BLOC
+  sl.registerLazySingleton(() => HomeVendorBloc(
+      getBannerNewsUseCase: sl(),
+      getClientsUseCase: sl()
+  ));
+
+  sl.registerLazySingleton(() => PackageRequestCubit(
+      watchPackageRequestsUseCase: sl()
+  ));
+
+
+  //USECASE
+  sl.registerLazySingleton(() => GetClientsUseCase(sl()));
+  sl.registerLazySingleton(() => WatchPackageRequestsUseCase(sl()));
+
+
+
+  //Repository
+  sl.registerLazySingleton<HomeRepoV>(() => HomeRepoVImpl(remoteDataSource: sl()));
+
+
+
+  //Datasource
+  sl.registerLazySingleton<HomeRemoteDataSourceV>(() => HomeRemoteDataSourceVImpl(firestore: sl(), firebaseAuth: sl(), database: sl()));
 }
