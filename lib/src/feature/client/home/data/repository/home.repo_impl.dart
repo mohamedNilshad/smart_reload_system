@@ -53,9 +53,9 @@ class HomeRepoImpl implements HomeRepo {
   }
 
   @override
-  Future<Either<Failure, bool>> requestPackage(PackageRequestModel packageRequestModel) async {
+  Future<Either<Failure, bool>> requestPackage(PackageRequestModel packageRequestModel, String clientName) async {
     try {
-      final result = await remoteDataSource.requestPackage(packageRequestModel);
+      final result = await remoteDataSource.requestPackage(packageRequestModel, clientName);
       return Right(result);
     } on ServerException catch (e) {
       return Left(ServerFailure(e.message));

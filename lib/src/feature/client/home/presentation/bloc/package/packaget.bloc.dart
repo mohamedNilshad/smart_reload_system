@@ -25,7 +25,7 @@ class PackageBloc extends Bloc<PackageEvent, PackageState> {
   Future<void> _onPackageRequest(PackageRequest event, Emitter<PackageState> emit) async {
     emit(const PackageLoading(requesting: true));
 
-    final result = await requestPackageUseCase(packageRequestModel : event.packageRequestModel);
+    final result = await requestPackageUseCase(packageRequestModel : event.packageRequestModel, clientName: event.userName);
 
     result.fold(
       (failure) => emit(PackageFailure(failure.message)),

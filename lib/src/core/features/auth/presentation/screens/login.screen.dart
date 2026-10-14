@@ -60,7 +60,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     crossAxisAlignment: CrossAxisAlignment.center,
                     spacing: Sizes.spaceBtwSections,
                     children: [
-                      AppHeader(subtitle: "Login with your Client account"),
+                      AppHeader(subtitle: "Login with your account"),
                       CCard(
                         child: Form(
                           key: _formKey,

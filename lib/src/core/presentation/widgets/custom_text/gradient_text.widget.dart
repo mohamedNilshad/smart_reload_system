@@ -13,7 +13,7 @@ class GradientText extends StatelessWidget {
       shaderCallback: (Rect bounds) {
         return AppColors.linerGradient.createShader(bounds);
       },
-      child: Text(text, style: style),
+      child: Text(text, style: style, textAlign: TextAlign.center),
     );
   }
 }

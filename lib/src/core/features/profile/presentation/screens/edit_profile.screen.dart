@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
@@ -20,7 +21,8 @@ import 'package:smart_reload_system/src/core/features/profile/presentation/bloc/
 import 'package:smart_reload_system/src/core/features/profile/presentation/bloc/profile.state.dart';
 
 class EditProfileScreen extends StatefulWidget {
-  const EditProfileScreen({super.key});
+  final bool isDark;
+  const EditProfileScreen({super.key, this.isDark = false});
 
   @override
   State<EditProfileScreen> createState() => _EditProfileScreenState();
@@ -37,6 +39,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   final TextEditingController _nicController = TextEditingController();
   late UserEntity user;
 
+  bool isDark = false;
   bool enableBtn = false;
   bool loadingBtn = false;
   final _isLoadingNotifier = ValueNotifier<bool>(false);
@@ -45,6 +48,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
   @override
   void initState() {
+    isDark = widget.isDark;
     final sessionState = context.read<SessionCubit>().state;
     if (sessionState is SessionAuthenticated) {
       user = sessionState.user;
@@ -103,15 +107,18 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     screenWidth = HelperFunctions.screenWidth(context);
     return Scaffold(
+      backgroundColor: isDark ? AppColors.scaffoldVendor : null,
       appBar: customAppBar(
         onPressed: () => Navigator.of(context).pop(),
         icon: Icons.arrow_back_ios_new_rounded,
         title: "Edit Profile",
+        isDark: isDark,
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.fromLTRB(Sizes.sm, Sizes.lg, Sizes.sm, Sizes.sm),
           child: CCard(
+            isDark: isDark,
             child: Form(
               key: _formKey,
               child:  BlocListener<ProfileBloc, ProfileState>(
@@ -130,6 +137,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   spacing: Sizes.spaceBtwInputField,
                   children: [
                     CTextField(
+                      isDark: isDark,
                       controller: _nameController,
                       label: 'Name',
                       hint: 'John Doe',
@@ -145,6 +153,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       },
                     ),
                     CTextField(
+                      isDark: isDark,
                       controller: _phoneController,
                       label: 'Phone Number',
                       hint: '7xxxxxxxxxx',
@@ -161,6 +170,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       },
                     ),
                     CTextField(
+                      isDark: isDark,
                       controller: _emailController,
                       label: 'Email Address',
                       hint: 'you@example.com',
@@ -177,6 +187,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                       },
                     ),
                     CTextField(
+                      isDark: isDark,
                       controller: _nicController,
                       label: 'NIC / ID Number',
                       hint: '123456789V',
@@ -229,10 +240,12 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
 
                             await AppBottomSheet.showForm(
                               context,
+                              isDark: isDark,
                               title: 'Enter Password',
                               form: Form(
                                 key: _passwordFormKey,
                                 child: CTextField(
+                                  isDark: isDark,
                                   controller: _passwordController,
                                   label: 'Password',
                                   hint: '•••••••••',

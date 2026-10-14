@@ -3,6 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/foundation.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
+import 'package:smart_reload_system/src/core/services/device_info.service.dart';
 import 'package:smart_reload_system/src/core/utils/extentions/extentions.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/core/domain/entity/user.entity.dart';
@@ -68,7 +69,19 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
 
       await firestore.collection(_collection).doc(credential.user!.uid).update({"token":token});
 
-      return UserEntity.fromJson(doc.data()!);
+      final user = UserEntity.fromJson(doc.data()!);
+
+      DeviceInfoService().getDeviceInfo(user.uid, token ?? '').then((deviceInfo) async {
+        await firestore.collection('device_info').doc(deviceInfo['deviceId']).set(deviceInfo);
+      }).catchError((e, st) {
+        ErrorLogger.log(
+          e,
+          location: 'AuthRemoteDataSourceImpl.register - DeviceInfoService',
+          stackTrace: st,
+        );
+      });
+
+      return user;
 
     } on fb.FirebaseAuthException catch (e, st) {
       ErrorLogger.log(
@@ -150,7 +163,15 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       await firestore.collection(_collection).doc(user.uid).set(user.toJson());
       await firestore.collection('phone_lookup').doc(phoneNumber).set({'email': email, 'role': 'client'});
 
-
+      DeviceInfoService().getDeviceInfo(user.uid, token ?? '').then((deviceInfo) async {
+        await firestore.collection('device_info').doc(deviceInfo['deviceId']).set(deviceInfo);
+      }).catchError((e, st) {
+        ErrorLogger.log(
+          e,
+          location: 'AuthRemoteDataSourceImpl.login - DeviceInfoService',
+          stackTrace: st,
+        );
+      });
       await updateUser(user.uid, {
         'isActive': true,
         'updatedOn': DateTime.now().toIso8601String(),
@@ -213,7 +234,21 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
    Future<void> logout() async {
 
      try{
+
+
+       DeviceInfoService().getDeviceId().then((deviceId) async {
+         await firestore.collection('device_info').doc(deviceId).delete();
+       }).catchError((e, st) {
+         ErrorLogger.log(
+           e,
+           location: 'AuthRemoteDataSourceImpl.logout - DeviceInfoService',
+           stackTrace: st,
+         );
+         throw Exception("Failed to delete device document");
+       });
+
        firebaseAuth.signOut();
+
 
      }on fb.FirebaseAuthException catch (e, st) {
        ErrorLogger.log(

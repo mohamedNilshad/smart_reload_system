@@ -1,6 +1,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
@@ -17,7 +18,8 @@ import 'package:smart_reload_system/src/core/features/profile/presentation/bloc/
 import 'package:smart_reload_system/src/core/features/profile/presentation/bloc/profile.state.dart';
 
 class ResetPasswordScreen extends StatefulWidget {
-  const ResetPasswordScreen({super.key});
+  final bool isDark;
+  const ResetPasswordScreen({super.key, this.isDark = false});
 
   @override
   State<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
@@ -31,30 +33,51 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
   final TextEditingController _confirmPassController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
 
+  bool isDark = false;
   bool enableBtn = false;
   bool loadingBtn = false;
   final _isLoadingNotifier = ValueNotifier<bool>(false);
   double screenWidth = 0.0;
   String btnText = "Update";
-
+  String errorMsg = "";
   @override
   void initState() {
+    isDark = widget.isDark;
     super.initState();
   }
 
   void _validateField(){
     setState(() {
-      enableBtn = (_passwordController.text.trim() == _confirmPassController.text.trim());
+      String pass = _passwordController.text.trim();
+      String conPass = _confirmPassController.text.trim();
+      errorMsg = "";
+      enableBtn = false;
+      if(pass.isNotEmpty && conPass.isNotEmpty){
+        if(pass.length >= 8 && conPass.length >= 8){
+          if(pass == conPass){
+            enableBtn = true;
+          }else{
+            errorMsg = "* Incorrect Confirm password";
+          }
+        }else{
+          errorMsg = "* Password should be at least 8 characters";
+        }
+
+      }else{
+        errorMsg = "* Password shouldn't leave empty";
+      }
+
+      //enableBtn = (_passwordController.text.trim().isNotEmpty || _confirmPassController.text.trim().isNotEmpty) && (_passwordController.text.trim() == _confirmPassController.text.trim());
     });
-
-
   }
 
   @override
   Widget build(BuildContext context) {
     screenWidth = HelperFunctions.screenWidth(context);
     return Scaffold(
+      backgroundColor: isDark ? AppColors.scaffoldVendor : null,
       appBar: customAppBar(
+        isDark: isDark,
         onPressed: () => Navigator.of(context).pop(),
         icon: Icons.arrow_back_ios_new_rounded,
         title: "Reset Password",
@@ -63,6 +86,7 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
         child: Padding(
           padding: const EdgeInsets.fromLTRB(Sizes.sm, Sizes.lg, Sizes.sm, Sizes.sm),
           child: CCard(
+            isDark: isDark,
             child: Form(
               key: _formKey,
               child:  BlocListener<ProfileBloc, ProfileState>(
@@ -83,7 +107,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                   spacing: Sizes.spaceBtwInputField,
                   children: [
                     CTextField(
+                      isDark: isDark,
                       controller: _passwordController,
+                      errorMessage: errorMsg,
                       label: 'New Password',
                       hint: '•••••••••',
                       isPassword: true,
@@ -99,7 +125,9 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                       },
                     ),
                     CTextField(
+                      isDark: isDark,
                       controller: _confirmPassController,
+                      errorMessage: errorMsg,
                       label: 'Confirm New Password',
                       hint: '•••••••••',
                       isPassword: true,
@@ -149,11 +177,13 @@ class _ResetPasswordScreenState extends State<ResetPasswordScreen> {
                             });
 
                             await AppBottomSheet.showForm(
+                              isDark: isDark,
                               context,
                               title: 'Enter Password',
                               form: Form(
                                 key: _passwordFormKey,
                                 child: CTextField(
+                                  isDark: isDark,
                                   controller: _oldPassController,
                                   label: 'Password',
                                   hint: '•••••••••',

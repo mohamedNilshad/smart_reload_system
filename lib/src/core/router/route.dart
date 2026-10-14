@@ -118,9 +118,10 @@ class AppRouter {
         );
 
       case RouteConstants.settingsScreen:
+        final bool isDark = settings.arguments as bool;
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.settingsScreen),
-          builder: (context) => const ProfileScreen(),
+          builder: (context) => ProfileScreen(isDark: isDark),
         );
 
       case RouteConstants.notificationClientScreen:
@@ -130,15 +131,18 @@ class AppRouter {
         );
 
       case RouteConstants.editProfileScreen:
+        final bool isDark = settings.arguments as bool;
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.editProfileScreen),
-          builder: (context) => const EditProfileScreen(),
+          builder: (context) => EditProfileScreen(isDark: isDark),
         );
 
       case RouteConstants.resetPasswordScreen:
+        final bool isDark = settings.arguments as bool;
+
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.resetPasswordScreen),
-          builder: (context) => const ResetPasswordScreen(),
+          builder: (context) => ResetPasswordScreen(isDark: isDark),
         );
 
       ///VENDOR

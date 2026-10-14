@@ -8,7 +8,8 @@ class CCard extends StatelessWidget {
   final EdgeInsetsGeometry? margin;
   final BorderRadius? radius;
   final bool disableShadow;
-  const CCard({super.key, required this.child, this.padding, this.radius, this.margin, this.disableShadow = false});
+  final bool isDark;
+  const CCard({super.key, required this.child, this.isDark = false, this.padding, this.radius, this.margin, this.disableShadow = false});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,7 @@ class CCard extends StatelessWidget {
       padding: padding ?? EdgeInsets.symmetric(horizontal: Sizes.md, vertical: Sizes.lg),
       margin: margin ?? EdgeInsets.symmetric(horizontal: Sizes.sm),
       decoration: BoxDecoration(
-          color: AppColors.white,
+          color: isDark ? AppColors.darkContainers : AppColors.white,
           borderRadius: radius ?? BorderRadius.circular(Sizes.borderRadiusXl),
           boxShadow: disableShadow ? null : [
             BoxShadow(

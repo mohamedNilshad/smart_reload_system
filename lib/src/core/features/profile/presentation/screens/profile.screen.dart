@@ -22,7 +22,8 @@ import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/ses
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final bool isDark;
+  const ProfileScreen({super.key, this.isDark = false});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -31,8 +32,11 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   late UserEntity user;
 
+  bool isDark = false;
+
   @override
   void initState() {
+    isDark = widget.isDark;
     _initValues();
     super.initState();
   }
@@ -60,7 +64,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         }
       },
       child: Scaffold(
-        appBar: customAppBar(title: "Profile"),
+        backgroundColor: isDark ? AppColors.scaffoldVendor : null,
+        appBar: customAppBar(title: "Profile", isDark: isDark),
         body: SingleChildScrollView(
           child: Padding(
             padding: const EdgeInsets.all(Sizes.ssm),
@@ -77,19 +82,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   ),
                 ),
                 SizedBox(height: 10),
-                HeadlineText(text: user.fullName),
+                HeadlineText(text: user.fullName, color: isDark ? AppColors.white : null,),
                 SubTitleText(
                   text: HelperFunctions.maskPhoneNumber(user.phoneNumber),
-                  color: AppColors.darkerGrey,
+                  color: isDark ? AppColors.grey : AppColors.darkerGrey,
                 ),
                 SizedBox(height: 20),
                 CCard(
+                  isDark: isDark,
                   child: Column(
                     spacing: 5,
                     children: [
                       buildOption(
                         onTap: () {
-                          Navigator.of(context).pushNamed(RouteConstants.editProfileScreen).then((_){
+                          Navigator.of(context).pushNamed(RouteConstants.editProfileScreen, arguments: isDark).then((_){
                             _initValues();
                           });
                         },
@@ -102,7 +108,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Divider(),
                       buildOption(
                         onTap: () {
-                          Navigator.of(context).pushNamed(RouteConstants.resetPasswordScreen);
+                          Navigator.of(context).pushNamed(RouteConstants.resetPasswordScreen, arguments: isDark);
                         },
                         context,
                         icon: SvgStrings.shield,
@@ -169,10 +175,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
             children: [
               TitleText(
                 text: title,
+                color: isDark ? AppColors.white : null,
               ),
               LabelText(
                 text: subtitle,
-                color: AppColors.darkerGrey,
+                color: isDark ? AppColors.grey : AppColors.darkerGrey,
               ),
             ],
           ),
@@ -180,7 +187,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           Icon(
             Icons.arrow_forward_ios_rounded,
             size: 18,
-            color: AppColors.darkGrey,
+            color: isDark ? AppColors.grey : AppColors.darkGrey,
           ),
         ],
       ),

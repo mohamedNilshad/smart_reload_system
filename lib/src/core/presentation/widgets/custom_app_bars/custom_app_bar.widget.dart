@@ -36,12 +36,14 @@ class CAppBar extends StatelessWidget {
           Text(
             title,
             maxLines: 2,
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.headlineLarge?.copyWith(
               color: AppColors.white,
             ),
           ),
           Text(
             subtitle ?? "",
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.titleLarge?.copyWith(
               color: AppColors.grey,
             ),

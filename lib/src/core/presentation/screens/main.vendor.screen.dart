@@ -18,7 +18,7 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
     HomeVendorScreen(),
     TempScreen(title: "Invoice screen"),
     TempScreen(title: "Manage screen"),
-    ProfileScreen(),
+    ProfileScreen(isDark: true),
   ];
 
 

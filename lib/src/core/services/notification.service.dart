@@ -1,6 +1,11 @@
+import 'dart:convert';
+
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:smart_reload_system/src/core/constants/constant.dart';
+import 'package:googleapis_auth/auth_io.dart' as auth;
 
 
 @pragma('vm:entry-point')
@@ -124,4 +129,70 @@ class NotificationService {
   /// Call this if you want to react to the token changing (e.g. reinstall,
   /// token rotation) — re-send the new token to your backend.
   Stream<String> get onTokenRefresh => _firebaseMessaging.onTokenRefresh;
+
+  static Future<void> sendPushMessage1(String token, String title, String body) async {
+    final serviceAccount = jsonDecode(await rootBundle.loadString(serviceAccountURL));
+
+
+    final accountCredentials = auth.ServiceAccountCredentials.fromJson(serviceAccount);
+    final scopes = ['https://www.googleapis.com/auth/firebase.messaging'];
+
+    final client = await auth.clientViaServiceAccount(accountCredentials, scopes);
+
+    final url = Uri.parse('https://fcm.googleapis.com/v1/projects/smart-reload-system/messages:send');
+
+    final response = await client.post(
+      url,
+      headers: {"Content-Type": "application/json"},
+      body: jsonEncode({
+        "message": {
+          "token": token,
+          "notification": {"title": title, "body": body}
+        }
+      }),
+    );
+    debugPrint("Notification Response: ${response.statusCode}");
+    client.close();
+  }
+
+  static Future<bool> sendPushMessage(String token, String title, String body, {String? route, Map<String, String>? data}) async {
+
+    final serviceAccount = jsonDecode(await rootBundle.loadString(serviceAccountURL)) as Map<String, dynamic>;
+
+    final projectId = serviceAccount['project_id'];
+    const scopes = ['https://www.googleapis.com/auth/firebase.messaging'];
+
+    final client = await auth.clientViaServiceAccount(
+      auth.ServiceAccountCredentials.fromJson(serviceAccount),
+      scopes,
+    );
+
+    try {
+      final response = await client.post(
+        Uri.parse('https://fcm.googleapis.com/v1/projects/$projectId/messages:send'),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'message': {
+            'token': token,
+            'notification': {'title': title, 'body': body},
+            'data': {
+              ...?data,
+              if (route != null) 'route': route,
+            },
+            'android': {
+              'priority': 'HIGH',
+              'notification': {'channel_id': 'default_channel'},
+            },
+          },
+        }),
+      );
+
+      debugPrint('Notification response: ${response.statusCode} ${response.body}');
+      return response.statusCode == 200;
+    } finally {
+      client.close();
+    }
+  }
+
+
 }

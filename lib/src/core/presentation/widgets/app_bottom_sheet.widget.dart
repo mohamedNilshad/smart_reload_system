@@ -52,6 +52,7 @@ class AppBottomSheet {
       BuildContext context, {
         required String title,
         required String subtitle,
+        bool isDark = false,
         String buttonText = 'OK',
         List<String>? points,
         VoidCallback? onPressed,
@@ -64,6 +65,7 @@ class AppBottomSheet {
       showDragHandle: false,
       backgroundColor: Colors.transparent,
       builder: (_) => _BottomSheetShell(
+        isDark: isDark,
         child: _InfoContent(
           title: title,
           subtitle: subtitle,
@@ -79,6 +81,7 @@ class AppBottomSheet {
   /// 2. Title + custom form content + submit button.
   static Future<T?> showForm<T>(
       BuildContext context, {
+        bool isDark = false,
         required String title,
         required Widget form,
         required String buttonText,
@@ -91,7 +94,9 @@ class AppBottomSheet {
       showDragHandle: false,
       backgroundColor: Colors.transparent,
       builder: (_) => _BottomSheetShell(
+        isDark: isDark,
         child: _FormContent(
+          isDark: isDark,
           title: title,
           form: form,
           buttonText: buttonText,
@@ -109,6 +114,7 @@ class AppBottomSheet {
         required String title,
         bool askConfirm = true,
         required List<String> options,
+        bool isDark = false,
         String? selectedValue,
       }) {
     return showModalBottomSheet<String>(
@@ -117,6 +123,7 @@ class AppBottomSheet {
       showDragHandle: false,
       backgroundColor: Colors.transparent,
       builder: (_) => _BottomSheetShell(
+        isDark: isDark,
         child: _RadioSelectContent(
           title: title,
           askConfirm: askConfirm,
@@ -130,7 +137,8 @@ class AppBottomSheet {
 
 class _BottomSheetShell extends StatelessWidget {
   final Widget child;
-  const _BottomSheetShell({required this.child});
+  final bool isDark;
+  const _BottomSheetShell({required this.child, required this.isDark});
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +147,7 @@ class _BottomSheetShell extends StatelessWidget {
       padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: Container(
         decoration: BoxDecoration(
-          color: theme.colorScheme.surface,
+          color: isDark ? AppColors.darkContainers : theme.colorScheme.surface,
           borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
         ),
         child: SafeArea(
@@ -247,6 +255,7 @@ class _FormContent extends StatelessWidget {
   final String buttonText;
   final VoidCallback onSubmit;
   final ValueListenable<bool> isLoading;
+  final bool isDark;
 
   const _FormContent({
     required this.title,
@@ -254,6 +263,7 @@ class _FormContent extends StatelessWidget {
     required this.buttonText,
     required this.onSubmit,
     required this.isLoading,
+    required this.isDark,
   });
 
   @override
@@ -262,7 +272,7 @@ class _FormContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TitleText(text: title),
+        TitleText(text: title, color: isDark ? AppColors.white : null,),
         const SizedBox(height: 16),
 
         form,

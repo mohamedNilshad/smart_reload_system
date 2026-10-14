@@ -10,7 +10,7 @@ abstract class HomeRepo {
   Future<Either<Failure, List<BannerNewsModel>>> getBannerNews();
   Future<Either<Failure, List<VendorModel>>> getVendors();
   Future<Either<Failure, List<ConnectionModel>>> getConnections(String clientVendorId);
-  Future<Either<Failure, bool>> requestPackage(PackageRequestModel packageRequestModel);
+  Future<Either<Failure, bool>> requestPackage(PackageRequestModel packageRequestModel, String clientName);
   Future<Either<Failure, bool>> addNewConnection(ConnectionModel connectionModel);
   Future<Either<Failure, List<PackageModel>>> getPackages(String type, String serviceProvider);
   Future<Either<Failure, List<PackageRequestModel>>> getActivatedPackages(String connectionId);

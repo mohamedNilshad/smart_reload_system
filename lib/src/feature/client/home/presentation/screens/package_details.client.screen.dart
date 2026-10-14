@@ -4,6 +4,8 @@ import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
 import 'package:smart_reload_system/src/core/enums/connection_data.enum.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
@@ -38,6 +40,7 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
   List<PackageModel> dataPackages = [];
   List<PackageModel> voicePackages = [];
   List<PackageModel> comboPackages = [];
+  String userName = "USER";
 
   bool isMobile = true;
 
@@ -46,6 +49,10 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
   @override
   void initState() {
     connectionModel = widget.connectionModel;
+    final sessionState = context.read<SessionCubit>().state;
+    if (sessionState is SessionAuthenticated) {
+      userName = sessionState.user.fullName;
+    }
 
     context.read<PackageBloc>().add(FetchPackages(
         type: connectionModel.connectionType,
@@ -214,13 +221,14 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
                 final data = PackageRequestModel(
                   clientVendorId: connectionModel.clientVendorId,
                   vendorId: widget.vendorId,
+                  packageModel: item,
                   connectionId: connectionModel.id!,
                   requestDate: DateTime.now(),
                   packageDetailsId: item.id,
                   amount: item.packagePrice,
                 );
 
-                context.read<PackageBloc>().add(PackageRequest(data));
+                context.read<PackageBloc>().add(PackageRequest(data, userName));
               }
             );
           },

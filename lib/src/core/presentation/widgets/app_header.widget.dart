@@ -37,6 +37,7 @@ class AppHeader extends StatelessWidget {
 
           Text(
             subtitle,
+            textAlign: TextAlign.center,
             style: Theme.of(context).textTheme.bodyLarge?.copyWith(
               color: AppColors.darkerGrey,
             ),

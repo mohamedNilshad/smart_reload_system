@@ -1,7 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart' as db;
+import 'package:flutter/foundation.dart';
+import 'package:smart_reload_system/src/core/data/model/device_info.model.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
+import 'package:smart_reload_system/src/core/services/notification.service.dart';
+import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/banner_news.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
@@ -13,7 +17,7 @@ abstract class HomeRemoteDataSource {
   Future<List<BannerNewsModel>> getBannerNews();
   Future<List<VendorModel>> getVendors();
   Future<List<ConnectionModel>> getConnections(String clientVendorId);
-  Future<bool> requestPackage(PackageRequestModel packageRequestModel);
+  Future<bool> requestPackage(PackageRequestModel packageRequestModel, String clientName);
   Future<bool> addNewConnection(ConnectionModel connectionModel);
   Future<List<PackageModel>> getPackages(String type, String serviceProvider);
   Future<List<PackageRequestModel>> getActivatedPackages(String connectionId);
@@ -63,11 +67,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   @override
   Future<List<VendorModel>> getVendors() async {
     try {
-      final currentUser = firebaseAuth.currentUser;
-      if (currentUser == null) {
-        throw ServerException('User not authenticated');
-      }
-
+      User currentUser = _getCurrentUser();
       final clientId = currentUser.uid;
 
       // Step 1: Fetch vendorId and connectionCount from client_vendor collection
@@ -163,7 +163,7 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
   }
 
   @override
-  Future<bool> requestPackage(PackageRequestModel packageRequestModel) async {
+  Future<bool> requestPackage(PackageRequestModel packageRequestModel, String clientName) async {
     try {
 
       // await firestore.collection("requested_packages").add(packageRequestModel.toJson());
@@ -178,6 +178,36 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       });
 
       ///send push notification
+
+      final tokenSnapshot = await firestore
+          .collection('device_info')
+          .where('userId', isEqualTo: packageRequestModel.vendorId)
+          .get();
+
+
+      List<DeviceInfoModel> tokens = tokenSnapshot.docs.map((doc) => DeviceInfoModel.fromJson(doc.data())).toList();
+
+      String? packageName = packageRequestModel.packageModel?.packageName;
+      if(packageName == null){
+        packageName = "";
+      }else{
+        packageName = "for $packageName.";
+      }
+      String amount = HelperFunctions.formatCurrency(packageRequestModel.amount);
+
+
+      String notifyBody = "$clientName has requested a reload $packageName Amount: $amount.";
+      debugPrint("Notify Body: $notifyBody");
+
+      for(var item in tokens){
+        await NotificationService.sendPushMessage(
+          item.fcmToken,
+          "New Reload Request",
+          notifyBody,
+        );
+      }
+
+
       return true;
     } on FirebaseException catch (e, st) {
       ErrorLogger.log(
@@ -289,6 +319,24 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         stackTrace: st,
       );
       throw Exception('An error occurred while fetching activated packages');
+    }
+  }
+
+  User _getCurrentUser(){
+    try{
+      final currentUser = firebaseAuth.currentUser;
+      if (currentUser == null) {
+        throw ServerException('User not authenticated');
+      }
+      return currentUser;
+
+    }catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl._getCurrentUser',
+        stackTrace: st,
+      );
+      throw Exception('An error occurred while fetching current user');
     }
   }
 

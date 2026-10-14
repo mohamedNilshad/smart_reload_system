@@ -12,7 +12,7 @@ AppBar customAppBar({bool isDark = false, required String title, List<Widget>? a
     )),
     leading: icon == null ? null : IconButton(
       onPressed: onPressed,
-      icon: Icon(icon, size: 20, color: isDark ? AppColors.white : AppColors.darkerGrey, fontWeight: FontWeight.bold),
+      icon: Icon(icon, size: 20, color: isDark ? AppColors.grey : AppColors.darkerGrey, fontWeight: FontWeight.bold),
     ),
     title: InkWell(
       onTap: onPressed,

@@ -4,6 +4,8 @@ import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
 import 'package:smart_reload_system/src/core/enums/connection_data.enum.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
@@ -55,10 +57,15 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
   double screenHeight = 0.0;
   bool isUtility = false;
   bool isMobile = false;
+  String userName = "USER";
 
   @override
   void initState() {
     connectionModel = widget.connectionModel;
+    final sessionState = context.read<SessionCubit>().state;
+    if (sessionState is SessionAuthenticated) {
+      userName = sessionState.user.fullName;
+    }
     isMobile = connectionModel.connectionType.toLowerCase() == TelecomType.Mobile.name.toLowerCase();
     context.read<PackageBloc>().add(FetchActivatedPackages(connectionId: connectionModel.id!));
     super.initState();
@@ -318,7 +325,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
             amount: double.parse(amountController.text),
           );
 
-          context.read<PackageBloc>().add(PackageRequest(data));
+          context.read<PackageBloc>().add(PackageRequest(data, userName));
         }
       },
     );

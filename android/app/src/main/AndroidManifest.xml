@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools">
     <application
         tools:replace="android:label"
-        android:label="smart_reload_system"
+        android:label="Smart Reload System"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

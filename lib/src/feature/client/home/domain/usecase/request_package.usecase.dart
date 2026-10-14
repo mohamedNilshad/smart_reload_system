@@ -7,7 +7,7 @@ class RequestPackageUseCase {
   final HomeRepo repo;
   RequestPackageUseCase(this.repo);
 
-  Future<Either<Failure, bool>> call({required PackageRequestModel packageRequestModel}) {
-    return repo.requestPackage(packageRequestModel);
+  Future<Either<Failure, bool>> call({required PackageRequestModel packageRequestModel, required String clientName}) {
+    return repo.requestPackage(packageRequestModel, clientName);
   }
 }
