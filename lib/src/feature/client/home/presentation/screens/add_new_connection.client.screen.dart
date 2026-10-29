@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/enums/connection_data.enum.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
@@ -19,8 +20,9 @@ import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/co
 
 class AddNewConnectionClientScreen extends StatefulWidget {
   final String clientVendorId;
+  final bool isDark;
   final List<Map<String, String>> connectionNumbers;
-  const AddNewConnectionClientScreen({super.key, required this.clientVendorId, required this.connectionNumbers});
+  const AddNewConnectionClientScreen({super.key, required this.clientVendorId, this.isDark = false, required this.connectionNumbers});
 
   @override
   State<AddNewConnectionClientScreen> createState() => _AddNewConnectionClientScreenState();
@@ -31,6 +33,7 @@ class _AddNewConnectionClientScreenState extends State<AddNewConnectionClientScr
   final _conNumberController = TextEditingController();
   final _conNameController = TextEditingController();
   
+  bool isDark = false;
   bool updated = false;
   bool loadingBtn = false;
 
@@ -54,6 +57,7 @@ class _AddNewConnectionClientScreenState extends State<AddNewConnectionClientScr
 
   @override
   void initState() {
+    isDark = widget.isDark;
     initValues();
     super.initState();
   }
@@ -101,10 +105,12 @@ class _AddNewConnectionClientScreenState extends State<AddNewConnectionClientScr
         Navigator.pop(context, updated);
       },
       child: Scaffold(
+        backgroundColor: isDark ? AppColors.scaffoldVendor : null,
         appBar: customAppBar(
+          isDark: isDark,
           onPressed: () => Navigator.of(context).pop(updated),
           icon: Icons.arrow_back_ios_new_rounded,
-          title: "Add New Connection",
+          title: "Add Connection",
         ),
         body: BlocListener<con_bloc.ConnectionBloc, con_state.ConnectionState>(
           listener: (context, state) {
@@ -123,12 +129,14 @@ class _AddNewConnectionClientScreenState extends State<AddNewConnectionClientScr
             child: Padding(
               padding: const EdgeInsets.all(Sizes.sm),
               child: CCard(
+                isDark: isDark,
                 child: Form(
                   key: _formKey,
                   child: Column(
                     spacing: Sizes.spaceBtwInputField,
                     children: [
                       CDropDown(
+                        isDark: isDark,
                         onChanged: (v) {
                           setState(() {
                             selectedCategory = v!;
@@ -151,6 +159,7 @@ class _AddNewConnectionClientScreenState extends State<AddNewConnectionClientScr
                       ),
 
                       CDropDown(
+                        isDark: isDark,
                         onChanged: (v){
                           setState(() {
                             selectedType = v!;
@@ -172,6 +181,7 @@ class _AddNewConnectionClientScreenState extends State<AddNewConnectionClientScr
 
                       if(showProvider)...[
                         CDropDown(
+                          isDark: isDark,
                           onChanged: (v) => selectedServiceProvider = v!,
                           label: "Select Service Provider",
                           items: serviceProviderList,
@@ -179,6 +189,7 @@ class _AddNewConnectionClientScreenState extends State<AddNewConnectionClientScr
                         ),
 
                         CDropDown(
+                          isDark: isDark,
                           onChanged: (v) => selectedBillingType = v!,
                           label: "Select Billing Type",
                           items: billingTypeList,
@@ -187,6 +198,7 @@ class _AddNewConnectionClientScreenState extends State<AddNewConnectionClientScr
                       ],
 
                       CTextField(
+                        isDark: isDark,
                         controller: _conNumberController,
                         label: 'Connection Number',
                         hint: '7xxxxxxxxxx',
@@ -221,6 +233,7 @@ class _AddNewConnectionClientScreenState extends State<AddNewConnectionClientScr
                       ),
 
                       CTextField(
+                        isDark: isDark,
                         controller: _conNameController,
                         label: 'Connection Name',
                         hint: 'Connection',
@@ -250,6 +263,7 @@ class _AddNewConnectionClientScreenState extends State<AddNewConnectionClientScr
                               billingType: selectedBillingType,
                               connectionNumber: _conNumberController.text.trim(),
                               connectionName: _conNameController.text.trim(),
+                              status: isDark,
                             );
                             context.read<con_bloc.ConnectionBloc>().add(AddNewConnectionRequested(connectionModel));
                           }

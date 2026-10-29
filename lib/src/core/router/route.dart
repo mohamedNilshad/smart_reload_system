@@ -12,14 +12,16 @@ import 'package:smart_reload_system/src/feature/client/home/data/model/vendor.mo
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection_details.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/package_details.client.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/reload_history.client.screen.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/screens/widgets/add_new_connection.client.screen.dart';
-import 'package:smart_reload_system/src/feature/client/notification/presentation/screens/notifications.client.screen.dart';
+import 'package:smart_reload_system/src/feature/client/home/presentation/screens/add_new_connection.client.screen.dart';
+import 'package:smart_reload_system/src/core/features/notification/presentation/screens/notifications.screen.dart';
 import 'package:smart_reload_system/src/core/features/profile/presentation/screens/edit_profile.screen.dart';
 import 'package:smart_reload_system/src/core/features/profile/presentation/screens/profile.screen.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/connection.client.screen.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/screens/login.screen.dart';
 import 'package:smart_reload_system/src/core/features/profile/presentation/screens/reset_password.screen.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/screens/register_client.screen.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/screens/connection_list.vendor.screen.dart';
 
 
 class AppRouter {
@@ -70,12 +72,17 @@ class AppRouter {
 
         final args = settings.arguments as ({
           String clientVendorId,
+          bool isDark,
           List<Map<String, String>> connectionNumbers,
         });
 
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.addNewConnectionClientScreen),
-          builder: (context) => AddNewConnectionClientScreen(clientVendorId: args.clientVendorId, connectionNumbers: args.connectionNumbers),
+          builder: (context) => AddNewConnectionClientScreen(
+            clientVendorId: args.clientVendorId,
+            connectionNumbers: args.connectionNumbers,
+            isDark: args.isDark,
+          ),
         );
 
       case RouteConstants.connectionDetailsClientScreen:
@@ -91,8 +98,6 @@ class AppRouter {
         );
 
       case RouteConstants.packageDetailsClientScreen:
-
-        // final connectionModel = settings.arguments as ConnectionModel;
 
         final args = settings.arguments as ({
           ConnectionModel connectionModel,
@@ -124,10 +129,11 @@ class AppRouter {
           builder: (context) => ProfileScreen(isDark: isDark),
         );
 
-      case RouteConstants.notificationClientScreen:
+      case RouteConstants.notificationScreen:
+        final bool isDark = settings.arguments as bool;
         return MaterialPageRoute(
-          settings: const RouteSettings(name: RouteConstants.notificationClientScreen),
-          builder: (context) => const NotificationScreen(),
+          settings: const RouteSettings(name: RouteConstants.notificationScreen),
+          builder: (context) => NotificationScreen(isDark: isDark),
         );
 
       case RouteConstants.editProfileScreen:
@@ -150,6 +156,14 @@ class AppRouter {
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.mainVendorScreen),
           builder: (context) => const MainVendorScreen(),
+        );
+
+      case RouteConstants.connectionListVendorScreen:
+        final ClientModel client = settings.arguments as ClientModel;
+
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.connectionListVendorScreen),
+          builder: (context) => ConnectionListVendorScreen(client: client,),
         );
     }
 

@@ -3,8 +3,8 @@ import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 
 class GifBuilder extends StatelessWidget {
   final String url;
-  final bool isVendor;
-  const GifBuilder({super.key, required this.url, this.isVendor = false});
+  final bool isDark;
+  const GifBuilder({super.key, required this.url, this.isDark = false});
 
   @override
   Widget build(BuildContext context) {
@@ -12,8 +12,8 @@ class GifBuilder extends StatelessWidget {
       url,
       width: 80,
       height: 80,
-      color: isVendor ? null : AppColors.softGrey,
-      colorBlendMode: isVendor ? null : BlendMode.multiply,
+      color: isDark ? null : AppColors.softGrey,
+      colorBlendMode: isDark ? null : BlendMode.multiply,
     );
   }
 }

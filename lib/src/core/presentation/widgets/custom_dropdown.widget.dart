@@ -4,12 +4,14 @@ import 'package:smart_reload_system/src/core/constants/sizes.dart';
 
 class CDropDown extends StatelessWidget {
   final String label;
+  final bool isDark;
   final List<String> items;
   final String selectedType;
   final Function(String?) onChanged;
 
   const CDropDown({
     super.key,
+    this.isDark = false,
     required this.label,
     required this.items,
     required this.onChanged,
@@ -29,8 +31,15 @@ class CDropDown extends StatelessWidget {
         );
       }).toList(),
       onChanged: onChanged,
+      style: TextStyle(color: isDark ? AppColors.white : null),
+      dropdownColor: isDark ? AppColors.darkerGrey : null,
       decoration: InputDecoration(
-        labelText: label,
+        label: Text(
+          label,
+          style: TextStyle(
+            color: isDark ? AppColors.grey : null,
+          ),
+        ),
         border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(Sizes.sm),
             borderSide: const BorderSide(color: AppColors.secondary)
@@ -38,6 +47,7 @@ class CDropDown extends StatelessWidget {
         enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(Sizes.sm),
             borderSide: const BorderSide(color: AppColors.secondary)
+
         ),
         focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(Sizes.sm),

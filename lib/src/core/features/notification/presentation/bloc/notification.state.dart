@@ -1,5 +1,5 @@
 import 'package:equatable/equatable.dart';
-import 'package:smart_reload_system/src/feature/client/notification/domain/entity/notification.entity.dart';
+import 'package:smart_reload_system/src/core/features/notification/domain/entity/notification.entity.dart';
 
 abstract class NotificationState extends Equatable {
   const NotificationState();

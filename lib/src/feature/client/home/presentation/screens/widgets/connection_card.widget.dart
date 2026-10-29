@@ -16,15 +16,17 @@ class ConnectionCard extends StatelessWidget {
   final String? conPlan;
   final bool isActive;
   final bool status;
+  final bool isDark;
   final DateTime? lastDate;
   final void Function()? onTap;
-  const ConnectionCard({super.key, required this.conNumber, required this.isActive, this.status = true, required this.conName, required this.conType, this.conPlan, required this.onTap, this.lastDate});
+  const ConnectionCard({super.key, required this.conNumber, required this.isActive, this.isDark = false, this.status = true, required this.conName, required this.conType, this.conPlan, required this.onTap, this.lastDate});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
       child: CCard(
+        isDark: isDark,
         padding: EdgeInsets.zero,
         child: Column(
           children: [
@@ -34,34 +36,34 @@ class ConnectionCard extends StatelessWidget {
                 height: 30,
                 child: CSvgBuilder(
                   path: SvgStrings.box,
-                  colorFilter: ColorFilter.mode(AppColors.darkGrey, BlendMode.srcIn),
+                  colorFilter: ColorFilter.mode(isDark ? AppColors.grey : AppColors.darkGrey, BlendMode.srcIn),
                 ),
               ),
               title: Row(
                 mainAxisSize: MainAxisSize.min,
                 spacing: 10,
                 children: [
-                  TitleText(text: conName),
+                  TitleText(text: conName, color: isDark ? AppColors.white : null),
                   CircleAvatar(
                     radius: 5,
                     backgroundColor: isActive ? AppColors.green : AppColors.red,
                   ),
                 ],
               ),
-              subtitle: SubTitleText(text: conNumber, color: AppColors.darkerGrey),
-              trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18, color: AppColors.darkerGrey),
+              subtitle: SubTitleText(text: conNumber, color: isDark ? AppColors.grey : AppColors.darkerGrey),
+              trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18, color: isDark ? AppColors.grey : AppColors.darkerGrey),
             ),
             Padding(
               padding: const EdgeInsets.only(left: 60.0),
               child: Row(
                 spacing: 5,
                 children: [
-                  CChip(label: conType),
+                  CChip(label: conType, fontColor: isDark ? AppColors.white : null,),
                   if(conPlan != null)...{
                     CChip(
                       label: conPlan!,
                       bgColor: AppColors.primary,
-                      fontColor: AppColors.primary,
+                      fontColor: isDark ? AppColors.white : AppColors.primary,
                     ),
                   }
 

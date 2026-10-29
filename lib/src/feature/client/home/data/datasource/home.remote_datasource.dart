@@ -196,13 +196,22 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
       String amount = HelperFunctions.formatCurrency(packageRequestModel.amount);
 
 
+      String notifyTitle = "New Reload Request";
       String notifyBody = "$clientName has requested a reload $packageName Amount: $amount.";
       debugPrint("Notify Body: $notifyBody");
+
+     await firestore.collection('users').doc(packageRequestModel.vendorId).collection('notifications').add({
+        'title': notifyTitle,
+        'body': notifyBody,
+        'route': null,
+        'isRead': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
 
       for(var item in tokens){
         await NotificationService.sendPushMessage(
           item.fcmToken,
-          "New Reload Request",
+          notifyTitle,
           notifyBody,
         );
       }

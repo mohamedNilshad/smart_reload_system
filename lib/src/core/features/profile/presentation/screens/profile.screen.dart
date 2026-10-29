@@ -118,7 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       Divider(),
                       buildOption(
-                        onTap: () => Navigator.of(context).pushNamed(RouteConstants.notificationClientScreen),
+                        onTap: () => Navigator.of(context).pushNamed(RouteConstants.notificationScreen, arguments: isDark),
                         context,
                         icon: SvgStrings.notification,
                         leadColor: AppColors.accent,
@@ -133,9 +133,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   builder: (context, state) {
                     final isLoading = state is AuthLoading;
                     return COutlineButton(
-                      onPressed: isLoading
-                          ? () {}
-                          : () => context.read<AuthBloc>().add(LogoutRequested()),
+                      onPressed: isLoading ? () {} : () => context.read<AuthBloc>().add(LogoutRequested()),
                       title: isLoading ? "Logging out..." : "Logout",
                       icon: SvgStrings.logout,
                       fgColor: isLoading ? AppColors.buttonDisabled : AppColors.red,

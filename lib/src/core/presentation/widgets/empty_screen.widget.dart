@@ -6,24 +6,29 @@ import 'package:smart_reload_system/src/core/presentation/widgets/gif_builder.wi
 
 class EmptyScreenWidget extends StatelessWidget {
   final String message;
+  final bool isDark;
+  final EdgeInsetsGeometry? padding;
 
-  const EmptyScreenWidget({super.key, this.message = "No results found"});
+  const EmptyScreenWidget({super.key, this.message = "No results found", this.isDark = false, this.padding});
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: 10,
-        children: [
-          GifBuilder(url: ImageStrings.emptyScreen),
+    return Padding(
+      padding: padding ?? EdgeInsets.zero,
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: 10,
+          children: [
+            GifBuilder(url: isDark ? ImageStrings.emptyScreenDark : ImageStrings.emptyScreen, isDark: isDark),
 
-          TitleText(
-            text: message,
-            isBold: false,
-            color: AppColors.darkerGrey,
-          ),
-        ],
+            TitleText(
+              text: message,
+              isBold: false,
+              color: isDark ? AppColors.grey : AppColors.darkerGrey,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -15,13 +15,13 @@ class RouteConstants {
   static const String addNewConnectionClientScreen = "AddNewConnectionClientScreen";
   static const String packageDetailsClientScreen = "PackageDetailsClientScreen";
   static const String reloadHistoryClientScreen = "ReloadHistoryClientScreen";
-  static const String notificationClientScreen = "NotificationClientScreen";
+  static const String notificationScreen = "NotificationScreen";
   static const String editProfileScreen = "EditProfileScreen";
   static const String resetPasswordScreen = "ResetPasswordScreen";
 
 
   ///VENDOR
   static const String mainVendorScreen = "MainVendorScreen";
-  static const String connectionVendorScreen = "ConnectionVendorScreen";
+  static const String connectionListVendorScreen = "ConnectionListVendorScreen";
 
 }

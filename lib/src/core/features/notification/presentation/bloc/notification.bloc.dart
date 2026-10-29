@@ -1,9 +1,9 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:smart_reload_system/src/feature/client/notification/domain/usecase/get_notifications.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/notification/domain/usecase/mark_all_as_read.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/notification/domain/usecase/mark_as_read.usecase.dart';
-import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.event.dart';
-import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.state.dart';
+import 'package:smart_reload_system/src/core/features/notification/domain/usecase/get_notifications.usecase.dart';
+import 'package:smart_reload_system/src/core/features/notification/domain/usecase/mark_all_as_read.usecase.dart';
+import 'package:smart_reload_system/src/core/features/notification/domain/usecase/mark_as_read.usecase.dart';
+import 'package:smart_reload_system/src/core/features/notification/presentation/bloc/notification.event.dart';
+import 'package:smart_reload_system/src/core/features/notification/presentation/bloc/notification.state.dart';
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
   final GetNotificationsUseCase getNotificationsUseCase;

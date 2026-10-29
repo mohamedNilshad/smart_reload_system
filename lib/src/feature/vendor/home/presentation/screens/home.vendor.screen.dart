@@ -13,9 +13,11 @@ import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widge
 import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loading.widget.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
+import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.event.dart';
-import 'package:smart_reload_system/src/feature/client/notification/presentation/screens/widget/notification_bell.widget.dart';
+import 'package:smart_reload_system/src/core/features/notification/presentation/screens/widget/notification_bell.widget.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.state.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/package_request.cubit.dart';
@@ -98,7 +100,7 @@ class _HomeVendorScreenState extends State<HomeVendorScreen> {
           appBar: customAppBar(
             isDark: true,
             title: userName,
-            action: [NotificationBell(isVendor: true)],
+            action: [NotificationBell(isDark: true)],
           ),
           body: BlocListener<HomeVendorBloc, HomeVendorState>(
             listener: (context, state) {
@@ -178,17 +180,18 @@ class _HomeVendorScreenState extends State<HomeVendorScreen> {
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   spacing: 10.0,
-                                  children: clientList.map((client) {
+                                  children: clientList.map((item) {
+                                    ClientModel client = item['client'] as ClientModel;
                                     return _buildCustomTile(
-                                      title: client['client'].clientName,
-                                      phoneNumber: client['client'].clientPhone,
-                                      count: client['count'],
-                                      totalAmount: client['client'].totalPayable ?? 0.0,
+                                      title: client.clientName,
+                                      phoneNumber: client.clientPhone,
+                                      count: item['count'],
+                                      totalAmount: client.totalPayable ?? 0.0,
                                       onTap: () {
-                                        // Navigator.of(context).pushNamed(
-                                        //   RouteConstants.connectionVendorScreen,
-                                        //   arguments: cl,
-                                        // );
+                                        Navigator.of(context).pushNamed(
+                                          RouteConstants.connectionListVendorScreen,
+                                          arguments: client,
+                                        );
                                       }
                                     );
                                   }).toList(),
@@ -213,7 +216,7 @@ class _HomeVendorScreenState extends State<HomeVendorScreen> {
 
                     // Fallback state
                     return FallbackWidget(
-                        isVendor: true,
+                        isDark: true,
                         onPressed: () {
                           context.read<HomeVendorBloc>().add(const HomeDataRequested());
                         }

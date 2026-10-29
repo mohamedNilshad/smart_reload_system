@@ -15,7 +15,7 @@ import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/ses
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.event.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.state.dart';
-import 'package:smart_reload_system/src/feature/client/notification/presentation/screens/widget/notification_bell.widget.dart';
+import 'package:smart_reload_system/src/core/features/notification/presentation/screens/widget/notification_bell.widget.dart';
 
 class HomeClientScreen extends StatefulWidget {
   const HomeClientScreen({super.key});

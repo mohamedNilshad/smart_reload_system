@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
-import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/unread_count.cubit.dart';
+import 'package:smart_reload_system/src/core/features/notification/presentation/bloc/unread_count.cubit.dart';
 
 class NotificationBell extends StatelessWidget {
-  final bool isVendor;
-  const NotificationBell({super.key, this.isVendor = false});
+  final bool isDark;
+  const NotificationBell({super.key, this.isDark = false});
 
   @override
   Widget build(BuildContext context) {
@@ -16,8 +16,8 @@ class NotificationBell extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             IconButton(
-              icon: Icon(Icons.notifications_outlined, color: isVendor ? AppColors.white : AppColors.black),
-              onPressed: () => Navigator.of(context).pushNamed(RouteConstants.notificationClientScreen),
+              icon: Icon(Icons.notifications_outlined, color: isDark ? AppColors.white : AppColors.black),
+              onPressed: () => Navigator.of(context).pushNamed(RouteConstants.notificationScreen, arguments: isDark),
             ),
             if (count > 0)...{
               Positioned(

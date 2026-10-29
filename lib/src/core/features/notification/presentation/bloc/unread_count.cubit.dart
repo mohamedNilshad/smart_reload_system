@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'package:firebase_auth/firebase_auth.dart' as fb;
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:smart_reload_system/src/feature/client/notification/domain/usecase/watch_unread_count.usecase.dart';
+import 'package:smart_reload_system/src/core/features/notification/domain/usecase/watch_unread_count.usecase.dart';
 
 class UnreadCountCubit extends Cubit<int> {
   final WatchUnreadCountUseCase watchUnreadCountUseCase;

@@ -13,12 +13,13 @@ import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loadin
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
-import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.bloc.dart';
-import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.event.dart';
-import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.state.dart';
+import 'package:smart_reload_system/src/core/features/notification/presentation/bloc/notification.bloc.dart';
+import 'package:smart_reload_system/src/core/features/notification/presentation/bloc/notification.event.dart';
+import 'package:smart_reload_system/src/core/features/notification/presentation/bloc/notification.state.dart';
 
 class NotificationScreen extends StatefulWidget {
-  const NotificationScreen({super.key});
+  final bool isDark;
+  const NotificationScreen({super.key, this.isDark = false});
 
   @override
   State<NotificationScreen> createState() => _NotificationScreenState();
@@ -27,10 +28,12 @@ class NotificationScreen extends StatefulWidget {
 class _NotificationScreenState extends State<NotificationScreen> {
   String uid = "";
   double screenWidth = 0.0;
+  bool isDark = false;
 
   @override
   void initState() {
     super.initState();
+    isDark = widget.isDark;
     final sessionState = context.read<SessionCubit>().state;
 
     if (sessionState is SessionAuthenticated) {
@@ -49,7 +52,9 @@ class _NotificationScreenState extends State<NotificationScreen> {
         await Future.delayed(const Duration(milliseconds: 500));
       },
       child: Scaffold(
+        backgroundColor: isDark ? AppColors.scaffoldVendor : null,
         appBar: customAppBar(
+          isDark: isDark,
           onPressed: () => Navigator.of(context).pop(),
           icon: Icons.arrow_back_ios_new_rounded,
           title: "Notifications",
@@ -65,16 +70,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
                   spacing: 10,
                   children: [
                     ShimmerLoading(
+                      isDark: isDark,
                       height: 80,
                       width: screenWidth,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     ShimmerLoading(
+                      isDark: isDark,
                       height: 80,
                       width: screenWidth,
                       borderRadius: BorderRadius.circular(10),
                     ),
                     ShimmerLoading(
+                      isDark: isDark,
                       height: 80,
                       width: screenWidth,
                       borderRadius: BorderRadius.circular(10),
@@ -86,6 +94,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
             if (state is NotificationFailureState) {
               return FallbackWidget(
+                isDark: isDark,
                   onPressed: () {
                     context.read<NotificationBloc>().add(NotificationListRequested(uid));
                   }
@@ -94,7 +103,7 @@ class _NotificationScreenState extends State<NotificationScreen> {
 
             final notifications = (state as NotificationLoaded).notifications;
             if (notifications.isEmpty) {
-              return EmptyScreenWidget();
+              return EmptyScreenWidget(isDark: isDark);
             }
             
             return ListView.separated(
@@ -104,10 +113,11 @@ class _NotificationScreenState extends State<NotificationScreen> {
               itemBuilder: (context, index) {
                 final item = notifications[index];
                 return ListTile(
-                  tileColor: item.isRead ? AppColors.white : AppColors.primary.withValues(alpha: 0.1),
+                  tileColor: isDark ? (item.isRead ? AppColors.darkerGrey : AppColors.grey.withValues(alpha: 0.4)): (item.isRead ? AppColors.white : AppColors.primary.withValues(alpha: 0.1)),
                   title: TitleText(
-                      text: item.title,
-                      isBold: !item.isRead,
+                    text: item.title,
+                    isBold: !item.isRead,
+                    color: isDark ? AppColors.grey: null,
                   ),
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -116,15 +126,19 @@ class _NotificationScreenState extends State<NotificationScreen> {
                         text: item.body,
                         size: 13,
                         maxLines: 2,
+                        color: isDark ? AppColors.white: null,
                         overflow: TextOverflow.ellipsis,
                       ),
                       LabelText(
                         text: HelperFunctions.formatRelativeDate(item.createdAt),
-                        color: AppColors.secondary,
+                        color: isDark ? AppColors.info : AppColors.secondary,
                       ),
                     ],
                   ),
-                  trailing: Icon(Icons.done_all_rounded, color: item.isRead ? AppColors.info : AppColors.darkerGrey),
+                  trailing: Icon(
+                    Icons.done_all_rounded,
+                    color: (item.isRead ? AppColors.info : isDark ? AppColors.softGrey: AppColors.darkerGrey),
+                  ),
                   onTap: () {
                     if(!item.isRead){
                       context.read<NotificationBloc>().add(

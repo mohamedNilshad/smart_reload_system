@@ -1,6 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
-import 'package:smart_reload_system/src/feature/client/notification/domain/entity/notification.entity.dart';
+import 'package:smart_reload_system/src/core/features/notification/domain/entity/notification.entity.dart';
 import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 abstract class NotificationRemoteDataSource {

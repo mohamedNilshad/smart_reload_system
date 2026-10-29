@@ -4,6 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/bloc/payment/payment.bloc.dart';
 import 'package:smart_reload_system/src/core/bloc/theme/theme.bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_strings.dart';
+import 'package:smart_reload_system/src/core/presentation/screens/no_internet_banner.widget.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/router/route.dart';
 import 'package:smart_reload_system/src/core/theme/theme.dart';
@@ -13,8 +14,8 @@ import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/ses
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/packaget.bloc.dart';
-import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/notification.bloc.dart';
-import 'package:smart_reload_system/src/feature/client/notification/presentation/bloc/unread_count.cubit.dart';
+import 'package:smart_reload_system/src/core/features/notification/presentation/bloc/notification.bloc.dart';
+import 'package:smart_reload_system/src/core/features/notification/presentation/bloc/unread_count.cubit.dart';
 import 'package:smart_reload_system/src/core/features/profile/presentation/bloc/profile.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/package_request.cubit.dart';
@@ -50,6 +51,7 @@ class App extends StatelessWidget {
       child: BlocBuilder<ThemeBloc, ThemeMode>(
           builder: (context, state) {
             return MaterialApp(
+              builder: (context, child) => NoInternetBanner(child: child!),
               navigatorKey: navigatorKey,
               title: AppStrings.brandName,
               debugShowCheckedModeBanner: false,
