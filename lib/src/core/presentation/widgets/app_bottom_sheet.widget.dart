@@ -125,6 +125,7 @@ class AppBottomSheet {
       builder: (_) => _BottomSheetShell(
         isDark: isDark,
         child: _RadioSelectContent(
+          isDark: isDark,
           title: title,
           askConfirm: askConfirm,
           options: options,
@@ -306,12 +307,14 @@ class _RadioSelectContent extends StatefulWidget {
   final bool askConfirm;
   final List<String> options;
   final String? selectedValue;
+  final bool isDark;
 
   const _RadioSelectContent({
     required this.title,
     required this.askConfirm,
     required this.options,
     this.selectedValue,
+    required this.isDark,
   });
 
   @override
@@ -334,7 +337,7 @@ class _RadioSelectContentState extends State<_RadioSelectContent> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TitleText(text: widget.title),
+        TitleText(text: widget.title, color: widget.isDark ? AppColors.white : AppColors.black),
         const SizedBox(height: 16),
         ...widget.options.map((option) {
           final isSelected = option == _selected;
@@ -365,12 +368,12 @@ class _RadioSelectContentState extends State<_RadioSelectContent> {
                         text: option,
                         isBold: isSelected,
                         size: 13,
-                        color: isSelected ? AppColors.secondary : theme.colorScheme.onSurface,
+                        color: isSelected ? AppColors.secondary : widget.isDark ? AppColors.white : AppColors.black,
                       ),
                     ),
                     Icon(
                       isSelected ? Icons.check_circle_rounded : Icons.circle_outlined,
-                      color: isSelected ? AppColors.secondary : theme.colorScheme.onSurface,
+                      color: isSelected ? AppColors.secondary : widget.isDark ? AppColors.white : AppColors.black,
                       size: 22,
                     ),
                   ],

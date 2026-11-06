@@ -331,8 +331,8 @@ class _ConnectionListVendorScreenState extends State<ConnectionListVendorScreen>
                                 onTap: () async {
                                   Navigator.pushNamed(
                                     context,
-                                    RouteConstants.connectionDetailsClientScreen,
-                                    arguments: connection,
+                                    RouteConstants.connectionDetailsVendorScreen,
+                                    arguments:  (vendorId: user.uid, connectionModel: connection),
                                   );
                                 },
                                 conNumber: connection.connectionNumber,

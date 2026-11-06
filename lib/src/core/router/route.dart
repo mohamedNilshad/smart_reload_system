@@ -21,6 +21,7 @@ import 'package:smart_reload_system/src/core/features/auth/presentation/screens/
 import 'package:smart_reload_system/src/core/features/profile/presentation/screens/reset_password.screen.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/screens/register_client.screen.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/screens/connection_details.vendor.screen.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/screens/connection_list.vendor.screen.dart';
 
 
@@ -95,6 +96,18 @@ class AppRouter {
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.connectionDetailsClientScreen),
           builder: (context) => ConnectionDetailsClientScreen(connectionModel: args.connectionModel, vendorId: args.vendorId),
+        );
+
+      case RouteConstants.connectionDetailsVendorScreen:
+
+        final args = settings.arguments as ({
+          ConnectionModel connectionModel,
+          String vendorId,
+        });
+
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.connectionDetailsVendorScreen),
+          builder: (context) => ConnectionDetailsVendorScreen(connectionModel: args.connectionModel, vendorId: args.vendorId),
         );
 
       case RouteConstants.packageDetailsClientScreen:

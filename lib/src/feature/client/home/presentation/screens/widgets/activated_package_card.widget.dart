@@ -19,8 +19,10 @@ class ActivatedPackageCard extends StatelessWidget {
   final double price;
   final bool isExpand;
   final bool status;
+  final bool isDark;
   final String validity;
   final void Function()? onTap;
+  final void Function()? onActionTap;
 
   const ActivatedPackageCard({
     super.key,
@@ -33,7 +35,9 @@ class ActivatedPackageCard extends StatelessWidget {
     this.actDate,
     this.expDate,
     this.isExpand = false,
-    required this.onTap
+    this.isDark = false,
+    required this.onTap,
+    this.onActionTap
   });
 
 
@@ -61,6 +65,7 @@ class ActivatedPackageCard extends StatelessWidget {
       child: Column(
         children: [
           CCard(
+            isDark: isDark,
             radius: isExpand ? BorderRadius.only(topLeft: Radius.circular(Sizes.borderRadius), topRight: Radius.circular(Sizes.borderRadius), ) : BorderRadius.circular(Sizes.borderRadius),
             padding: EdgeInsets.zero,
             margin: EdgeInsets.zero,
@@ -74,25 +79,28 @@ class ActivatedPackageCard extends StatelessWidget {
                     children: [
                       ListTile(
                         contentPadding: EdgeInsets.zero,
-                        title: TitleText(text: title),
-                        subtitle: SubTitleText(text: description, color: AppColors.darkerGrey),
+                        title: TitleText(text: title, color: isDark ? AppColors.white : null),
+                        subtitle: SubTitleText(text: description, color: isDark ? AppColors.grey : AppColors.darkerGrey),
                         trailing: status ? Visibility(
                           visible: calDate(actDate!, expDate!) > 0.75,
                           child: CChip(
                             label: "Expiring soon",
                             bgColor: AppColors.accent,
-                            fontColor: AppColors.black,
+                            fontColor: isDark ? AppColors.white : AppColors.black,
                           ),
-                        ) : CChip(
-                          label: "Pending",
-                          bgColor: AppColors.info,
-                          fontColor: AppColors.black,
+                        ) : InkWell(
+                          onTap: onActionTap,
+                          child: CChip(
+                            label: onActionTap != null ? "Action": "Pending",
+                            bgColor: onActionTap != null ? AppColors.green: AppColors.info,
+                            fontColor: isDark ? AppColors.white : AppColors.black,
+                          ),
                         ),
                       ),
                       Container(
                         padding: EdgeInsets.all(Sizes.ssm),
                         decoration: BoxDecoration(
-                          color: AppColors.softGrey,
+                          color: isDark ? AppColors.darkerGrey : AppColors.softGrey,
                           borderRadius: BorderRadius.circular(Sizes.borderRadius),
                         ),
                         child: Column(
@@ -202,8 +210,8 @@ class ActivatedPackageCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          LabelText(text: title, color: AppColors.darkGrey,),
-          LabelText(text: subtitle, isBold: true,),
+          LabelText(text: title, color: isDark ? AppColors.white : AppColors.darkGrey),
+          LabelText(text: subtitle, isBold: true, color: isDark ? AppColors.white : AppColors.black),
         ],
       ),
     );
