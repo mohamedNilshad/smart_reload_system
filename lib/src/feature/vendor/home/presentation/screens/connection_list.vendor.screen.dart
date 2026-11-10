@@ -10,9 +10,9 @@ import 'package:smart_reload_system/src/core/presentation/progress_indicators/cu
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_bottom_sheet.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_buttons/custom_elevated_button.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_chip.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/headline_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_title_text.widget.dart';
-import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/empty_screen.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loading.widget.dart';
@@ -30,6 +30,8 @@ import 'package:smart_reload_system/src/feature/client/payment/presentation/bloc
 
 import 'package:smart_reload_system/src/feature/client/payment/presentation/bloc/payment.client.state.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
+
+enum ConnectionFilter { all, pending, activated }
 
 class ConnectionListVendorScreen extends StatefulWidget {
   final ClientModel client;
@@ -49,6 +51,7 @@ class _ConnectionListVendorScreenState extends State<ConnectionListVendorScreen>
   List<PackageRequestModel> payableList = [];
   late ClientModel client;
   late UserEntity user;
+  ConnectionFilter _selectedFilter = ConnectionFilter.all;
 
   InvoicePdfData? invoiceData;
   String serviceCharge = "0+0";
@@ -77,6 +80,17 @@ class _ConnectionListVendorScreenState extends State<ConnectionListVendorScreen>
         'category': connection.connectionCategory,
         'number': connection.connectionNumber,
       });
+    }
+  }
+
+  List<ConnectionModel> _filteredConnections(List<ConnectionModel> connections) {
+    switch (_selectedFilter) {
+      case ConnectionFilter.pending:
+        return connections.where((connection) => connection.status == false).toList();
+      case ConnectionFilter.activated:
+        return connections.where((connection) => connection.status == true).toList();
+      case ConnectionFilter.all:
+        return connections;
     }
   }
 
@@ -202,8 +216,6 @@ class _ConnectionListVendorScreenState extends State<ConnectionListVendorScreen>
               }
 
               initValues(state.connections);
-              List<ConnectionModel> approvedList = state.connections.where((c) => c.status == true).toList();
-              List<ConnectionModel> pendingList = state.connections.where((c) => c.status == false).toList();
 
               return BlocListener<PaymentClientBloc, PaymentClientState>(
                 listener: (context, pState) {
@@ -277,74 +289,90 @@ class _ConnectionListVendorScreenState extends State<ConnectionListVendorScreen>
                           ],
                         ),
 
-                        if(pendingList.isNotEmpty)...{
-                          Container(
-                            margin: EdgeInsets.fromLTRB(0.0, Sizes.lg, 0.0, Sizes.sm),
-                            alignment: AlignmentGeometry.topStart,
-                            child: TitleText(text: "Pending Connections", color: AppColors.white),
+                        Padding(
+                          padding: const EdgeInsets.only(bottom: 8, top: 8),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _selectedFilter = ConnectionFilter.all),
+                                  child: CChip(
+                                    label: 'All',
+                                    bgColor: _selectedFilter == ConnectionFilter.all ? AppColors.primary : AppColors.grey,
+                                    fontColor: _selectedFilter == ConnectionFilter.all ? AppColors.white : AppColors.darkerGrey,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _selectedFilter = ConnectionFilter.pending),
+                                  child: CChip(
+                                    label: 'Pending',
+                                    bgColor: _selectedFilter == ConnectionFilter.pending ? AppColors.warning : AppColors.grey,
+                                    fontColor: _selectedFilter == ConnectionFilter.pending ? AppColors.white : AppColors.darkerGrey,
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: GestureDetector(
+                                  onTap: () => setState(() => _selectedFilter = ConnectionFilter.activated),
+                                  child: CChip(
+                                    label: 'Activated',
+                                    bgColor: _selectedFilter == ConnectionFilter.activated ? AppColors.buttonGreen : AppColors.grey,
+                                    fontColor: _selectedFilter == ConnectionFilter.activated ? AppColors.white : AppColors.darkerGrey,
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: 10.0,
-                            children: pendingList.map((connection) {
-                              return ConnectionCard(
-                                isDark: true,
-                                onTap: () async {
-                                  Navigator.pushNamed(
-                                    context,
-                                    RouteConstants.connectionDetailsClientScreen,
-                                    arguments: connection,
-                                  );
-                                },
-                                conNumber: connection.connectionNumber,
-                                lastDate: connection.lastReloadDate,
-                                conName: connection.connectionName,
-                                isActive: connection.isActive,
-                                conType: connection.connectionType,
-                                conPlan: connection.billingType,
-                                status: false,
-                              );
-                            }).toList(),
-                          ),
-                          SizedBox(height: 10.0),
-                        },
-
-                        Container(
-                          margin: EdgeInsets.symmetric(vertical: Sizes.sm),
-                          alignment: AlignmentGeometry.topStart,
-                          child: TitleText(text: "Activated Connections", color: AppColors.white),
                         ),
 
-                        if(approvedList.isEmpty)...{
-                          EmptyScreenWidget(
-                            isDark: true,
-                            padding: EdgeInsetsGeometry.only(top: HelperFunctions.screenHeight(context)/4.5),
-                          ),
-                        }else...{
-                          Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            spacing: 10.0,
-                            children: approvedList.map((connection) {
-                              return ConnectionCard(
+                        Builder(
+                          builder: (context) {
+                            final filteredConnections = _filteredConnections(state.connections);
+                            if (filteredConnections.isEmpty) {
+                              return EmptyScreenWidget(
                                 isDark: true,
-                                onTap: () async {
-                                  Navigator.pushNamed(
-                                    context,
-                                    RouteConstants.connectionDetailsVendorScreen,
-                                    arguments:  (vendorId: user.uid, connectionModel: connection),
-                                  );
-                                },
-                                conNumber: connection.connectionNumber,
-                                lastDate: connection.lastReloadDate,
-                                conName: connection.connectionName,
-                                isActive: connection.isActive,
-                                conType: connection.connectionType,
-                                conPlan: connection.billingType,
+                                padding: EdgeInsetsGeometry.only(top: HelperFunctions.screenHeight(context)/4.5),
                               );
-                            }).toList(),
-                          ),
-                        },
+                            }
+
+                            return Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              spacing: 10.0,
+                              children: filteredConnections.map((connection) {
+                                final bool isActivated = connection.status == true;
+                                return ConnectionCard(
+                                  isDark: true,
+                                  onTap: () async {
+                                    if (isActivated) {
+                                      Navigator.pushNamed(
+                                        context,
+                                        RouteConstants.connectionDetailsVendorScreen,
+                                        arguments: (vendorId: user.uid, connectionModel: connection),
+                                      );
+                                    } else {
+                                      Navigator.pushNamed(
+                                        context,
+                                        RouteConstants.connectionDetailsClientScreen,
+                                        arguments: connection,
+                                      );
+                                    }
+                                  },
+                                  conNumber: connection.connectionNumber,
+                                  lastDate: connection.lastReloadDate,
+                                  conName: connection.connectionName,
+                                  isActive: connection.isActive,
+                                  conType: connection.connectionType,
+                                  conPlan: connection.billingType,
+                                  status: isActivated,
+                                );
+                              }).toList(),
+                            );
+                          },
+                        ),
 
 
                       ],

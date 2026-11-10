@@ -37,11 +37,15 @@ class ConnectionDetailsVendorScreen extends StatefulWidget {
   State<ConnectionDetailsVendorScreen> createState() => _ConnectionDetailsVendorScreenState();
 }
 
+enum PackageFilter { all, pending, activated }
+
 class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorScreen> {
   final amountController = TextEditingController();
   final _formKey = GlobalKey<FormState>();
   final _isLoadingNotifier = ValueNotifier<bool>(false);
   late final ConnectionModel connectionModel;
+
+  PackageFilter _selectedPackageFilter = PackageFilter.all;
 
   bool fetchingActPackage = true;
   List<PackageRequestModel> actPackageDetails = [];
@@ -71,6 +75,17 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
     super.initState();
   }
   
+  List<PackageRequestModel> _filterPackages(List<PackageRequestModel> packages) {
+    switch (_selectedPackageFilter) {
+      case PackageFilter.pending:
+        return packages.where((packageItem) => packageItem.activatedDate == null).toList();
+      case PackageFilter.activated:
+        return packages.where((packageItem) => packageItem.activatedDate != null).toList();
+      case PackageFilter.all:
+        return packages;
+    }
+  }
+
   void initValue(List<PackageRequestModel> packages){
     try{
       setState(() {
@@ -337,21 +352,22 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
   }
 
   Widget _buildList({required List<PackageRequestModel> packages, required String emptyMsg, bool topPadding = false}){
+    final filteredPackages = _filterPackages(packages);
 
     return Visibility(
-      visible: packages.isNotEmpty,
+      visible: filteredPackages.isNotEmpty,
       replacement: Padding(
         padding: EdgeInsets.only(top: topPadding ? screenHeight/6 : 0.0),
         child: EmptyScreenWidget(message: emptyMsg, isDark: true),
       ),
       child: ListView.builder(
-        itemCount: packages.length,
+        itemCount: filteredPackages.length,
         shrinkWrap: !isMobile,
         scrollDirection: Axis.vertical,
         physics: isMobile ? null : NeverScrollableScrollPhysics(),
         padding: EdgeInsetsGeometry.only(bottom: 100),
         itemBuilder: (context, index){
-          final item = packages[index];
+          final item = filteredPackages[index];
 
           return ActivatedPackageCard(
             isDark: true,
@@ -466,6 +482,45 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
             ),
           ),
           SubHeadlineText(text: "Activated Packages", color: AppColors.white),
+          Padding(
+            padding: const EdgeInsets.only(top: 8),
+            child: Row(
+              children: [
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedPackageFilter = PackageFilter.all),
+                    child: CChip(
+                      label: 'All',
+                      bgColor: _selectedPackageFilter == PackageFilter.all ? AppColors.primary : AppColors.grey,
+                      fontColor: _selectedPackageFilter == PackageFilter.all ? AppColors.white : AppColors.darkerGrey,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedPackageFilter = PackageFilter.pending),
+                    child: CChip(
+                      label: 'Pending',
+                      bgColor: _selectedPackageFilter == PackageFilter.pending ? AppColors.warning : AppColors.grey,
+                      fontColor: _selectedPackageFilter == PackageFilter.pending ? AppColors.white : AppColors.darkerGrey,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: GestureDetector(
+                    onTap: () => setState(() => _selectedPackageFilter = PackageFilter.activated),
+                    child: CChip(
+                      label: 'Activated',
+                      bgColor: _selectedPackageFilter == PackageFilter.activated ? AppColors.buttonGreen : AppColors.grey,
+                      fontColor: _selectedPackageFilter == PackageFilter.activated ? AppColors.white : AppColors.darkerGrey,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
