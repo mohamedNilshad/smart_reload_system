@@ -304,7 +304,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
               }
             },
             bgColor: connectionModel.status ? null : AppColors.darkerGrey,
-            label: "Request Reload",
+            label: "New Reload",
           ),
         ),
 
@@ -371,8 +371,34 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
 
           return ActivatedPackageCard(
             isDark: true,
-            onActionTap: (){
-              ///open a bottom sheet contain a form to enter amount and activated button
+            onActionTap: () async{
+              final result = await AppBottomSheet.showRadioSelect(
+                context,
+                isDark: true,
+                title: 'Choose',
+                askConfirm: false,
+                options: ['Activated', 'Cancel'],
+                selectedValue: '',
+              );
+
+              if (result != null) {
+                if(result == 'Activated' && context.mounted){
+                  final activatedAt = DateTime.now();
+                  final data = PackageRequestModel(
+                    id: item.id,
+                    activatedDate: activatedAt,
+                    expireDate: HelperFunctions.calculateExpiryDate(
+                      activatedAt,
+                      item.packageModel?.packageValidity,
+                      item.packageModel?.validityPeriod,
+                    ),
+                    packageDetailsId: item.packageDetailsId,
+                    packageModel: item.packageModel,
+                  );
+
+                  context.read<PackageBloc>().add(ActivatePackageRequest(data));
+                }
+              }
             },
             onTap: () {
               if(expandId == index) {
@@ -384,7 +410,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
             title: item.packageModel?.packageName ?? "-",
             price: item.amount ?? 0.0,
             expDate: item.expireDate,
-            reqDate: item.requestDate,
+            reqDate: item.requestDate!,
             isExpand: expandId == index,
             description: item.packageModel?.packageDescription ?? "-",
             actDate: item.activatedDate,
@@ -481,7 +507,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
               ],
             ),
           ),
-          SubHeadlineText(text: "Activated Packages", color: AppColors.white),
+          SubHeadlineText(text: "Packages", color: AppColors.white),
           Padding(
             padding: const EdgeInsets.only(top: 8),
             child: Row(

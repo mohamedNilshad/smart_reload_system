@@ -279,6 +279,25 @@ class HelperFunctions {
     return now.isAfter(expDate);
   }
 
+  static DateTime calculateExpiryDate(DateTime activatedDate, double? validity, String? validityPeriod) {
+    if (validity == null || validity <= 0 || validityPeriod == null || validityPeriod.isEmpty) {
+      return activatedDate;
+    }
+
+    final normalizedPeriod = validityPeriod.trim().toLowerCase();
+    final durationValue = validity;
+
+    if (normalizedPeriod == 'day' || normalizedPeriod == 'days') {
+      return activatedDate.add(Duration(hours: (durationValue * 24).round()));
+    }
+
+    if (normalizedPeriod == 'hour' || normalizedPeriod == 'hours') {
+      return activatedDate.add(Duration(minutes: (durationValue * 60).round()));
+    }
+
+    return activatedDate;
+  }
+
   static Future<String?> getFCMToken() async {
     String? token = await FirebaseMessaging.instance.getToken();
     return token;

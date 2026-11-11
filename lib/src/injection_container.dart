@@ -66,6 +66,7 @@ import 'package:smart_reload_system/src/feature/client/payment/presentation/bloc
 import 'package:smart_reload_system/src/feature/vendor/home/data/datasource/home.remote_datasource.vendor.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/data/repository/home.repo_impl.vendor.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/domain/repository/home.repo.vendor.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/domain/usecase/activate_package_request.usecase.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/domain/usecase/get_clients.usecase.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/domain/usecase/watch_package_requests.usecase.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.bloc.dart';
@@ -155,7 +156,12 @@ Future<void> init() async{
 
   sl.registerLazySingleton(() => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()));
   sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl(), addNewConnectionUseCase: sl()));
-  sl.registerLazySingleton(() => PackageBloc(requestPackageUseCase: sl(), getPackageUseCase: sl(), getActivatedPackagesUseCase: sl()));
+  sl.registerLazySingleton(() => PackageBloc(
+    requestPackageUseCase: sl(),
+    getPackageUseCase: sl(),
+    getActivatedPackagesUseCase: sl(),
+    activatePackageRequestUseCase: sl(),
+  ));
   sl.registerLazySingleton(() => PaymentBloc(startPaymentUseCase: sl()));
   sl.registerLazySingleton(() => PaymentClientBloc(getPayableDetailsUseCase: sl(), createPaymentUseCase: sl(), getPaidInvoicesUseCase: sl()));
   sl.registerLazySingleton(() => UnreadCountCubit(watchUnreadCountUseCase: sl(), firebaseAuth: sl()));
@@ -178,6 +184,7 @@ Future<void> init() async{
   //USECASE
   sl.registerLazySingleton(() => GetClientsUseCase(sl()));
   sl.registerLazySingleton(() => WatchPackageRequestsUseCase(sl()));
+  sl.registerLazySingleton(() => ActivatePackageRequestUseCase(sl()));
 
 
 

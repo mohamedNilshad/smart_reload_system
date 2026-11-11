@@ -218,7 +218,7 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
             title: package.packageModel?.packageName ?? HelperFunctions.formatCurrency(package.amount),
             description: package.packageModel?.packageDescription ?? "Reload amount ${HelperFunctions.formatCurrency(package.amount)}",
             price: package.amount ?? 0.0,
-            reqDate: package.requestDate,
+            reqDate: package.requestDate!,
             validity: HelperFunctions.formatValidity(package.packageModel?.packageValidity, package.packageModel?.validityPeriod),
             onlyAmount: (package.packageDetailsId == null || package.packageDetailsId!.isEmpty),
             expDate: package.expireDate,

@@ -2,6 +2,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_activated_packages.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/get_packages.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/usecase/request_package.usecase.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/domain/usecase/activate_package_request.usecase.dart';
 import 'package.event.dart';
 import 'package.state.dart';
 
@@ -10,13 +11,16 @@ class PackageBloc extends Bloc<PackageEvent, PackageState> {
   final RequestPackageUseCase requestPackageUseCase;
   final GetPackagesUseCase getPackageUseCase;
   final GetActivatedPackagesUseCase getActivatedPackagesUseCase;
+  final ActivatePackageRequestUseCase? activatePackageRequestUseCase;
 
   PackageBloc({
     required this.requestPackageUseCase,
     required this.getPackageUseCase,
     required this.getActivatedPackagesUseCase,
+    this.activatePackageRequestUseCase,
   }) : super(const PackageRequestInitial()) {
     on<PackageRequest>(_onPackageRequest);
+    on<ActivatePackageRequest>(_onActivatePackageRequest);
     on<FetchPackages>(_onFetchPackage);
     on<FetchActivatedPackages>(_onFetchActivatedPackage);
   }
@@ -30,6 +34,22 @@ class PackageBloc extends Bloc<PackageEvent, PackageState> {
     result.fold(
       (failure) => emit(PackageFailure(failure.message)),
       (requestStatus) => emit(PackageSuccess(isRequested: requestStatus)),
+    );
+  }
+
+  Future<void> _onActivatePackageRequest(ActivatePackageRequest event, Emitter<PackageState> emit) async {
+    if (activatePackageRequestUseCase == null) {
+      emit(const PackageFailure('Activate package is not configured'));
+      return;
+    }
+
+    emit(const PackageLoading(requesting: true));
+
+    final result = await activatePackageRequestUseCase!(event.packageRequestModel);
+
+    result.fold(
+      (failure) => emit(PackageFailure(failure.message)),
+      (success) => emit(PackageSuccess(isRequested: success)),
     );
   }
 

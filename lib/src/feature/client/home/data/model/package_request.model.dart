@@ -5,12 +5,12 @@ import 'package:smart_reload_system/src/feature/client/home/data/model/package.m
 
 class PackageRequestModel extends Equatable {
   final String? id;
-  final String clientVendorId;
-  final String connectionId;
+  final String? clientVendorId;
+  final String? connectionId;
   final ConnectionModel? connectionModel;
   final String? packageDetailsId;
   final PackageModel? packageModel;
-  final DateTime requestDate;
+  final DateTime? requestDate;
   final double? amount;
   final DateTime? activatedDate;
   final DateTime? expireDate;
@@ -21,9 +21,9 @@ class PackageRequestModel extends Equatable {
 
   const PackageRequestModel({
     this.id,
-    required this.clientVendorId,
-    required this.connectionId,
-    required this.requestDate,
+    this.clientVendorId,
+    this.connectionId,
+    this.requestDate,
     this.packageDetailsId,
     this.packageModel,
     this.connectionModel,
@@ -33,7 +33,7 @@ class PackageRequestModel extends Equatable {
     this.expireDate,
     this.paidDate,
     this.paymentId,
-    required this.vendorId,
+    this.vendorId,
   });
 
   factory PackageRequestModel.fromJson(Map<String, dynamic> json, {String? id}) {
@@ -98,7 +98,7 @@ class PackageRequestModel extends Equatable {
       'connectionId': connectionId,
       'packageDetailsId': packageDetailsId,
       'amount': amount,
-      'requestDate': Timestamp.fromDate(requestDate),
+      'requestDate': requestDate != null ? Timestamp.fromDate(requestDate!) : null,
       'isPaid': isPaid,
       'activatedDate': (activatedDate != null) ? Timestamp.fromDate(activatedDate!) : null,
       'expireDate': (expireDate != null) ? Timestamp.fromDate(expireDate!) : null,
@@ -115,7 +115,7 @@ class PackageRequestModel extends Equatable {
       'connectionId': connectionId,
       'packageDetailsId': packageDetailsId,
       'amount': amount,
-      'requestDate': requestDate.toIso8601String(),
+      'requestDate': requestDate?.toIso8601String(),
       'isPaid': isPaid,
       'activatedDate': (activatedDate != null) ? (activatedDate!).toIso8601String() : null,
       'expireDate': (expireDate != null) ? (expireDate!).toIso8601String() : null,

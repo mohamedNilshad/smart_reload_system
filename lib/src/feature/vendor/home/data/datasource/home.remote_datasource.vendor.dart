@@ -8,6 +8,7 @@ import 'package:smart_reload_system/src/feature/client/home/data/model/connectio
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
 import 'package:smart_reload_system/src/core/error/error_logger.dart';
+import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
 
 abstract class HomeRemoteDataSourceV {
@@ -16,6 +17,7 @@ abstract class HomeRemoteDataSourceV {
 
   Future<List<ConnectionModel>> getConnections(String clientVendorId);
   Future<bool> requestPackage(PackageRequestModel packageRequestModel);
+  Future<bool> activatePackageRequest(PackageRequestModel packageRequestModel);
   Future<bool> addNewConnection(ConnectionModel connectionModel);
   Future<List<PackageModel>> getPackages(String type, String serviceProvider);
   Future<List<PackageRequestModel>> getActivatedPackages(String connectionId);
@@ -231,6 +233,46 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
         stackTrace: st,
       );
       throw Exception('An error occurred while fetching connections');
+    }
+  }
+
+  @override
+  Future<bool> activatePackageRequest(PackageRequestModel packageRequestModel) async {
+    try {
+      if (packageRequestModel.id == null || packageRequestModel.id!.isEmpty) {
+        throw ServerException('Package request id is missing');
+      }
+
+      final activatedAt = DateTime.now();
+      final expireDate = HelperFunctions.calculateExpiryDate(
+        activatedAt,
+        packageRequestModel.packageModel?.packageValidity,
+        packageRequestModel.packageModel?.validityPeriod,
+      );
+
+      await firestore.collection('requested_packages').doc(packageRequestModel.id).update({
+        'activatedDate': Timestamp.fromDate(activatedAt),
+        'expireDate': Timestamp.fromDate(expireDate),
+        'packageDetailsId': packageRequestModel.packageDetailsId,
+      });
+
+      ///Send push notification to the client about the activation
+      ///Update realtime database for the package request status
+      return true;
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceVImpl.activatePackageRequest',
+        stackTrace: st,
+      );
+      throw ServerException(e.message ?? 'Failed to activate package request');
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceVImpl.activatePackageRequest',
+        stackTrace: st,
+      );
+      throw Exception('An error occurred while activating package request');
     }
   }
 

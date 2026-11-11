@@ -375,7 +375,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
             title: item.packageModel?.packageName ?? "-",
             price: item.amount ?? 0.0,
             expDate: item.expireDate,
-            reqDate: item.requestDate,
+            reqDate: item.requestDate!,
             isExpand: expandId == index,
             description: item.packageModel?.packageDescription ?? "-",
             actDate: item.activatedDate,
