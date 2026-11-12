@@ -243,7 +243,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                           lastPaidDate: state.paymentDate,
                           reqPackageIdList: payableList.map((e) => e.id ?? "").toList(),
                           vendorId: vendor.vendorId,
-                          vendorComAmount: 0.0,
+                          vendorComAmount: invoiceData!.vendorCommissionAmount,
                           paymentRefNumber: state.paymentId,
                           invoiceData: invoiceData!,
                         ));

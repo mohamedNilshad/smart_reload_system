@@ -49,22 +49,63 @@ class InvoicePdfData extends Equatable {
     };
   }
 
-  /// Amount for one line: the request's own amount, else the package price.
-  static double amountOf(PackageRequestModel r) =>
-      r.amount ?? r.packageModel?.packagePrice ?? 0;
+  // /// Amount for one line: the request's own amount, else the package price.
+  // static double amountOf(PackageRequestModel r) =>
+  //     r.amount ?? r.packageModel?.packagePrice ?? 0;
+  //
+  // double get subtotal => requests.fold<double>(0, (sum, r) => sum + amountOf(r));
+  //
+  // /// Subtotal + service charge + balance carried over from the last payment.
+  // double get total => subtotal + calCommission +  - (vendor.currentPaymentBalance ?? 0.0);
+  //
+  // double get calCommission => (subtotal/100 ) * getCommissionPercentage;
+  //
+  // double get getCommissionPercentage {
+  //   final vCom = double.parse(serviceCharge.split("+")[0]);
+  //   final aCom = double.parse(serviceCharge.split("+")[1]);
+  //   return vCom+aCom;
+  // }
 
-  double get subtotal => requests.fold<double>(0, (sum, r) => sum + amountOf(r));
-
-  /// Subtotal + service charge + balance carried over from the last payment.
-  double get total => subtotal + calCommission +  - (vendor.currentPaymentBalance ?? 0.0);
-
-  double get calCommission => (subtotal/100 ) * getCommissionPercentage;
 
   double get getCommissionPercentage {
-    final vCom = double.parse(serviceCharge.split("+")[0]);
-    final aCom = double.parse(serviceCharge.split("+")[1]);
+    final vCom = vendorCommissionPercentage;
+    final aCom = adminCommissionPercentage;
     return vCom+aCom;
   }
+
+  // Amount for one line
+  static double amountOf(PackageRequestModel r) =>
+      r.amount ?? r.packageModel?.packagePrice ?? 0.0;
+
+// Total subtotal
+  double get subtotal =>
+      requests.fold<double>(0, (sum, r) => sum + amountOf(r));
+
+// Vendor commission percentage
+  double get vendorCommissionPercentage {
+    return double.parse(serviceCharge.split('+')[0]);
+  }
+
+// Admin commission percentage
+  double get adminCommissionPercentage {
+    return double.parse(serviceCharge.split('+')[1]);
+  }
+
+// Vendor commission amount
+  double get vendorCommissionAmount =>
+      (subtotal / 100) * vendorCommissionPercentage;
+
+// Admin commission amount
+  double get adminCommissionAmount =>
+      (subtotal / 100) * adminCommissionPercentage;
+
+// Total commission
+  double get calCommission =>
+      vendorCommissionAmount + adminCommissionAmount;
+
+// Final total
+  double get total =>
+      subtotal + calCommission - (vendor.currentPaymentBalance ?? 0.0);
 
   @override
   List<Object?> get props => [

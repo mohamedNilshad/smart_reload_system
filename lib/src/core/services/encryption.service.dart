@@ -13,7 +13,7 @@ class EncryptionService {
     String? keyString = await _storage.read(key: _keyName);
 
     if (keyString == null) {
-      final key = encrypt.Key.fromSecureRandom(32);
+      final key = encrypt.Key.fromUtf8('12345678901234567890123456789012');
 
       await _storage.write(
         key: _keyName,
