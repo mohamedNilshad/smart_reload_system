@@ -1,6 +1,5 @@
 import 'package:equatable/equatable.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/banner_news.model.dart';
-import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
 
 abstract class HomeVendorState extends Equatable {
   const HomeVendorState();

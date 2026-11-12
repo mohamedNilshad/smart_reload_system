@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
+import 'package:smart_reload_system/src/core/presentation/progress_indicators/custom.circular_progress_indicator.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_card.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_chip.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/label_text.widget.dart';
@@ -20,6 +21,8 @@ class ActivatedPackageCard extends StatelessWidget {
   final bool isExpand;
   final bool status;
   final bool isDark;
+  final bool isReload;
+  final bool actionLoading;
   final String validity;
   final void Function()? onTap;
   final void Function()? onActionTap;
@@ -32,6 +35,8 @@ class ActivatedPackageCard extends StatelessWidget {
     required this.validity,
     required this.description,
     required this.reqDate,
+    this.isReload = false,
+    this.actionLoading = false,
     this.actDate,
     this.expDate,
     this.isExpand = false,
@@ -66,7 +71,7 @@ class ActivatedPackageCard extends StatelessWidget {
         children: [
           CCard(
             isDark: isDark,
-            radius: isExpand ? BorderRadius.only(topLeft: Radius.circular(Sizes.borderRadius), topRight: Radius.circular(Sizes.borderRadius), ) : BorderRadius.circular(Sizes.borderRadius),
+            radius: (isExpand && !isReload) ? BorderRadius.only(topLeft: Radius.circular(Sizes.borderRadius), topRight: Radius.circular(Sizes.borderRadius), ) : BorderRadius.circular(Sizes.borderRadius),
             padding: EdgeInsets.zero,
             margin: EdgeInsets.zero,
             disableShadow: true,
@@ -88,64 +93,77 @@ class ActivatedPackageCard extends StatelessWidget {
                             bgColor: AppColors.accent,
                             fontColor: isDark ? AppColors.white : AppColors.black,
                           ),
-                        ) : InkWell(
-                          onTap: onActionTap,
-                          child: CChip(
-                            label: onActionTap != null ? "Action": "Pending",
-                            bgColor: onActionTap != null ? AppColors.green: AppColors.info,
-                            fontColor: isDark ? AppColors.white : AppColors.black,
+                        ) : Visibility(
+                          visible: !actionLoading,
+                          replacement: SizedBox(
+                            width: 15,
+                              child: CCircularProgressIndicator(radius: 15, color: isDark ? AppColors.black : AppColors.white, rightMargin: 2),
+                          ),
+                          child: InkWell(
+                            onTap: onActionTap,
+                            child: CChip(
+                              label: onActionTap != null ? "Action": "Pending",
+                              bgColor: onActionTap != null ? AppColors.green: AppColors.info,
+                              fontColor: isDark ? AppColors.white : AppColors.black,
+                            ),
                           ),
                         ),
                       ),
-                      Container(
-                        padding: EdgeInsets.all(Sizes.ssm),
-                        decoration: BoxDecoration(
-                          color: isDark ? AppColors.darkerGrey : AppColors.softGrey,
-                          borderRadius: BorderRadius.circular(Sizes.borderRadius),
-                        ),
-                        child: Column(
-                          spacing: 10.0,
-                          children: [
-                            Row(
-                              spacing: 5,
-                              children: [
-                                CSvgBuilder(
-                                  path: SvgStrings.clock,
-                                  width: 18,
-                                  colorFilter: ColorFilter.mode(status ? AppColors.accent : AppColors.primary, BlendMode.srcIn),
-                                ),
-                                LabelText(
-                                  text: status ? HelperFunctions.calculateRemainingTime(expDate!) : "Req. Date: ${HelperFunctions.formatDateTime(reqDate)}",
-                                  color: status ? AppColors.accent : AppColors.primary,
-                                ),
-                              ],
-                            ),
+                      if(!isReload)...{
+                        Container(
+                          padding: EdgeInsets.all(Sizes.ssm),
+                          decoration: BoxDecoration(
+                            color: isDark ? AppColors.darkerGrey : AppColors.softGrey,
+                            borderRadius: BorderRadius.circular(Sizes.borderRadius),
+                          ),
+                          child: Column(
+                            spacing: 10.0,
+                            children: [
+                              Row(
+                                spacing: 5,
+                                children: [
+                                  CSvgBuilder(
+                                    path: SvgStrings.clock,
+                                    width: 18,
+                                    colorFilter: ColorFilter.mode(status ? AppColors.accent : AppColors.primary, BlendMode.srcIn),
+                                  ),
+                                  LabelText(
+                                    text: status ? HelperFunctions.calculateRemainingTime(expDate!) : "Req. Date: ${HelperFunctions.formatDateTime(reqDate)}",
+                                    color: status ? AppColors.accent : AppColors.primary,
+                                  ),
+                                ],
+                              ),
 
-                            buildDateProgressBar(endDate: expDate, startDate: actDate),
-                          ],
+                              buildDateProgressBar(endDate: expDate, startDate: actDate),
+                            ],
+                          ),
                         ),
-                      ),
+                      },
+
                     ],
                   ),
                 ),
-                Divider(thickness: 0.3),
-                InkWell(
-                  onTap: onTap,
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(Sizes.sm, Sizes.sm, Sizes.sm, Sizes.ssm),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        SubTitleText(text: "Package Details", color: AppColors.darkGrey, isBold: true),
-                        Icon(isExpand ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.darkGrey),
-                      ],
+                if(!isReload)...{
+                  Divider(thickness: 0.3),
+                  InkWell(
+                    onTap: onTap,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(Sizes.sm, Sizes.sm, Sizes.sm, Sizes.ssm),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SubTitleText(text: "Package Details", color: AppColors.darkGrey, isBold: true),
+                          Icon(isExpand ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.darkGrey),
+                        ],
+                      ),
                     ),
                   ),
-                ),
+                },
+
               ],
             ),
           ),
-          if(isExpand)...{
+          if(isExpand && !isReload)...{
             Container(
               margin: const EdgeInsets.fromLTRB(Sizes.sm, 0.0, Sizes.sm, Sizes.sm),
               padding: const EdgeInsets.all(Sizes.sm),

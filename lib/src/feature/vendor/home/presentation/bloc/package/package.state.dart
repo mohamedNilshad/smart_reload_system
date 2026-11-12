@@ -16,17 +16,21 @@ class PackageRequestInitial extends PackageState {
 
 class PackageLoading extends PackageState {
   final bool requesting;
+  final bool activating;
+  final bool canceling;
   final bool fetching;
   final bool fetchingActPackage;
-  const PackageLoading({this.fetching = false, this.requesting = false, this.fetchingActPackage = false});
+  const PackageLoading({this.fetching = false, this.requesting = false, this.activating = false, this.canceling = false, this.fetchingActPackage = false});
 }
 
 class PackageSuccess extends PackageState {
   final bool? isRequested;
+  final bool? isActivated;
+  final bool? isCanceled;
   final List<PackageModel>? packages;
   final List<PackageRequestModel>? actPackages;
 
-  const PackageSuccess({this.isRequested, this.packages, this.actPackages});
+  const PackageSuccess({this.isRequested, this.isActivated, this.isCanceled, this.packages, this.actPackages});
 
   @override
   List<Object?> get props => [isRequested];

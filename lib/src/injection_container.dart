@@ -72,6 +72,8 @@ import 'package:smart_reload_system/src/feature/vendor/home/domain/usecase/watch
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/package_request.cubit.dart';
 
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/package/packaget.bloc.dart' as vendor;
+
 
 final sl = GetIt.instance;
 
@@ -161,6 +163,7 @@ Future<void> init() async{
     getPackageUseCase: sl(),
     getActivatedPackagesUseCase: sl(),
     activatePackageRequestUseCase: sl(),
+    cancelPackageRequestUseCase: sl(),
   ));
   sl.registerLazySingleton(() => PaymentBloc(startPaymentUseCase: sl()));
   sl.registerLazySingleton(() => PaymentClientBloc(getPayableDetailsUseCase: sl(), createPaymentUseCase: sl(), getPaidInvoicesUseCase: sl()));
@@ -180,11 +183,20 @@ Future<void> init() async{
       watchPackageRequestsUseCase: sl()
   ));
 
+  sl.registerLazySingleton(() => vendor.PackageBloc(
+    requestPackageUseCase: sl(),
+    getPackageUseCase: sl(),
+    getActivatedPackagesUseCase: sl(),
+    activatePackageRequestUseCase: sl(),
+    cancelPackageRequestUseCase: sl(),
+  ));
+
 
   //USECASE
   sl.registerLazySingleton(() => GetClientsUseCase(sl()));
   sl.registerLazySingleton(() => WatchPackageRequestsUseCase(sl()));
   sl.registerLazySingleton(() => ActivatePackageRequestUseCase(sl()));
+  sl.registerLazySingleton(() => CancelPackageRequestUseCase(sl()));
 
 
 

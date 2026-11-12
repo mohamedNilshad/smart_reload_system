@@ -17,7 +17,8 @@ class ReloadHistoryClientScreen extends StatefulWidget {
   final List<PackageRequestModel> packageList;
   final ConnectionModel connection;
   final bool isMobile;
-  const ReloadHistoryClientScreen({super.key, required this.packageList, required this.isMobile, required this.connection});
+  final bool isDark;
+  const ReloadHistoryClientScreen({super.key, required this.packageList, required this.isMobile, required this.connection, this.isDark = false});
 
   @override
   State<ReloadHistoryClientScreen> createState() => _ReloadHistoryClientScreenState();
@@ -26,6 +27,7 @@ class ReloadHistoryClientScreen extends StatefulWidget {
 class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
   double screenWidth = 0.0;
   double screenHeight = 0.0;
+  late final bool isDark;
 
   List<PackageRequestModel> selectedPackageList = [];
   List<PackageRequestModel> allPackageDetails = [];
@@ -33,6 +35,7 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
   List<PackageRequestModel> dataPackages = [];
   List<PackageRequestModel> voicePackages = [];
   List<PackageRequestModel> comboPackages = [];
+  List<PackageRequestModel> otherPackages = [];
 
   double totalPrice = 0.0;
 
@@ -40,6 +43,7 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
 
   @override
   void initState() {
+    isDark = widget.isDark;
     initValue(widget.packageList);
     connection = widget.connection;
     super.initState();
@@ -51,23 +55,32 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
       dataPackages.clear();
       voicePackages.clear();
       comboPackages.clear();
+      otherPackages.clear();
 
       allPackageDetails = packages;
       selectedPackageList = allPackageDetails;
 
       for (var p in allPackageDetails) {
 
+        //ignore pending packages
+        if(p.activatedDate == null && (p.isCancel == null || p.isCancel == false)){
+          continue;
+        }
+
         if(p.activatedDate != null){
           totalPrice += p.amount!;
         }
 
         if(p.packageModel?.packageType == PackageType.Data.name){
-
           dataPackages.add(p);
         }else if(p.packageModel?.packageType == PackageType.Voice.name){
           voicePackages.add(p);
         }else if(p.packageModel?.packageType == PackageType.Combo.name){
           comboPackages.add(p);
+        }
+
+        if(p.packageModel?.packageType == null && p.activatedDate == null){
+          otherPackages.add(p);
         }
       }
 
@@ -79,7 +92,9 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
     screenWidth = HelperFunctions.screenWidth(context);
     screenHeight = HelperFunctions.screenHeight(context);
     return Scaffold(
+      backgroundColor: isDark ? AppColors.scaffoldVendor : null,
       appBar: customAppBar(
+        isDark: isDark,
         onPressed: () => Navigator.of(context).pop(),
         icon: Icons.arrow_back_ios_new_rounded,
         title: "Reload History",
@@ -102,7 +117,7 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
             ),
           ),
           child: DefaultTabController(
-            length: 4,
+            length: 5,
             child: NestedScrollView(
               headerSliverBuilder: (context, innerBoxIsScrolled)  {
                 return [
@@ -113,7 +128,7 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
                     delegate: StickyTabBarDelegate(
                       TabBar(
                         labelColor: AppColors.primary,
-                        unselectedLabelColor: AppColors.darkerGrey,
+                        unselectedLabelColor: isDark ? AppColors.grey : AppColors.darkerGrey,
                         indicatorColor: AppColors.primary,
                         labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 14),
                         onTap: (v){
@@ -126,6 +141,8 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
                               selectedPackageList = voicePackages;
                             }else if(v == 3){
                               selectedPackageList = comboPackages;
+                            }else if(v == 4){
+                              selectedPackageList = otherPackages;
                             }
                             totalPrice = 0.0;
                             for(var sp in selectedPackageList){
@@ -141,9 +158,10 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
                           Tab(text: 'Data'),
                           Tab(text: 'Voice'),
                           Tab(text: 'Combo'),
+                          Tab(text: 'Other'),
                         ],
                       ),
-                      backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                      backgroundColor: isDark ? AppColors.scaffoldVendor : Theme.of(context).scaffoldBackgroundColor,
                     ),
                   ),
 
@@ -170,6 +188,11 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
                     packages: comboPackages,
                     emptyMsg: "No combo packages activated previously!",
                   ),
+
+                  _buildList(
+                    packages: otherPackages,
+                    emptyMsg: "No other packages activated previously!",
+                  ),
                 ],
               ),
             ),
@@ -184,8 +207,8 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         TitleText(text: connection.connectionName, color: AppColors.primary, isBold: false),
-        HeadlineText(text: "${selectedPackageList.length} previous packages", size: 20),
-        BodyText(text: "Rs. ${totalPrice.toStringAsFixed(2)} spent on ${HelperFunctions.maskPhoneNumber(connection.connectionNumber)}", color: AppColors.darkerGrey, size: 12),
+        HeadlineText(text: "${selectedPackageList.length} previous packages", size: 20, color: isDark ? AppColors.white : null,),
+        BodyText(text: "Rs. ${totalPrice.toStringAsFixed(2)} spent on ${HelperFunctions.maskPhoneNumber(connection.connectionNumber)}", color: isDark ? AppColors.grey : AppColors.darkerGrey, size: 12),
         if(addDivider)...{
           Padding(
             padding: EdgeInsetsGeometry.symmetric(vertical: Sizes.sm),
@@ -203,7 +226,7 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
       visible: packages.isNotEmpty,
       replacement: Padding(
         padding: EdgeInsets.only(top: topPadding ? screenHeight/6 : 0.0),
-        child: EmptyScreenWidget(message: emptyMsg),
+        child: EmptyScreenWidget(message: emptyMsg, isDark: isDark),
       ),
       child: ListView.builder(
         itemCount: packages.length,
@@ -215,6 +238,7 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
           final package = packages[index];
 
           return AllActPackageCard(
+            isDark: isDark,
             title: package.packageModel?.packageName ?? HelperFunctions.formatCurrency(package.amount),
             description: package.packageModel?.packageDescription ?? "Reload amount ${HelperFunctions.formatCurrency(package.amount)}",
             price: package.amount ?? 0.0,
@@ -223,6 +247,7 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
             onlyAmount: (package.packageDetailsId == null || package.packageDetailsId!.isEmpty),
             expDate: package.expireDate,
             actDate: package.activatedDate,
+            isCanceled: package.isCancel ?? false,
           );
         },
       ),

@@ -23,6 +23,8 @@ import 'package:smart_reload_system/src/injection_container.dart';
 
 import 'package:smart_reload_system/src/feature/client/payment/presentation/bloc/payment.client.bloc.dart';
 
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/package/packaget.bloc.dart' as vendor;
+
 class App extends StatelessWidget {
   final ThemeMode theme;
   const App({super.key, required this.theme});
@@ -46,6 +48,7 @@ class App extends StatelessWidget {
         ///Vendor
         BlocProvider(create: (_) => sl<HomeVendorBloc>()),
         BlocProvider(create: (_) => sl<PackageRequestCubit>()),
+        BlocProvider(create: (_) => sl<vendor.PackageBloc>()),
 
       ],
       child: BlocBuilder<ThemeBloc, ThemeMode>(

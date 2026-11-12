@@ -15,6 +15,8 @@ class PackageRequestModel extends Equatable {
   final DateTime? activatedDate;
   final DateTime? expireDate;
   final bool? isPaid;
+  final bool? isCancel;
+  final bool? isDelete;
   final DateTime? paidDate;
   final String? paymentId;
   final String? vendorId;
@@ -29,6 +31,8 @@ class PackageRequestModel extends Equatable {
     this.connectionModel,
     this.amount,
     this.isPaid,
+    this.isCancel,
+    this.isDelete,
     this.activatedDate,
     this.expireDate,
     this.paidDate,
@@ -47,6 +51,8 @@ class PackageRequestModel extends Equatable {
       amount: json['amount'] as double?,
       requestDate: (json['requestDate'] as Timestamp?)?.toDate() ?? DateTime.now(),
       isPaid: json['isPaid'] as bool? ?? false,
+      isCancel: json['isCancel'] as bool? ?? false,
+      isDelete: json['isDelete'] as bool? ?? false,
       activatedDate: (json['activatedDate'] as Timestamp?)?.toDate(),
       expireDate: (json['expireDate'] as Timestamp?)?.toDate(),
       paidDate: (json['paidDate'] as Timestamp?)?.toDate(),
@@ -66,6 +72,8 @@ class PackageRequestModel extends Equatable {
       amount: json['amount'] as double?,
       requestDate: DateTime.parse(json['requestDate']),
       isPaid: json['isPaid'] as bool? ?? false,
+      isCancel: json['isCancel'] as bool? ?? false,
+      isDelete: json['isDelete'] as bool? ?? false,
       activatedDate: json['activatedDate'] == null ? null : DateTime.parse(json['activatedDate']),
       expireDate: json['expireDate'] == null ? null : DateTime.parse(json['expireDate']),
       paidDate: json['paidDate'] == null ? null : DateTime.parse(json['paidDate']),
@@ -74,7 +82,17 @@ class PackageRequestModel extends Equatable {
     );
   }
 
-  PackageRequestModel copyWith({PackageModel? newPackageModel}) {
+  PackageRequestModel copyWith({
+    PackageModel? newPackageModel,
+    bool? isCancel,
+    bool? isDelete,
+    DateTime? activatedDate,
+    DateTime? expireDate,
+    bool? isPaid,
+    DateTime? paidDate,
+    String? paymentId,
+    String? vendorId,
+  }) {
     return PackageRequestModel(
       id: id,
       clientVendorId: clientVendorId,
@@ -83,12 +101,14 @@ class PackageRequestModel extends Equatable {
       packageModel: newPackageModel ?? packageModel,
       amount: amount,
       requestDate: requestDate,
-      isPaid: isPaid,
-      activatedDate:activatedDate,
-      expireDate: expireDate,
-      paidDate: paidDate,
-      paymentId: paymentId,
-      vendorId: vendorId,
+      isPaid: isPaid ?? this.isPaid,
+      isCancel: isCancel ?? this.isCancel,
+      isDelete: isDelete ?? this.isDelete,
+      activatedDate: activatedDate ?? this.activatedDate,
+      expireDate: expireDate ?? this.expireDate,
+      paidDate: paidDate ?? this.paidDate,
+      paymentId: paymentId ?? this.paymentId,
+      vendorId: vendorId ?? this.vendorId,
     );
   }
 
@@ -100,6 +120,8 @@ class PackageRequestModel extends Equatable {
       'amount': amount,
       'requestDate': requestDate != null ? Timestamp.fromDate(requestDate!) : null,
       'isPaid': isPaid,
+      'isCancel': isCancel,
+      'isDelete': isDelete,
       'activatedDate': (activatedDate != null) ? Timestamp.fromDate(activatedDate!) : null,
       'expireDate': (expireDate != null) ? Timestamp.fromDate(expireDate!) : null,
       'paidDate': (paidDate != null) ? Timestamp.fromDate(paidDate!) : null,
@@ -117,6 +139,8 @@ class PackageRequestModel extends Equatable {
       'amount': amount,
       'requestDate': requestDate?.toIso8601String(),
       'isPaid': isPaid,
+      'isCancel': isCancel,
+      'isDelete': isDelete,
       'activatedDate': (activatedDate != null) ? (activatedDate!).toIso8601String() : null,
       'expireDate': (expireDate != null) ? (expireDate!).toIso8601String() : null,
       'paidDate': (paidDate != null) ? (paidDate!).toIso8601String() : null,
@@ -136,6 +160,8 @@ class PackageRequestModel extends Equatable {
     amount,
     requestDate,
     isPaid,
+    isCancel,
+    isDelete,
     activatedDate,
     expireDate,
     paidDate,

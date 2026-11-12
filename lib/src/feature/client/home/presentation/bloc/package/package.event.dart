@@ -24,6 +24,13 @@ class ActivatePackageRequest extends PackageEvent {
   @override
   List<Object?> get props => [packageRequestModel];
 }
+class CancelPackageRequest extends PackageEvent {
+  final PackageRequestModel packageRequestModel;
+  const CancelPackageRequest(this.packageRequestModel);
+
+  @override
+  List<Object?> get props => [packageRequestModel];
+}
 
 class FetchPackages extends PackageEvent {
   final String type;

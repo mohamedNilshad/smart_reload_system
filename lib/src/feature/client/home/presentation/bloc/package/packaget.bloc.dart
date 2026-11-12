@@ -12,17 +12,20 @@ class PackageBloc extends Bloc<PackageEvent, PackageState> {
   final GetPackagesUseCase getPackageUseCase;
   final GetActivatedPackagesUseCase getActivatedPackagesUseCase;
   final ActivatePackageRequestUseCase? activatePackageRequestUseCase;
+  final CancelPackageRequestUseCase cancelPackageRequestUseCase;
 
   PackageBloc({
     required this.requestPackageUseCase,
     required this.getPackageUseCase,
     required this.getActivatedPackagesUseCase,
     this.activatePackageRequestUseCase,
+    required this.cancelPackageRequestUseCase,
   }) : super(const PackageRequestInitial()) {
     on<PackageRequest>(_onPackageRequest);
     on<ActivatePackageRequest>(_onActivatePackageRequest);
     on<FetchPackages>(_onFetchPackage);
     on<FetchActivatedPackages>(_onFetchActivatedPackage);
+    on<CancelPackageRequest>(_onCancelPackageRequest);
   }
 
 
@@ -45,7 +48,7 @@ class PackageBloc extends Bloc<PackageEvent, PackageState> {
 
     emit(const PackageLoading(requesting: true));
 
-    final result = await activatePackageRequestUseCase!(event.packageRequestModel);
+    final result = await activatePackageRequestUseCase!(event.packageRequestModel, "");
 
     result.fold(
       (failure) => emit(PackageFailure(failure.message)),
@@ -72,6 +75,22 @@ class PackageBloc extends Bloc<PackageEvent, PackageState> {
     result.fold(
       (failure) => emit(PackageFailure(failure.message)),
       (list) => emit(PackageSuccess(actPackages: list)),
+    );
+  }
+
+  Future<void> _onCancelPackageRequest(CancelPackageRequest event, Emitter<PackageState> emit) async {
+    // if (cancelPackageRequestUseCase == null) {
+    //   emit(const PackageFailure('Cancel package is not configured'));
+    //   return;
+    // }
+
+    emit(const PackageLoading(canceling: true));
+
+    final result = await cancelPackageRequestUseCase!(event.packageRequestModel);
+
+    result.fold(
+          (failure) => emit(PackageFailure(failure.message)),
+          (success) => emit(PackageSuccess(isCanceled: success)),
     );
   }
 }

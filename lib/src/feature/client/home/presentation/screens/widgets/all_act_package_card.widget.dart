@@ -17,6 +17,8 @@ class AllActPackageCard extends StatelessWidget {
   final double price;
   final String? validity;
   final bool onlyAmount;
+  final bool isCanceled;
+  final bool isDark;
 
   const AllActPackageCard({
     super.key,
@@ -28,6 +30,8 @@ class AllActPackageCard extends StatelessWidget {
     this.onlyAmount = false,
     this.actDate,
     this.expDate,
+    required this.isCanceled,
+    required this.isDark,
   });
 
 
@@ -50,7 +54,7 @@ class AllActPackageCard extends StatelessWidget {
           Container(
             padding: EdgeInsets.all(Sizes.sm),
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: isDark ? AppColors.darkContainers : AppColors.white,
               borderRadius: BorderRadius.only(topLeft: Radius.circular(Sizes.borderRadius), topRight: Radius.circular(Sizes.borderRadius), ),
             ),
             child: Column(
@@ -60,8 +64,8 @@ class AllActPackageCard extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    TitleText(text: title),
-                    TitleText(text: HelperFunctions.formatCurrency(price)),
+                    TitleText(text: title, color: isDark ? AppColors.white : null),
+                    TitleText(text: HelperFunctions.formatCurrency(price), color: isDark ? AppColors.white : null),
                   ],
                 ),
                 Row(
@@ -72,14 +76,15 @@ class AllActPackageCard extends StatelessWidget {
                     Flexible(
                       child: SubTitleText(
                         text: "$description$description$description$description",
-                        color: AppColors.darkerGrey,
+                        color: isDark ? AppColors.grey : AppColors.darkerGrey,
                         maxLines: 3,
                         overflow: TextOverflow.ellipsis,
                       ),
                     ),
                     CChip(
-                      label: (actDate == null) ? "Pending" : "Completed",
-                      bgColor: (actDate == null) ? AppColors.warning : null,
+                      label: (actDate == null) ? (isCanceled ? "Canceled" : "Pending") : "Completed",
+                      bgColor: (actDate == null) ? isCanceled ? AppColors.error : AppColors.warning : null,
+                      fontColor: isDark ? AppColors.white : null,
                     ),
                   ],
                 ),
@@ -128,12 +133,12 @@ class AllActPackageCard extends StatelessWidget {
             padding: EdgeInsets.all(Sizes.sm),
             width: double.infinity,
             decoration: BoxDecoration(
-              color: AppColors.white,
+              color: isDark ? AppColors.darkContainers : AppColors.white,
               borderRadius: BorderRadius.only(bottomLeft: Radius.circular(Sizes.borderRadius), bottomRight: Radius.circular(Sizes.borderRadius), ),
             ),
             child:  LabelText(
               text: "Req. date: ${HelperFunctions.formatDateTime(reqDate)}",
-              color: AppColors.primary,
+              color: isDark ? AppColors.secondary : AppColors.primary,
             ),
           ),
         ],
@@ -149,8 +154,8 @@ class AllActPackageCard extends StatelessWidget {
         Row(
           spacing: 3,
           children: [
-            Icon(icon, color: AppColors.darkerGrey, size: 16,),
-            SubTitleText(text: title, color: AppColors.darkerGrey)
+            Icon(icon, color: isDark ? AppColors.grey : AppColors.darkerGrey, size: 16,),
+            SubTitleText(text: title, color: isDark ? AppColors.grey : AppColors.darkerGrey)
           ],
         ),
         SizedBox(
@@ -160,6 +165,7 @@ class AllActPackageCard extends StatelessWidget {
             textAlign: TextAlign.center,
             size: 12,
             maxLines: 2,
+            color: isDark ? AppColors.white : null,
           ),
         )
       ],

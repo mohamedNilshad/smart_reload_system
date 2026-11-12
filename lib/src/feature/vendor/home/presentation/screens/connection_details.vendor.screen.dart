@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
+import 'package:smart_reload_system/src/core/domain/entity/user.entity.dart';
 import 'package:smart_reload_system/src/core/enums/connection_data.enum.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
@@ -22,16 +23,18 @@ import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package_request.model.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/packaget.bloc.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/package.event.dart';
-import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/package.state.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/screens/widgets/activated_package_card.widget.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/package/packaget.bloc.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/package/package.event.dart';
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/package/package.state.dart';
 import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 class ConnectionDetailsVendorScreen extends StatefulWidget {
   final ConnectionModel connectionModel;
   final String vendorId;
-  const ConnectionDetailsVendorScreen({super.key, required this.connectionModel, required this.vendorId});
+  final ClientModel client;
+  const ConnectionDetailsVendorScreen({super.key, required this.connectionModel, required this.vendorId, required this.client});
 
   @override
   State<ConnectionDetailsVendorScreen> createState() => _ConnectionDetailsVendorScreenState();
@@ -54,6 +57,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
   List<PackageRequestModel> dataPackages = [];
   List<PackageRequestModel> voicePackages = [];
   List<PackageRequestModel> comboPackages = [];
+  List<PackageRequestModel> otherPackages = [];
 
 
   int expandId = -1;
@@ -61,14 +65,17 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
   double screenHeight = 0.0;
   bool isUtility = false;
   bool isMobile = false;
-  String userName = "USER";
+  bool isActionLoading = false;
+  String actionId = "";
+  int selectedType = 0;
+  late final UserEntity user;
 
   @override
   void initState() {
     connectionModel = widget.connectionModel;
     final sessionState = context.read<SessionCubit>().state;
     if (sessionState is SessionAuthenticated) {
-      userName = sessionState.user.fullName;
+      user = sessionState.user;
     }
     isMobile = connectionModel.connectionType.toLowerCase() == TelecomType.Mobile.name.toLowerCase();
     context.read<PackageBloc>().add(FetchActivatedPackages(connectionId: connectionModel.id!));
@@ -94,11 +101,12 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
         dataPackages.clear();
         voicePackages.clear();
         comboPackages.clear();
+        otherPackages.clear();
 
         allPackageDetails = packages;
 
         for (var pc in packages) {
-          if(pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)){
+          if((pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)) && (pc.isCancel == null || pc.isCancel == false)){
             actPackageDetails.add(pc);
           }
         }
@@ -110,6 +118,10 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
             voicePackages.add(p);
           }else if(p.packageModel?.packageType == PackageType.Combo.name){
             comboPackages.add(p);
+          }
+
+          if(p.packageModel?.packageType == null && p.activatedDate == null){
+            otherPackages.add(p);
           }
         }
         fetchingActPackage = false;
@@ -141,8 +153,16 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
     return BlocListener<PackageBloc, PackageState>(
       listener: (context, state) {
         if(state is PackageLoading){
-          _isLoadingNotifier.value = state.requesting;
-          fetchingActPackage = state.fetchingActPackage;
+          if(state.requesting){
+            _isLoadingNotifier.value = state.requesting;
+            fetchingActPackage = state.fetchingActPackage;
+
+          }else if(state.activating){
+            isActionLoading = state.activating;
+          }else if(state.canceling){
+            isActionLoading = state.canceling;
+          }
+
         }
 
         if (state is PackageSuccess) {
@@ -154,9 +174,35 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
           if(state.actPackages != null){
             initValue(state.actPackages!);
           }
+          if(state.isActivated != null && state.isActivated == true){
+            AppSnackbar.showSuccess(context, 'Package activated successfully!');
+            context.read<PackageBloc>().add(FetchActivatedPackages(connectionId: connectionModel.id!));
+          }
+          if(state.isCanceled != null && state.isCanceled == true){
+            if(selectedType == 0){
+              dataPackages.removeWhere((item) => item.id == actionId);
+            }else if(selectedType == 1){
+              voicePackages.removeWhere((item) => item.id == actionId);
+            }else if(selectedType == 2){
+              comboPackages.removeWhere((item) => item.id == actionId);
+            }else if(selectedType == 3){
+              otherPackages.removeWhere((item) => item.id == actionId);
+            }
+            AppSnackbar.showSuccess(context, 'Package canceled successfully!');
+            context.read<PackageBloc>().add(FetchActivatedPackages(connectionId: connectionModel.id!));
+          }
+
+          setState(() {
+            isActionLoading = false;
+            actionId = "";
+          });
 
         } else if (state is PackageFailure) {
-          setState(() => fetchingActPackage = false);
+          setState(() {
+            fetchingActPackage = false;
+            isActionLoading = false;
+            actionId = "";
+          });
           AppSnackbar.showError(context, state.message);
         }
       },
@@ -186,6 +232,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                     children: [
                       _buildHeader(),
                       _buildList(
+                        typeIndex: 0,
                         packages: dataPackages,
                         emptyMsg: "No Data packages activated!",
                       ),
@@ -202,6 +249,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                       children: [
                         _buildHeader(),
                         _buildList(
+                          typeIndex: 0,
                           packages: dataPackages,
                           emptyMsg: "No Data packages activated!",
                           topPadding: true,
@@ -211,7 +259,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                   ),
                 ),
                 child: DefaultTabController(
-                  length: 3,
+                  length: 4,
                   child: NestedScrollView(
                     headerSliverBuilder: (context, innerBoxIsScrolled) {
                       return [
@@ -226,11 +274,13 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                               labelColor: AppColors.primary,
                               unselectedLabelColor: AppColors.grey,
                               indicatorColor: AppColors.primary,
+                              onTap: (_) => setState(() => expandId = -1),
                               labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 14),
                               tabs: const [
                                 Tab(text: 'Data'),
                                 Tab(text: 'Voice'),
                                 Tab(text: 'Combo'),
+                                Tab(text: 'Other'),
                               ],
                             ),
                             backgroundColor: AppColors.scaffoldVendor,
@@ -244,20 +294,31 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                         children: [
                           /// Data
                           _buildList(
+                            typeIndex: 0,
                             packages: dataPackages,
                             emptyMsg: "No Data packages activated!",
                           ),
 
                           /// Voice
                           _buildList(
+                            typeIndex: 1,
                             packages: voicePackages,
                             emptyMsg: "No Voice packages activated!",
                           ),
 
                           /// Combo
                           _buildList(
+                            typeIndex: 2,
                             packages: comboPackages,
                             emptyMsg: "No Combo packages activated!",
+                          ),
+
+                          /// Other
+                          _buildList(
+                            typeIndex: 3,
+                            packages: otherPackages,
+                            emptyMsg: "No Other packages activated!",
+                            isReload: true,
                           ),
                         ],
                       ),
@@ -343,15 +404,17 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
             connectionId: connectionModel.id!,
             requestDate: DateTime.now(),
             amount: double.parse(amountController.text),
+            isCancel: false,
+            isDelete: false,
           );
 
-          context.read<PackageBloc>().add(PackageRequest(data, userName));
+          context.read<PackageBloc>().add(PackageRequest(data, user.fullName));
         }
       },
     );
   }
 
-  Widget _buildList({required List<PackageRequestModel> packages, required String emptyMsg, bool topPadding = false}){
+  Widget _buildList({required int typeIndex, bool isReload = false, required List<PackageRequestModel> packages, required String emptyMsg, bool topPadding = false}){
     final filteredPackages = _filterPackages(packages);
 
     return Visibility(
@@ -371,7 +434,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
 
           return ActivatedPackageCard(
             isDark: true,
-            onActionTap: () async{
+            onActionTap: isActionLoading ? null : () async{
               final result = await AppBottomSheet.showRadioSelect(
                 context,
                 isDark: true,
@@ -386,33 +449,56 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                   final activatedAt = DateTime.now();
                   final data = PackageRequestModel(
                     id: item.id,
+                    clientVendorId: item.clientVendorId,
+                    connectionId: item.connectionId,
+                    requestDate: item.requestDate,
+                    vendorId: user.uid,
                     activatedDate: activatedAt,
-                    expireDate: HelperFunctions.calculateExpiryDate(
+                    expireDate: isReload ? null : HelperFunctions.calculateExpiryDate(
                       activatedAt,
                       item.packageModel?.packageValidity,
                       item.packageModel?.validityPeriod,
                     ),
                     packageDetailsId: item.packageDetailsId,
                     packageModel: item.packageModel,
+                    amount: item.amount,
+                    isPaid: item.isPaid,
+                    isCancel: item.isCancel ?? false,
+                    isDelete: item.isDelete ?? false,
                   );
 
-                  context.read<PackageBloc>().add(ActivatePackageRequest(data));
+                  context.read<PackageBloc>().add(ActivatePackageRequest(data, widget.client.clientId));
                 }
+
+                if (result == 'Cancel' && context.mounted) {
+                  final data = item.copyWith(
+                    isCancel: true,
+                    isDelete: false,
+                  );
+
+                  context.read<PackageBloc>().add(CancelPackageRequest(data));
+                }
+                setState(() {
+                  actionId = item.id ?? "";
+                  selectedType = typeIndex;
+                });
               }
             },
-            onTap: () {
+            onTap: isReload ? null : () {
               if(expandId == index) {
                 setState(() => expandId = -1);
               }else {
                 setState(() => expandId = index);
               }
             },
-            title: item.packageModel?.packageName ?? "-",
+            actionLoading: isActionLoading && (actionId == item.id),
+            isReload: isReload,
+            title: isReload ? HelperFunctions.formatCurrency(item.amount) : item.packageModel?.packageName ?? "-",
             price: item.amount ?? 0.0,
             expDate: item.expireDate,
             reqDate: item.requestDate!,
             isExpand: expandId == index,
-            description: item.packageModel?.packageDescription ?? "-",
+            description: isReload ? HelperFunctions.formatDateTime(item.requestDate!) : item.packageModel?.packageDescription ?? "-",
             actDate: item.activatedDate,
             status: (item.activatedDate != null),
             validity: HelperFunctions.formatValidity(item.packageModel?.packageValidity, item.packageModel?.validityPeriod) ?? "",
@@ -499,6 +585,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                        packageList: allPackageDetails,
                        connection: connectionModel,
                        isMobile: isMobile,
+                       isDark: true,
                       ),
                     );
                   },

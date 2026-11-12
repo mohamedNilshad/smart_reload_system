@@ -54,6 +54,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
   List<PackageRequestModel> dataPackages = [];
   List<PackageRequestModel> voicePackages = [];
   List<PackageRequestModel> comboPackages = [];
+  List<PackageRequestModel> otherPackages = [];
 
 
   int expandId = -1;
@@ -62,6 +63,9 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
   bool isUtility = false;
   bool isMobile = false;
   String userName = "USER";
+  bool isActionLoading = false;
+  String actionId = "";
+  int selectedType = 0;
 
   @override
   void initState() {
@@ -94,11 +98,12 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
         dataPackages.clear();
         voicePackages.clear();
         comboPackages.clear();
+        otherPackages.clear();
 
         allPackageDetails = packages;
 
         for (var pc in packages) {
-          if(pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)){
+          if((pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)) && (pc.isCancel == null || pc.isCancel == false)){
             actPackageDetails.add(pc);
           }
         }
@@ -110,6 +115,10 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
             voicePackages.add(p);
           }else if(p.packageModel?.packageType == PackageType.Combo.name){
             comboPackages.add(p);
+          }
+
+          if(p.packageModel?.packageType == null && p.activatedDate == null){
+            otherPackages.add(p);
           }
         }
         fetchingActPackage = false;
@@ -141,8 +150,13 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
     return BlocListener<PackageBloc, PackageState>(
       listener: (context, state) {
         if(state is PackageLoading){
-          _isLoadingNotifier.value = state.requesting;
-          fetchingActPackage = state.fetchingActPackage;
+          if(state.requesting){
+            _isLoadingNotifier.value = state.requesting;
+            fetchingActPackage = state.fetchingActPackage;
+
+          }else if(state.canceling){
+            isActionLoading = state.canceling;
+          }
         }
 
         if (state is PackageSuccess) {
@@ -154,9 +168,32 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
           if(state.actPackages != null){
             initValue(state.actPackages!);
           }
+          if(state.isCanceled != null && state.isCanceled == true){
+            if(selectedType == 0){
+              dataPackages.removeWhere((item) => item.id == actionId);
+            }else if(selectedType == 1){
+              voicePackages.removeWhere((item) => item.id == actionId);
+            }else if(selectedType == 2){
+              comboPackages.removeWhere((item) => item.id == actionId);
+            }else if(selectedType == 3){
+              otherPackages.removeWhere((item) => item.id == actionId);
+            }
+
+            AppSnackbar.showSuccess(context, 'Package canceled successfully!');
+            context.read<PackageBloc>().add(FetchActivatedPackages(connectionId: connectionModel.id!));
+          }
+
+          setState(() {
+            isActionLoading = false;
+            actionId = "";
+          });
 
         } else if (state is PackageFailure) {
-          setState(() => fetchingActPackage = false);
+          setState(() {
+            fetchingActPackage = false;
+            isActionLoading = false;
+            actionId = "";
+          });
           AppSnackbar.showError(context, state.message);
         }
       },
@@ -184,6 +221,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                     children: [
                       _buildHeader(),
                       _buildList(
+                        typeIndex: 0,
                         packages: dataPackages,
                         emptyMsg: "No Data packages activated!",
                       ),
@@ -200,6 +238,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                       children: [
                         _buildHeader(),
                         _buildList(
+                          typeIndex: 0,
                           packages: dataPackages,
                           emptyMsg: "No Data packages activated!",
                           topPadding: true,
@@ -209,7 +248,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                   ),
                 ),
                 child: DefaultTabController(
-                  length: 3,
+                  length: 4,
                   child: NestedScrollView(
                     headerSliverBuilder: (context, innerBoxIsScrolled) {
                       return [
@@ -224,11 +263,13 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                               labelColor: AppColors.primary,
                               unselectedLabelColor: AppColors.darkerGrey,
                               indicatorColor: AppColors.primary,
+                              onTap: (_) => setState(() => expandId = -1),
                               labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 14),
                               tabs: const [
                                 Tab(text: 'Data'),
                                 Tab(text: 'Voice'),
                                 Tab(text: 'Combo'),
+                                Tab(text: 'Other'),
                               ],
                             ),
                             backgroundColor: Theme.of(context).scaffoldBackgroundColor,
@@ -242,20 +283,31 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                         children: [
                           /// Data
                           _buildList(
+                            typeIndex: 0,
                             packages: dataPackages,
                             emptyMsg: "No Data packages activated!",
                           ),
 
                           /// Voice
                           _buildList(
+                            typeIndex: 1,
                             packages: voicePackages,
                             emptyMsg: "No Voice packages activated!",
                           ),
 
                           /// Combo
                           _buildList(
+                            typeIndex: 2,
                             packages: comboPackages,
                             emptyMsg: "No Combo packages activated!",
+                          ),
+
+                          /// Other
+                          _buildList(
+                            typeIndex: 3,
+                            packages: otherPackages,
+                            emptyMsg: "No Other packages activated!",
+                            isReload: true,
                           ),
                         ],
                       ),
@@ -346,7 +398,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
     );
   }
 
-  Widget _buildList({required List<PackageRequestModel> packages, required String emptyMsg, bool topPadding = false}){
+  Widget _buildList({required int typeIndex, bool isReload = false, required List<PackageRequestModel> packages, required String emptyMsg, bool topPadding = false}){
     final filteredPackages = _filterPackages(packages);
 
     return Visibility(
@@ -372,12 +424,39 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                 setState(() => expandId = index);
               }
             },
-            title: item.packageModel?.packageName ?? "-",
+            onActionTap: isActionLoading ? null : () async{
+              final result = await AppBottomSheet.showRadioSelect(
+                context,
+                isDark: true,
+                title: 'Choose',
+                askConfirm: false,
+                options: ['Cancel'],
+                selectedValue: '',
+              );
+
+              if (result != null) {
+
+                if (result == 'Cancel' && context.mounted) {
+                  final data = item.copyWith(
+                    isCancel: true,
+                    isDelete: false,
+                  );
+                  context.read<PackageBloc>().add(CancelPackageRequest(data));
+                }
+                setState(() {
+                  actionId = item.id ?? "";
+                  selectedType = typeIndex;
+                });
+              }
+            },
+            actionLoading: isActionLoading && (actionId == item.id),
+            title: isReload ? HelperFunctions.formatCurrency(item.amount) : item.packageModel?.packageName ?? "-",
+            isReload: isReload,
             price: item.amount ?? 0.0,
             expDate: item.expireDate,
             reqDate: item.requestDate!,
             isExpand: expandId == index,
-            description: item.packageModel?.packageDescription ?? "-",
+            description: isReload ? HelperFunctions.formatDateTime(item.requestDate!) : item.packageModel?.packageDescription ?? "-",
             actDate: item.activatedDate,
             status: (item.activatedDate != null),
             validity: HelperFunctions.formatValidity(item.packageModel?.packageValidity, item.packageModel?.validityPeriod) ?? "",
@@ -464,6 +543,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                        packageList: allPackageDetails,
                        connection: connectionModel,
                        isMobile: isMobile,
+                       isDark: false
                       ),
                     );
                   },

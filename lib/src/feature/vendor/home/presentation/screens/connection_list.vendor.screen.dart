@@ -254,6 +254,7 @@ class _ConnectionListVendorScreenState extends State<ConnectionListVendorScreen>
                                       onPressed: (){
                                         InvoiceItemsBottomSheet.show(
                                           context,
+                                          isDark: true,
                                           total: paymentAmount,
                                           invoiceData: invoiceData!,
                                         );
@@ -351,7 +352,7 @@ class _ConnectionListVendorScreenState extends State<ConnectionListVendorScreen>
                                       Navigator.pushNamed(
                                         context,
                                         RouteConstants.connectionDetailsVendorScreen,
-                                        arguments: (vendorId: user.uid, connectionModel: connection),
+                                        arguments: (vendorId: user.uid, connectionModel: connection, client: client),
                                       );
                                     } else {
                                       Navigator.pushNamed(

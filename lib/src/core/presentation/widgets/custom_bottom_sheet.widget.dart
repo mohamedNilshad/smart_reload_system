@@ -11,6 +11,7 @@ class InvoiceItemsBottomSheet extends StatefulWidget {
     super.key,
     required this.invoiceData,
     required this.scrollController,
+    required this.isDark,
     this.total = 0.0,
     this.title = 'Invoice items',
     this.isPaid = false,
@@ -21,6 +22,7 @@ class InvoiceItemsBottomSheet extends StatefulWidget {
   final String title;
   final double total;
   final bool isPaid;
+  final bool isDark;
 
   /// Call this to display the sheet.
   static Future<void> show(
@@ -29,6 +31,7 @@ class InvoiceItemsBottomSheet extends StatefulWidget {
         String title = 'Invoice items',
         required double total,
         bool isPaid = false,
+        bool isDark = false,
       }) {
     return showModalBottomSheet<void>(
       context: context,
@@ -43,6 +46,7 @@ class InvoiceItemsBottomSheet extends StatefulWidget {
         maxChildSize: 0.92,
         builder: (_, controller) => InvoiceItemsBottomSheet(
           invoiceData: invoiceData,
+          isDark: isDark,
           title: title,
           total: total,
           scrollController: controller,
@@ -58,6 +62,7 @@ class InvoiceItemsBottomSheet extends StatefulWidget {
 
 class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
   bool _isDownloading = false;
+  late final bool isDark;
   String _expendedId = "";
 
   String _money(double v) => 'Rs. ${v.toStringAsFixed(2)}';
@@ -78,12 +83,19 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
   }
 
   @override
+  void initState() {
+    // TODO: implement initState
+    isDark = widget.isDark;
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     final cs = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
 
     return Material(
-      color: cs.surface,
+      color: isDark ? AppColors.darkContainers : cs.surface,
       borderRadius: const BorderRadius.vertical(top: Radius.circular(28)),
       clipBehavior: Clip.antiAlias,
       child: Column(
@@ -95,7 +107,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: cs.onSurfaceVariant.withValues(alpha: 0.35),
+                color: isDark ? AppColors.grey : cs.onSurfaceVariant.withValues(alpha: 0.35),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -108,12 +120,13 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
               children: [
                 IconButton(
                   tooltip: 'Download PDF',
+                  color: isDark ? AppColors.white : null,
                   onPressed: _isDownloading ? null : _download,
                   icon: _isDownloading
-                      ? const SizedBox(
+                      ? SizedBox(
                     width: 18,
                     height: 18,
-                    child: CircularProgressIndicator(strokeWidth: 2),
+                    child: CircularProgressIndicator(strokeWidth: 2, color: isDark ? AppColors.white : null),
                   )
                       :  Icon(Icons.file_download_outlined),
                 ),
@@ -121,12 +134,13 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
                   child: Text(
                     widget.title,
                     textAlign: TextAlign.center,
-                    style: text.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                    style: text.titleMedium?.copyWith(fontWeight: FontWeight.w600, color: isDark ? AppColors.white : null),
                   ),
                 ),
                 IconButton(
                   tooltip: 'Close',
                   onPressed: () => Navigator.of(context).maybePop(),
+                  color: isDark ? AppColors.grey : null,
                   icon: const Icon(Icons.close_rounded),
                 ),
               ],
@@ -140,7 +154,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
                 ? Center(
               child: Text(
                 'No items',
-                style: text.bodyMedium?.copyWith(color: AppColors.darkerGrey),
+                style: text.bodyMedium?.copyWith(color: isDark ? AppColors.grey : AppColors.darkerGrey),
               ),
             )
                 : ListView.separated(
@@ -149,7 +163,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
               itemCount: widget.invoiceData.requests.length,
               separatorBuilder: (_, _) => Divider(
                 height: 1,
-                color: AppColors.grey,
+                color: isDark ? AppColors.grey : AppColors.darkerGrey,
               ),
               itemBuilder: (_, index) {
                 final item = widget.invoiceData.requests[index];
@@ -186,7 +200,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
                                 child: Icon(
                                   Icons.receipt_long_rounded,
                                   size: 20,
-                                  color: cs.onPrimaryContainer,
+                                  color: isDark ? AppColors.grey : cs.onPrimaryContainer,
                                 ),
                               ),
                               const SizedBox(width: 14),
@@ -196,11 +210,12 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
                                   spacing: 2,
                                   children: [
                                     Text(
-                                      item.packageModel?.packageName ?? "N/A",
+                                      item.packageModel == null ? HelperFunctions.formatCurrency(item.amount) : (item.packageModel?.packageName ?? "N/A"),
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: text.titleMedium?.copyWith(
                                         fontWeight: FontWeight.w500,
+                                        color: isDark ? AppColors.white : null,
                                       ),
                                     ),
                                     Text(
@@ -208,13 +223,13 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
                                       maxLines: 1,
                                       overflow: TextOverflow.ellipsis,
                                       style: text.bodySmall?.copyWith(
-                                        color: AppColors.darkerGrey,
+                                        color: isDark ? AppColors.darkGrey : AppColors.darkerGrey,
                                       ),
                                     ),
                                     Text(
                                       HelperFunctions.formatDateTime(item.activatedDate!),
                                       style: text.labelMedium?.copyWith(
-                                        color: AppColors.darkGrey,
+                                        color: isDark ? AppColors.grey : AppColors.darkGrey,
                                       ),
                                     ),
                                   ],
@@ -225,6 +240,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
                                 _money(item.amount ?? 0.0),
                                 style: text.bodyLarge?.copyWith(
                                   fontWeight: FontWeight.w600,
+                                  color: isDark ? AppColors.white : null,
                                 ),
                               ),
                             ],
@@ -238,7 +254,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.only(bottomRight: Radius.circular(16.0), bottomLeft: Radius.circular(16.0)),
                             border: Border(bottom: BorderSide(color: AppColors.primary), left: BorderSide(color: AppColors.primary), right: BorderSide(color: AppColors.primary)),
-                            color: AppColors.grey.withValues(alpha: 0.5),
+                            color: isDark ? AppColors.darkGrey.withValues(alpha: 0.5) : AppColors.grey.withValues(alpha: 0.5),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -246,18 +262,22 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
                             children: [
                               Text(
                                 item.connectionModel?.connectionNumber ?? 'N/A',
-                                style: text.bodySmall,
+                                style: text.bodySmall?.copyWith(
+                                    color: isDark ? AppColors.white : null
+                                ),
                               ),
                               Text(
                                 item.connectionModel?.serviceProvider ?? 'N/A',
                                 style: text.bodySmall?.copyWith(
                                     fontWeight: FontWeight.normal,
-                                    color: AppColors.darkGrey
+                                    color: isDark ? AppColors.grey : AppColors.darkGrey
                                 ),
                               ),
                               Text(
                                 "${item.connectionModel?.connectionType ?? 'N/A'} | ${item.connectionModel?.billingType ?? 'N/A'}",
-                                style: text.bodySmall,
+                                style: text.bodySmall?.copyWith(
+                                    color: isDark ? AppColors.grey : null
+                                ),
                               ),
                             ],
                           ),
@@ -273,8 +293,8 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
           // Total footer
           Container(
             decoration: BoxDecoration(
-              color: cs.surfaceContainerLow,
-              border: Border(top: BorderSide(color: cs.outlineVariant)),
+              color: isDark ? AppColors.black : cs.surfaceContainerLow,
+              border: Border(top: BorderSide(color: isDark ? AppColors.white : cs.outlineVariant)),
             ),
             child: SafeArea(
               top: false,
@@ -287,32 +307,48 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
 
                     buildBottomRow(
                       title: 'Sub total',
-                      titleStyle: text.labelMedium!,
+                      titleStyle: text.labelMedium!.copyWith(
+                          color: isDark ? AppColors.softGrey : null
+                      ),
                       subtitle: widget.invoiceData.subtotal,
-                      subtitleStyle: text.labelMedium!
+                      subtitleStyle: text.labelMedium!.copyWith(
+                          color: isDark ? AppColors.softGrey : null
+                      )
                     ),
 
                     buildBottomRow(
                       title: 'Service charge (${widget.invoiceData.getCommissionPercentage}%)',
-                      titleStyle: text.labelMedium!,
+                      titleStyle: text.labelMedium!.copyWith(
+                          color: isDark ? AppColors.softGrey : null
+                      ),
                       subtitle: widget.invoiceData.calCommission,
-                      subtitleStyle: text.labelMedium!
+                      subtitleStyle: text.labelMedium!.copyWith(
+                          color: isDark ? AppColors.softGrey : null
+                      )
                     ),
 
                     if(widget.invoiceData.vendor.currentPaymentBalance != null && widget.invoiceData.vendor.currentPaymentBalance! > 0.0)...{
                       buildBottomRow(
                           title: 'Previous balance',
-                          titleStyle: text.labelMedium!,
+                          titleStyle: text.labelMedium!.copyWith(
+                              color: isDark ? AppColors.softGrey : null
+                          ),
                           subtitle: widget.invoiceData.vendor.currentPaymentBalance!,
-                          subtitleStyle: text.labelMedium!
+                          subtitleStyle: text.labelMedium!.copyWith(
+                              color: isDark ? AppColors.softGrey : null
+                          )
                       ),
                     },
 
                     buildBottomRow(
                       title: 'Total',
-                      titleStyle: text.titleMedium!,
+                      titleStyle: text.titleMedium!.copyWith(
+                          color: isDark ? AppColors.white : null
+                      ),
                       subtitle: widget.total,
-                      subtitleStyle: text.titleLarge!,
+                      subtitleStyle: text.titleLarge!.copyWith(
+                          color: isDark ? AppColors.white : null
+                      ),
                       isTotal: true,
                       isPaid: widget.isPaid,
                     ),
@@ -343,7 +379,7 @@ class _InvoiceItemsBottomSheetState extends State<InvoiceItemsBottomSheet> {
           _money(subtitle),
           style: subtitleStyle.copyWith(
             fontWeight: isTotal ? FontWeight.w700 : FontWeight.w500,
-            color: isTotal ? (isPaid ? AppColors.green : AppColors.black) : AppColors.darkerGrey,
+            color: isTotal ? (isPaid ? AppColors.green : (isDark ? AppColors.white : AppColors.black)) : (isDark ? AppColors.softGrey :AppColors.darkerGrey),
           ),
         ),
       ],

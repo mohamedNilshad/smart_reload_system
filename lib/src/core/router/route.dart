@@ -103,11 +103,12 @@ class AppRouter {
         final args = settings.arguments as ({
           ConnectionModel connectionModel,
           String vendorId,
+          ClientModel client,
         });
 
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.connectionDetailsVendorScreen),
-          builder: (context) => ConnectionDetailsVendorScreen(connectionModel: args.connectionModel, vendorId: args.vendorId),
+          builder: (context) => ConnectionDetailsVendorScreen(connectionModel: args.connectionModel, vendorId: args.vendorId, client: args.client),
         );
 
       case RouteConstants.packageDetailsClientScreen:
@@ -128,11 +129,12 @@ class AppRouter {
           List<PackageRequestModel> packageList,
           ConnectionModel connection,
           bool isMobile,
+          bool isDark,
         });
 
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.reloadHistoryClientScreen),
-          builder: (context) => ReloadHistoryClientScreen(packageList: args.packageList, connection: args.connection, isMobile: args.isMobile),
+          builder: (context) => ReloadHistoryClientScreen(packageList: args.packageList, connection: args.connection, isMobile: args.isMobile, isDark: args.isDark),
         );
 
       case RouteConstants.settingsScreen:

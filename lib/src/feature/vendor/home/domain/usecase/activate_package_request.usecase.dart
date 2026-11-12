@@ -8,7 +8,17 @@ class ActivatePackageRequestUseCase {
 
   ActivatePackageRequestUseCase(this.repo);
 
+  Future<Either<Failure, bool>> call(PackageRequestModel packageRequestModel, String clientId) {
+    return repo.activatePackageRequest(packageRequestModel, clientId);
+  }
+}
+
+class CancelPackageRequestUseCase {
+  final HomeRepoV repo;
+
+  CancelPackageRequestUseCase(this.repo);
+
   Future<Either<Failure, bool>> call(PackageRequestModel packageRequestModel) {
-    return repo.activatePackageRequest(packageRequestModel);
+    return repo.cancelPackageRequest(packageRequestModel);
   }
 }

@@ -2,7 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_database/firebase_database.dart' as db;
 import 'package:flutter/foundation.dart';
+import 'package:smart_reload_system/src/core/data/model/device_info.model.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
+import 'package:smart_reload_system/src/core/services/notification.service.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/banner_news.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/connection.model.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/model/package.model.dart';
@@ -17,7 +19,8 @@ abstract class HomeRemoteDataSourceV {
 
   Future<List<ConnectionModel>> getConnections(String clientVendorId);
   Future<bool> requestPackage(PackageRequestModel packageRequestModel);
-  Future<bool> activatePackageRequest(PackageRequestModel packageRequestModel);
+  Future<bool> activatePackageRequest(PackageRequestModel packageRequestModel, String clientId);
+  Future<bool> cancelPackageRequest(PackageRequestModel packageRequestModel);
   Future<bool> addNewConnection(ConnectionModel connectionModel);
   Future<List<PackageModel>> getPackages(String type, String serviceProvider);
   Future<List<PackageRequestModel>> getActivatedPackages(String connectionId);
@@ -237,7 +240,7 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
   }
 
   @override
-  Future<bool> activatePackageRequest(PackageRequestModel packageRequestModel) async {
+  Future<bool> activatePackageRequest(PackageRequestModel packageRequestModel, String clientId) async {
     try {
       if (packageRequestModel.id == null || packageRequestModel.id!.isEmpty) {
         throw ServerException('Package request id is missing');
@@ -254,10 +257,51 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
         'activatedDate': Timestamp.fromDate(activatedAt),
         'expireDate': Timestamp.fromDate(expireDate),
         'packageDetailsId': packageRequestModel.packageDetailsId,
+        'isCancel': false,
+        'isDelete': false,
       });
 
       ///Send push notification to the client about the activation
+      final tokenSnapshot = await firestore.collection('device_info').where('userId', isEqualTo: clientId).get();
+
+
+      List<DeviceInfoModel> tokens = tokenSnapshot.docs.map((doc) => DeviceInfoModel.fromJson(doc.data())).toList();
+
+      String? packageName = packageRequestModel.packageModel?.packageName;
+      if(packageName == null){
+        packageName = "";
+      }else{
+        packageName = "for $packageName.";
+      }
+      String amount = HelperFunctions.formatCurrency(packageRequestModel.amount);
+
+
+      String notifyTitle = "Reload Activated";
+      String notifyBody = "Requested reload $packageName Amount: $amount. Activated on: ${HelperFunctions.formatDateTime(activatedAt)}. Expires on: ${HelperFunctions.formatDateTime(expireDate)}.";
+      debugPrint("Notify Body: $notifyBody");
+
+      await firestore.collection('users').doc(clientId).collection('notifications').add({
+        'title': notifyTitle,
+        'body': notifyBody,
+        'route': null,
+        'isRead': false,
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      for(var item in tokens){
+        await NotificationService.sendPushMessage(
+          item.fcmToken,
+          notifyTitle,
+          notifyBody,
+        );
+      }
       ///Update realtime database for the package request status
+
+      await database.ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}').update({
+        'clientVendorId': packageRequestModel.clientVendorId,
+        'status': false,
+        'onUpdate': DateTime.now().toIso8601String(),
+      });
       return true;
     } on FirebaseException catch (e, st) {
       ErrorLogger.log(
@@ -273,6 +317,45 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
         stackTrace: st,
       );
       throw Exception('An error occurred while activating package request');
+    }
+  }
+
+  @override
+  Future<bool> cancelPackageRequest(PackageRequestModel packageRequestModel) async {
+
+    try {
+      if (packageRequestModel.id == null || packageRequestModel.id!.isEmpty) {
+        throw ServerException('Package request id is missing');
+      }
+
+      await firestore.collection('requested_packages').doc(packageRequestModel.id).update({
+        'isCancel': true,
+        'isDelete': packageRequestModel.isDelete ?? false,
+      });
+
+      ///Update realtime database for the package request status
+
+      await database.ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}').update({
+        'clientVendorId': packageRequestModel.clientVendorId,
+        'status': false,
+        'onUpdate': DateTime.now().toIso8601String(),
+      });
+
+      return true;
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceVImpl.cancelPackageRequest',
+        stackTrace: st,
+      );
+      throw ServerException(e.message ?? 'Failed to cancel package request');
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceVImpl.cancelPackageRequest',
+        stackTrace: st,
+      );
+      throw Exception('An error occurred while canceling package request');
     }
   }
 
@@ -342,7 +425,10 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
           // .where('activatedDate', isNull: false)
           .get();
 
-      List<PackageRequestModel> apList = actPackagesSnapshot.docs.map((doc) => PackageRequestModel.fromJson(doc.data(), id: doc.id)).toList();
+      List<PackageRequestModel> apList = actPackagesSnapshot.docs
+          .map((doc) => PackageRequestModel.fromJson(doc.data(), id: doc.id))
+          .where((packageRequest) => !(packageRequest.isDelete ?? false))
+          .toList();
 
       for(int i = 0; i < apList.length; i++){
         if(apList[i].packageDetailsId == null || apList[i].packageDetailsId!.isEmpty){

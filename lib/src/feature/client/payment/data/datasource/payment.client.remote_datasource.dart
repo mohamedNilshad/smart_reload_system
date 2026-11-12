@@ -185,7 +185,7 @@ class PaymentClientRemoteDataSourceImpl implements PaymentClientRemoteDataSource
         final connectionId = data['connectionId'];
 
         ///fetch package details
-        if (packageDetailsId != null) {
+        if (packageDetailsId != null && packageDetailsId.isNotEmpty) {
           PackageModel? packageDetails = packageCache[packageDetailsId];
 
           if (packageDetails == null) {

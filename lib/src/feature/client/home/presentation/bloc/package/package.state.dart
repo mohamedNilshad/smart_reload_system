@@ -16,20 +16,22 @@ class PackageRequestInitial extends PackageState {
 
 class PackageLoading extends PackageState {
   final bool requesting;
+  final bool canceling;
   final bool fetching;
   final bool fetchingActPackage;
-  const PackageLoading({this.fetching = false, this.requesting = false, this.fetchingActPackage = false});
+  const PackageLoading({this.fetching = false, this.requesting = false, this.canceling = false, this.fetchingActPackage = false});
 }
 
 class PackageSuccess extends PackageState {
   final bool? isRequested;
+  final bool? isCanceled;
   final List<PackageModel>? packages;
   final List<PackageRequestModel>? actPackages;
 
-  const PackageSuccess({this.isRequested, this.packages, this.actPackages});
+  const PackageSuccess({this.isRequested, this.isCanceled, this.packages, this.actPackages});
 
   @override
-  List<Object?> get props => [isRequested];
+  List<Object?> get props => [isRequested, isCanceled];
 }
 
 class PackageFailure extends PackageState {
