@@ -5,6 +5,7 @@ import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_bottom_sheet.widget.dart';
+import 'package:smart_reload_system/src/core/presentation/widgets/custom_invoice_card.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/body_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/sub_headline_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
@@ -68,6 +69,21 @@ class _PaymentScreenState extends State<PaymentScreen> {
                   physics: NeverScrollableScrollPhysics(),
                   itemBuilder: (context, index) {
                     final item = paidInvoiceData[index];
+                    return CustomInvoiceCard(
+                      onTap: (){
+                        InvoiceItemsBottomSheet.show(
+                          context,
+                          total: item.paidAmount,
+                          invoiceData: item.invoiceData,
+                          isPaid: true,
+                        );
+                      },
+                      title: item.invoiceData.vendor.vendorName,
+                      icon: Icons.check_circle_outline_rounded,
+                      subtitle: "INV-${item.id}",
+                      amount: item.paidAmount,
+                      date: item.invoiceDate,
+                    );
                     return InkWell(
                       onTap: (){
                         InvoiceItemsBottomSheet.show(

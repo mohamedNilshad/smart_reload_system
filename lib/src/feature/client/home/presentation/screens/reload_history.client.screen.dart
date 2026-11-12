@@ -127,9 +127,12 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
                     pinned: true,
                     delegate: StickyTabBarDelegate(
                       TabBar(
+                        isScrollable: true, // Allow horizontal scrolling
+                        tabAlignment: TabAlignment.center, // Align tabs to the left
                         labelColor: AppColors.primary,
                         unselectedLabelColor: isDark ? AppColors.grey : AppColors.darkerGrey,
                         indicatorColor: AppColors.primary,
+                        physics: ScrollPhysics(),
                         labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 14),
                         onTap: (v){
                           setState(() {

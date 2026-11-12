@@ -71,6 +71,11 @@ import 'package:smart_reload_system/src/feature/vendor/home/domain/usecase/get_c
 import 'package:smart_reload_system/src/feature/vendor/home/domain/usecase/watch_package_requests.usecase.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/package_request.cubit.dart';
+import 'package:smart_reload_system/src/feature/vendor/wallet/data/datasource/wallet.remote_datasource.dart';
+import 'package:smart_reload_system/src/feature/vendor/wallet/data/repository/wallet.repo_impl.dart';
+import 'package:smart_reload_system/src/feature/vendor/wallet/domain/repository/wallet.repo.dart';
+import 'package:smart_reload_system/src/feature/vendor/wallet/domain/usecase/get_wallet_summary.usecase.dart';
+import 'package:smart_reload_system/src/feature/vendor/wallet/presentation/bloc/wallet.bloc.dart';
 
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/package/packaget.bloc.dart' as vendor;
 
@@ -183,6 +188,10 @@ Future<void> init() async{
       watchPackageRequestsUseCase: sl()
   ));
 
+  sl.registerLazySingleton(() => WalletBloc(
+    getWalletSummaryUseCase: sl(),
+  ));
+
   sl.registerLazySingleton(() => vendor.PackageBloc(
     requestPackageUseCase: sl(),
     getPackageUseCase: sl(),
@@ -197,14 +206,17 @@ Future<void> init() async{
   sl.registerLazySingleton(() => WatchPackageRequestsUseCase(sl()));
   sl.registerLazySingleton(() => ActivatePackageRequestUseCase(sl()));
   sl.registerLazySingleton(() => CancelPackageRequestUseCase(sl()));
+  sl.registerLazySingleton(() => GetWalletSummaryUseCase(sl()));
 
 
 
   //Repository
   sl.registerLazySingleton<HomeRepoV>(() => HomeRepoVImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<WalletRepo>(() => WalletRepoImpl(remoteDataSource: sl()));
 
 
 
   //Datasource
   sl.registerLazySingleton<HomeRemoteDataSourceV>(() => HomeRemoteDataSourceVImpl(firestore: sl(), firebaseAuth: sl(), database: sl()));
+  sl.registerLazySingleton<WalletRemoteDataSource>(() => WalletRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()));
 }
