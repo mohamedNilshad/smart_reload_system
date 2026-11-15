@@ -311,4 +311,8 @@ class HelperFunctions {
 
     return list.map((v) => v.replaceAll("_", " ")).toList();
   }
+
+  static String invoiceNumber(int n){
+    return 'W-${n.toString().padLeft(4, '0')}';
+  }
 }

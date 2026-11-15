@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/bloc/payment/payment.bloc.dart';
@@ -19,13 +18,13 @@ import 'package:smart_reload_system/src/core/features/notification/presentation/
 import 'package:smart_reload_system/src/core/features/profile/presentation/bloc/profile.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/package_request.cubit.dart';
+import 'package:smart_reload_system/src/feature/vendor/wallet/presentation/bloc/com_history/com_history.bloc.dart';
 import 'package:smart_reload_system/src/injection_container.dart';
 
 import 'package:smart_reload_system/src/feature/client/payment/presentation/bloc/payment.client.bloc.dart';
-
-import 'package:smart_reload_system/src/feature/vendor/wallet/presentation/bloc/wallet.bloc.dart';
-
+import 'package:smart_reload_system/src/feature/vendor/wallet/presentation/bloc/wallet/wallet.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/package/packaget.bloc.dart' as vendor;
+
 class App extends StatelessWidget {
   final ThemeMode theme;
   const App({super.key, required this.theme});
@@ -51,23 +50,23 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => sl<PackageRequestCubit>()),
         BlocProvider(create: (_) => sl<WalletBloc>()),
         BlocProvider(create: (_) => sl<vendor.PackageBloc>()),
-
+        BlocProvider(create: (_) => sl<ComHistoryBloc>()),
       ],
       child: BlocBuilder<ThemeBloc, ThemeMode>(
-          builder: (context, state) {
-            return MaterialApp(
-              builder: (context, child) => NoInternetBanner(child: child!),
-              navigatorKey: navigatorKey,
-              title: AppStrings.brandName,
-              debugShowCheckedModeBanner: false,
-              theme: AppTheme.lightTheme,
-              darkTheme: AppTheme.darkTheme,
-              //themeMode: state,
-              themeMode: ThemeMode.light,
-              initialRoute: RouteConstants.splashScreen,
-              onGenerateRoute: AppRouter.onGenerateRoute,
-            );
-          }
+        builder: (context, state) {
+          return MaterialApp(
+            builder: (context, child) => NoInternetBanner(child: child!),
+            navigatorKey: navigatorKey,
+            title: AppStrings.brandName,
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            //themeMode: state,
+            themeMode: ThemeMode.light,
+            initialRoute: RouteConstants.splashScreen,
+            onGenerateRoute: AppRouter.onGenerateRoute,
+          );
+        },
       ),
     );
   }

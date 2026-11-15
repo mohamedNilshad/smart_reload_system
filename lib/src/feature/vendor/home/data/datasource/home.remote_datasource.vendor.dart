@@ -297,11 +297,14 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
       }
       ///Update realtime database for the package request status
 
-      await database.ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}').update({
-        'clientVendorId': packageRequestModel.clientVendorId,
-        'status': false,
-        'onUpdate': DateTime.now().toIso8601String(),
-      });
+      // await database.ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}').update({
+      //   'clientVendorId': packageRequestModel.clientVendorId,
+      //   'status': false,
+      //   'onUpdate': DateTime.now().toIso8601String(),
+      // });
+      await database
+          .ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}')
+          .remove();
       return true;
     } on FirebaseException catch (e, st) {
       ErrorLogger.log(
@@ -334,12 +337,15 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
       });
 
       ///Update realtime database for the package request status
+      await database
+          .ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}')
+          .remove();
 
-      await database.ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}').update({
-        'clientVendorId': packageRequestModel.clientVendorId,
-        'status': false,
-        'onUpdate': DateTime.now().toIso8601String(),
-      });
+      // await database.ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}').update({
+      //   'clientVendorId': packageRequestModel.clientVendorId,
+      //   'status': false,
+      //   'onUpdate': DateTime.now().toIso8601String(),
+      // });
 
       return true;
     } on FirebaseException catch (e, st) {

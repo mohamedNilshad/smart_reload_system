@@ -1,5 +1,4 @@
 import 'package:equatable/equatable.dart';
-import 'package:smart_reload_system/src/feature/vendor/wallet/domain/entity/wallet_summary.entity.dart';
 
 abstract class WalletState extends Equatable {
   const WalletState();
@@ -13,16 +12,18 @@ class WalletInitial extends WalletState {
 }
 
 class WalletLoading extends WalletState {
-  const WalletLoading();
+  final bool isWalletLoading;
+  final bool isWithdrawalLoading;
+  const WalletLoading({this.isWalletLoading = false, this.isWithdrawalLoading = false});
 }
 
 class WalletSuccess extends WalletState {
-  final WalletSummaryEntity summary;
+  final double totalBalance;
 
-  const WalletSuccess(this.summary);
+  const WalletSuccess(this.totalBalance);
 
   @override
-  List<Object?> get props => [summary];
+  List<Object?> get props => [totalBalance];
 }
 
 class WalletFailure extends WalletState {
@@ -33,3 +34,15 @@ class WalletFailure extends WalletState {
   @override
   List<Object?> get props => [message];
 }
+
+class WithdrawSubmitted extends WalletState {
+  final bool success;
+
+  const WithdrawSubmitted(this.success);
+
+  @override
+  List<Object?> get props => [success];
+}
+
+
+

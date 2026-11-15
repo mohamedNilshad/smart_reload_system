@@ -1,10 +1,19 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
-import 'package:smart_reload_system/src/feature/vendor/wallet/domain/entity/wallet_summary.entity.dart';
+import 'package:smart_reload_system/src/feature/vendor/wallet/domain/entity/commission_withdrew_history.entity.dart';
+import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 abstract class WalletRemoteDataSource {
-  Future<WalletSummaryEntity> getWalletSummary();
+  Future<double> getWalletSummary();
+  Future<List<ComWithdrawHistoryEntity>> getHistory();
+  Future<bool> addWithdrawal({
+    required double withdrewAmount,
+    required double totalAmount,
+    required String bankName,
+    required String accountHolder,
+    required String accountNumber,
+  });
 }
 
 class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
@@ -17,31 +26,11 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
   });
 
   @override
-  Future<WalletSummaryEntity> getWalletSummary() async {
+  Future<double> getWalletSummary() async {
     try {
       final userId = firebaseAuth.currentUser?.uid;
       if (userId == null) {
         throw ServerException('User not authenticated');
-      }
-
-      final vendorClientsSnapshot = await firestore
-          .collection('client_vendor')
-          .where('vendorId', isEqualTo: userId)
-          .get();
-
-      double totalBalance = 0.0;
-      int activeClients = 0;
-      double totalPaid = 0.0;
-
-      for (final doc in vendorClientsSnapshot.docs) {
-        final data = doc.data();
-        final payable = (data['totalPayable'] as num?)?.toDouble() ?? 0.0;
-        final lastPaid = (data['lastPaidAmount'] as num?)?.toDouble() ?? 0.0;
-        totalBalance += payable;
-        totalPaid += lastPaid;
-        if ((data['connectionCount'] as int? ?? 0) > 0) {
-          activeClients++;
-        }
       }
 
       final commissionSnapshot = await firestore
@@ -56,28 +45,116 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
         totalCommission = (commissionData['comAmount'] as num?)?.toDouble() ?? 0.0;
       }
 
-      final paidInvoicesSnapshot = await firestore
-          .collection('payment_details')
-          .where('clientVendorId', isEqualTo: userId)
-          .get();
-
-      final paidInvoices = paidInvoicesSnapshot.docs.length;
       // totalCommission
-      return WalletSummaryEntity(
-        vendorId: userId,
-        currentBalance: totalBalance,
-        totalPaid: totalPaid,
-        totalCommission: totalCommission,
-        activeClients: activeClients,
-        paidInvoices: paidInvoices,
+      return totalCommission;
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'WalletRemoteDataSourceImpl.getWalletSummary',
+        stackTrace: st,
       );
-    } on FirebaseException catch (_) {
       throw ServerException('Failed to fetch wallet summary');
-    } catch (e) {
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'WalletRemoteDataSourceImpl.getWalletSummary',
+        stackTrace: st,
+      );
       if (e is ServerException) {
         rethrow;
       }
       throw ServerException('Unable to load wallet summary');
+    }
+  }
+
+
+  @override
+  Future<List<ComWithdrawHistoryEntity>> getHistory() async {
+    try {
+      final userId = firebaseAuth.currentUser?.uid;
+      if (userId == null) {
+        throw ServerException('User not authenticated');
+      }
+
+      final snapshot = await firestore
+          .collection('commission_withdrew_history')
+          .where('vendorId', isEqualTo: userId)
+          .orderBy('date', descending: true)
+          .get();
+
+
+      return snapshot.docs.map((doc) => ComWithdrawHistoryEntity.fromFirestore (doc)).toList();
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'WalletRemoteDataSourceImpl.getHistory',
+        stackTrace: st,
+      );
+      throw ServerException('Failed to fetch withdrawal history');
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'WalletRemoteDataSourceImpl.getHistory',
+        stackTrace: st,
+      );
+      if (e is ServerException) rethrow;
+      throw ServerException('Unable to load withdrawal history');
+    }
+  }
+
+  @override
+  Future<bool> addWithdrawal({
+    required double withdrewAmount,
+    required double totalAmount,
+    required String bankName,
+    required String accountHolder,
+    required String accountNumber,
+  }) async {
+    try {
+      final userId = firebaseAuth.currentUser?.uid;
+      if (userId == null) {
+        throw ServerException('User not authenticated');
+      }
+
+      await firestore.collection('commission_withdrew_history').add({
+        'vendorId': userId,
+        'withdrewAmount': withdrewAmount,
+        'totalAmount': totalAmount,
+        'date': Timestamp.fromDate(DateTime.now()),
+        'bankName': bankName,
+        'accountHolder': accountHolder,
+        'accountNumber': accountNumber,
+        'status': 'pending',
+      });
+
+      final query = await firestore
+          .collection('commission')
+          .where('vendorId', isEqualTo: userId)
+          .get();
+
+      for (final doc in query.docs) {
+        await doc.reference.update({
+          'comAmount': 0.0,
+          'modifyDate': FieldValue.serverTimestamp(),
+        });
+      }
+
+      return true;
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'WalletRemoteDataSourceImpl.addWithdrawal',
+        stackTrace: st,
+      );
+      throw ServerException('Failed to add withdrawal record');
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'WalletRemoteDataSourceImpl.addWithdrawal',
+        stackTrace: st,
+      );
+      if (e is ServerException) rethrow;
+      throw ServerException('Unable to submit withdrawal');
     }
   }
 }

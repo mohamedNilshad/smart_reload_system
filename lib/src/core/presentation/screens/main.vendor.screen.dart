@@ -22,13 +22,14 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
     ProfileScreen(isDark: true),
   ];
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
-          border: Border(top: BorderSide(color: AppColors.darkGrey, width: 0.5)),
+          border: Border(
+            top: BorderSide(color: AppColors.darkGrey, width: 0.5),
+          ),
         ),
         child: BottomNavigationBar(
           items: const <BottomNavigationBarItem>[
@@ -44,10 +45,7 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
               icon: Icon(Icons.account_balance_wallet_outlined),
               label: 'Wallet',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.person),
-              label: 'Profile',
-            ),
+            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profile'),
           ],
           currentIndex: _selectedIndex,
           unselectedItemColor: AppColors.darkGrey,
@@ -56,7 +54,7 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
           showUnselectedLabels: true,
           selectedItemColor: AppColors.primary,
           type: BottomNavigationBarType.fixed,
-          onTap: (index){
+          onTap: (index) {
             setState(() {
               _selectedIndex = index;
             });
@@ -67,22 +65,27 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
     );
   }
 
-  Widget buildNavItem({required IconData icon, required bool isSelected}){
+  Widget buildNavItem({required IconData icon, required bool isSelected}) {
     return Container(
       width: 10,
       margin: EdgeInsets.symmetric(vertical: 20.0, horizontal: Sizes.ssm),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(26.0),
-        color: isSelected ? AppColors.secondary.withValues(alpha: 0.3) : Colors.transparent,
+        color: isSelected
+            ? AppColors.secondary.withValues(alpha: 0.3)
+            : Colors.transparent,
       ),
       child: NavigationDestination(
-        icon: Icon(icon, color: isSelected ? AppColors.info : AppColors.white, size: Sizes.iconLg),
+        icon: Icon(
+          icon,
+          color: isSelected ? AppColors.info : AppColors.white,
+          size: Sizes.iconLg,
+        ),
         label: '',
       ),
     );
   }
 }
-
 
 class TempScreen extends StatelessWidget {
   final String title;

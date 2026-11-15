@@ -74,43 +74,75 @@ import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/ho
 import 'package:smart_reload_system/src/feature/vendor/wallet/data/datasource/wallet.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/vendor/wallet/data/repository/wallet.repo_impl.dart';
 import 'package:smart_reload_system/src/feature/vendor/wallet/domain/repository/wallet.repo.dart';
+import 'package:smart_reload_system/src/feature/vendor/wallet/domain/usecase/add_com_withdrawal.usecase.dart';
+import 'package:smart_reload_system/src/feature/vendor/wallet/domain/usecase/get_com_withdrew_history.usecase.dart';
 import 'package:smart_reload_system/src/feature/vendor/wallet/domain/usecase/get_wallet_summary.usecase.dart';
-import 'package:smart_reload_system/src/feature/vendor/wallet/presentation/bloc/wallet.bloc.dart';
+import 'package:smart_reload_system/src/feature/vendor/wallet/presentation/bloc/com_history/com_history.bloc.dart';
+import 'package:smart_reload_system/src/feature/vendor/wallet/presentation/bloc/wallet/wallet.bloc.dart';
 
-import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/package/packaget.bloc.dart' as vendor;
-
+import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/package/packaget.bloc.dart'
+    as vendor;
 
 final sl = GetIt.instance;
 
-Future<void> init() async{
+Future<void> init() async {
   /// External
   sl.registerLazySingleton(() => fb.FirebaseAuth.instance);
   sl.registerLazySingleton(() => FirebaseFirestore.instance);
   // sl.registerLazySingleton(() => FirebaseDatabase.instance);
-  sl.registerLazySingleton<FirebaseDatabase>(() => FirebaseDatabase.instanceFor(
-      app: Firebase.app(),
-      databaseURL: dbURL,
-    ),
+  sl.registerLazySingleton<FirebaseDatabase>(
+    () => FirebaseDatabase.instanceFor(app: Firebase.app(), databaseURL: dbURL),
   );
   sl.registerLazySingleton(() => const FlutterSecureStorage());
   sl.registerLazySingleton(() => NotificationService());
 
   /// Data source
-  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(firebaseAuth: sl(), firestore: sl(), database: sl()));
-  sl.registerLazySingleton<PaymentRemoteDataSource>(() => PaymentRemoteDataSourceImpl());
-  sl.registerLazySingleton<AuthLocalDataSource>(() => AuthLocalDataSourceImpl(sl()));
-  sl.registerLazySingleton<HomeRemoteDataSource>(() => HomeRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl(), database: sl()));
-  sl.registerLazySingleton<NotificationRemoteDataSource>(() => NotificationRemoteDataSourceImpl(sl()));
-  sl.registerLazySingleton<ProfileRemoteDataSource>(() => ProfileRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()));
-  sl.registerLazySingleton<PaymentClientRemoteDataSource>(() => PaymentClientRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton<AuthRemoteDataSource>(
+    () => AuthRemoteDataSourceImpl(
+      firebaseAuth: sl(),
+      firestore: sl(),
+      database: sl(),
+    ),
+  );
+  sl.registerLazySingleton<PaymentRemoteDataSource>(
+    () => PaymentRemoteDataSourceImpl(),
+  );
+  sl.registerLazySingleton<AuthLocalDataSource>(
+    () => AuthLocalDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<HomeRemoteDataSource>(
+    () => HomeRemoteDataSourceImpl(
+      firestore: sl(),
+      firebaseAuth: sl(),
+      database: sl(),
+    ),
+  );
+  sl.registerLazySingleton<NotificationRemoteDataSource>(
+    () => NotificationRemoteDataSourceImpl(sl()),
+  );
+  sl.registerLazySingleton<ProfileRemoteDataSource>(
+    () => ProfileRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()),
+  );
+  sl.registerLazySingleton<PaymentClientRemoteDataSource>(
+    () =>
+        PaymentClientRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()),
+  );
 
   /// Repository
-  sl.registerLazySingleton<AuthRepo>(() => AuthRepoImpl(remoteDataSource: sl(), localDataSource: sl()));
-  sl.registerLazySingleton<HomeRepo>(() => HomeRepoImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<AuthRepo>(
+    () => AuthRepoImpl(remoteDataSource: sl(), localDataSource: sl()),
+  );
+  sl.registerLazySingleton<HomeRepo>(
+    () => HomeRepoImpl(remoteDataSource: sl()),
+  );
   sl.registerLazySingleton<PaymentRepo>(() => PaymentRepoImpl(sl()));
   sl.registerLazySingleton<NotificationRepo>(() => NotificationRepoImpl(sl()));
-  sl.registerLazySingleton<ProfileRepo>(() => ProfileRepoImpl(remoteDataSource: sl(), remoteAuthDataSource: sl()));
-  sl.registerLazySingleton<PaymentClientRepo>(() => PaymentClientRepoImpl(remoteDataSource: sl()));
+  sl.registerLazySingleton<ProfileRepo>(
+    () => ProfileRepoImpl(remoteDataSource: sl(), remoteAuthDataSource: sl()),
+  );
+  sl.registerLazySingleton<PaymentClientRepo>(
+    () => PaymentClientRepoImpl(remoteDataSource: sl()),
+  );
 
   /// Use cases
   sl.registerLazySingleton(() => LoginUseCase(sl()));
@@ -141,65 +173,90 @@ Future<void> init() async{
   sl.registerLazySingleton(() => CreatePaymentUseCase(sl()));
   sl.registerLazySingleton(() => GetPaidInvoicesUsecase(sl()));
 
-
-
-
   /// Bloc
-  sl.registerLazySingleton(() => AuthBloc(
-    loginUseCase: sl(),
-    registerUseCase: sl(),
-    logoutUseCase: sl(),
-    reauthenticateUseCase: sl(),
-    verifyEmailUseCase: sl(),
-  ));
-  sl.registerLazySingleton(() => SessionCubit(
+  sl.registerLazySingleton(
+    () => AuthBloc(
+      loginUseCase: sl(),
+      registerUseCase: sl(),
+      logoutUseCase: sl(),
+      reauthenticateUseCase: sl(),
+      verifyEmailUseCase: sl(),
+    ),
+  );
+  sl.registerLazySingleton(
+    () => SessionCubit(
       watchUserRealtimeUseCase: sl(),
       getCachedUserUseCase: sl(),
       firebaseAuth: sl(),
       logoutUseCase: sl(),
       updateCachedUserUseCase: sl(),
-      clearCachedUserUseCase: sl()
-  ));
+      clearCachedUserUseCase: sl(),
+    ),
+  );
 
-  sl.registerLazySingleton(() => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()));
-  sl.registerLazySingleton(() => ConnectionBloc(getConnectionsUseCase: sl(), addNewConnectionUseCase: sl()));
-  sl.registerLazySingleton(() => PackageBloc(
-    requestPackageUseCase: sl(),
-    getPackageUseCase: sl(),
-    getActivatedPackagesUseCase: sl(),
-    activatePackageRequestUseCase: sl(),
-    cancelPackageRequestUseCase: sl(),
-  ));
+  sl.registerLazySingleton(
+    () => HomeBloc(getBannerNewsUseCase: sl(), getVendorsUseCase: sl()),
+  );
+  sl.registerLazySingleton(
+    () => ConnectionBloc(
+      getConnectionsUseCase: sl(),
+      addNewConnectionUseCase: sl(),
+    ),
+  );
+  sl.registerLazySingleton(
+    () => PackageBloc(
+      requestPackageUseCase: sl(),
+      getPackageUseCase: sl(),
+      getActivatedPackagesUseCase: sl(),
+      activatePackageRequestUseCase: sl(),
+      cancelPackageRequestUseCase: sl(),
+    ),
+  );
   sl.registerLazySingleton(() => PaymentBloc(startPaymentUseCase: sl()));
-  sl.registerLazySingleton(() => PaymentClientBloc(getPayableDetailsUseCase: sl(), createPaymentUseCase: sl(), getPaidInvoicesUseCase: sl()));
-  sl.registerLazySingleton(() => UnreadCountCubit(watchUnreadCountUseCase: sl(), firebaseAuth: sl()));
-  sl.registerLazySingleton(() => NotificationBloc(getNotificationsUseCase: sl(), markAsReadUseCase: sl(), markAllAsReadUseCase: sl()));
-  sl.registerLazySingleton(() => ProfileBloc(updateProfileUseCase: sl(), updatePasswordUseCase: sl()));
-
+  sl.registerLazySingleton(
+    () => PaymentClientBloc(
+      getPayableDetailsUseCase: sl(),
+      createPaymentUseCase: sl(),
+      getPaidInvoicesUseCase: sl(),
+    ),
+  );
+  sl.registerLazySingleton(
+    () => UnreadCountCubit(watchUnreadCountUseCase: sl(), firebaseAuth: sl()),
+  );
+  sl.registerLazySingleton(
+    () => NotificationBloc(
+      getNotificationsUseCase: sl(),
+      markAsReadUseCase: sl(),
+      markAllAsReadUseCase: sl(),
+    ),
+  );
+  sl.registerLazySingleton(
+    () => ProfileBloc(updateProfileUseCase: sl(), updatePasswordUseCase: sl()),
+  );
 
   ///VENDORS
   //BLOC
-  sl.registerLazySingleton(() => HomeVendorBloc(
-      getBannerNewsUseCase: sl(),
-      getClientsUseCase: sl()
-  ));
+  sl.registerLazySingleton(
+    () => HomeVendorBloc(getBannerNewsUseCase: sl(), getClientsUseCase: sl()),
+  );
 
-  sl.registerLazySingleton(() => PackageRequestCubit(
-      watchPackageRequestsUseCase: sl()
-  ));
+  sl.registerLazySingleton(
+    () => PackageRequestCubit(watchPackageRequestsUseCase: sl()),
+  );
 
-  sl.registerLazySingleton(() => WalletBloc(
-    getWalletSummaryUseCase: sl(),
-  ));
+  sl.registerLazySingleton(() => WalletBloc(getWalletSummaryUseCase: sl(), addWithdrawalUseCase: sl()));
+  sl.registerLazySingleton(() => ComHistoryBloc(getHistoryUseCase: sl()));
 
-  sl.registerLazySingleton(() => vendor.PackageBloc(
-    requestPackageUseCase: sl(),
-    getPackageUseCase: sl(),
-    getActivatedPackagesUseCase: sl(),
-    activatePackageRequestUseCase: sl(),
-    cancelPackageRequestUseCase: sl(),
-  ));
 
+  sl.registerLazySingleton(
+    () => vendor.PackageBloc(
+      requestPackageUseCase: sl(),
+      getPackageUseCase: sl(),
+      getActivatedPackagesUseCase: sl(),
+      activatePackageRequestUseCase: sl(),
+      cancelPackageRequestUseCase: sl(),
+    ),
+  );
 
   //USECASE
   sl.registerLazySingleton(() => GetClientsUseCase(sl()));
@@ -207,16 +264,27 @@ Future<void> init() async{
   sl.registerLazySingleton(() => ActivatePackageRequestUseCase(sl()));
   sl.registerLazySingleton(() => CancelPackageRequestUseCase(sl()));
   sl.registerLazySingleton(() => GetWalletSummaryUseCase(sl()));
-
-
+  sl.registerLazySingleton(() => GetComWithdrawHistoryUseCase(sl()));
+  sl.registerLazySingleton(() => AddComWithdrawalUseCase(sl()));
 
   //Repository
-  sl.registerLazySingleton<HomeRepoV>(() => HomeRepoVImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton<WalletRepo>(() => WalletRepoImpl(remoteDataSource: sl()));
-
+  sl.registerLazySingleton<HomeRepoV>(
+    () => HomeRepoVImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<WalletRepo>(
+    () => WalletRepoImpl(remoteDataSource: sl()),
+  );
 
 
   //Datasource
-  sl.registerLazySingleton<HomeRemoteDataSourceV>(() => HomeRemoteDataSourceVImpl(firestore: sl(), firebaseAuth: sl(), database: sl()));
-  sl.registerLazySingleton<WalletRemoteDataSource>(() => WalletRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()));
+  sl.registerLazySingleton<HomeRemoteDataSourceV>(
+    () => HomeRemoteDataSourceVImpl(
+      firestore: sl(),
+      firebaseAuth: sl(),
+      database: sl(),
+    ),
+  );
+  sl.registerLazySingleton<WalletRemoteDataSource>(
+    () => WalletRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()),
+  );
 }
