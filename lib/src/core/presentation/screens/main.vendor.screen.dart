@@ -3,6 +3,7 @@ import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/features/profile/presentation/screens/profile.screen.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/screens/home.vendor.screen.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/presentation/screens/manage.vendor.screen.dart';
 import 'package:smart_reload_system/src/feature/vendor/wallet/presentation/screens/wallet.screen.dart';
 
 class MainVendorScreen extends StatefulWidget {
@@ -17,7 +18,7 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
 
   List<Widget> screens = [
     HomeVendorScreen(),
-    TempScreen(title: "Invoice screen"),
+    ManageScreen(),
     WalletScreen(),
     ProfileScreen(isDark: true),
   ];
@@ -38,8 +39,8 @@ class _MainVendorScreenState extends State<MainVendorScreen> {
               label: 'Home',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.receipt_long_rounded),
-              label: 'Invoice',
+              icon: Icon(Icons.dashboard_customize_outlined),
+              label: 'Manage',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.account_balance_wallet_outlined),

@@ -23,6 +23,8 @@ import 'package:smart_reload_system/src/core/features/auth/presentation/screens/
 import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/screens/connection_details.vendor.screen.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/screens/connection_list.vendor.screen.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/presentation/screens/bank_info.vendor.screen.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/presentation/screens/new_bank_info.vendor.screen.dart';
 
 
 class AppRouter {
@@ -171,6 +173,18 @@ class AppRouter {
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.mainVendorScreen),
           builder: (context) => const MainVendorScreen(),
+        );
+
+      case RouteConstants.bankInfoVendorScreen:
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.bankInfoVendorScreen),
+          builder: (context) => const BankInfoVendorScreen(),
+        );
+
+      case RouteConstants.newBankInfoVendorScreen:
+        return MaterialPageRoute(
+          settings: const RouteSettings(name: RouteConstants.newBankInfoVendorScreen),
+          builder: (context) => const NewBankInfoVendorScreen(),
         );
 
       case RouteConstants.connectionListVendorScreen:

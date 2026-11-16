@@ -6,8 +6,9 @@ class CDropDown extends StatelessWidget {
   final String label;
   final bool isDark;
   final List<String> items;
-  final String selectedType;
+  final String? selectedType;
   final Function(String?) onChanged;
+  final String? Function(String?)? validator;
 
   const CDropDown({
     super.key,
@@ -15,7 +16,8 @@ class CDropDown extends StatelessWidget {
     required this.label,
     required this.items,
     required this.onChanged,
-    required this.selectedType,
+    this.selectedType,
+    this.validator,
 
   });
 
@@ -24,6 +26,7 @@ class CDropDown extends StatelessWidget {
     return DropdownButtonFormField<String>(
       initialValue: selectedType,
       borderRadius: BorderRadius.circular(Sizes.sm),
+      validator: validator,
       items: items.map<DropdownMenuItem<String>>((String value) {
         return DropdownMenuItem<String>(
           value: value,

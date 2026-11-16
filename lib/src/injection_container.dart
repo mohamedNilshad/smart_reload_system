@@ -71,6 +71,13 @@ import 'package:smart_reload_system/src/feature/vendor/home/domain/usecase/get_c
 import 'package:smart_reload_system/src/feature/vendor/home/domain/usecase/watch_package_requests.usecase.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/package_request.cubit.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/data/datasource/manage.remote_datasource.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/data/repository/manage.repo_impl.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/domain/repository/manage.repo.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/domain/usecase/new_bank_info.usecase.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/domain/usecase/get_vendor_bank_info.usecase.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/domain/usecase/remove_bank_info.usecase.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/presentation/bloc/bank/bank.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/wallet/data/datasource/wallet.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/vendor/wallet/data/repository/wallet.repo_impl.dart';
 import 'package:smart_reload_system/src/feature/vendor/wallet/domain/repository/wallet.repo.dart';
@@ -117,6 +124,12 @@ Future<void> init() async {
       database: sl(),
     ),
   );
+  sl.registerLazySingleton<ManageRemoteDataSource>(
+    () => ManageRemoteDataSourceImpl(
+      firestore: sl(),
+      firebaseAuth: sl(),
+    ),
+  );
   sl.registerLazySingleton<NotificationRemoteDataSource>(
     () => NotificationRemoteDataSourceImpl(sl()),
   );
@@ -134,6 +147,9 @@ Future<void> init() async {
   );
   sl.registerLazySingleton<HomeRepo>(
     () => HomeRepoImpl(remoteDataSource: sl()),
+  );
+  sl.registerLazySingleton<ManageRepo>(
+    () => ManageRepoImpl(remoteDataSource: sl()),
   );
   sl.registerLazySingleton<PaymentRepo>(() => PaymentRepoImpl(sl()));
   sl.registerLazySingleton<NotificationRepo>(() => NotificationRepoImpl(sl()));
@@ -169,6 +185,8 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UpdatePasswordUseCase(sl()));
   sl.registerLazySingleton(() => VerifyEmailUseCase(sl()));
   sl.registerLazySingleton(() => AddNewConnectionUseCase(sl()));
+  sl.registerLazySingleton(() => GetVendorBankInfoUseCase(sl()));
+  sl.registerLazySingleton(() => NewBankInfoUseCase(sl()));
   sl.registerLazySingleton(() => GetPayableDetailsUseCase(sl()));
   sl.registerLazySingleton(() => CreatePaymentUseCase(sl()));
   sl.registerLazySingleton(() => GetPaidInvoicesUsecase(sl()));
@@ -233,6 +251,13 @@ Future<void> init() async {
   sl.registerLazySingleton(
     () => ProfileBloc(updateProfileUseCase: sl(), updatePasswordUseCase: sl()),
   );
+  sl.registerLazySingleton(
+    () => BankBloc(
+      getVendorBankInfoUseCase: sl(),
+      newBankInfoUseCase: sl(),
+      removeBankInfoUseCase: sl()
+    ),
+  );
 
   ///VENDORS
   //BLOC
@@ -266,6 +291,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetWalletSummaryUseCase(sl()));
   sl.registerLazySingleton(() => GetComWithdrawHistoryUseCase(sl()));
   sl.registerLazySingleton(() => AddComWithdrawalUseCase(sl()));
+  sl.registerLazySingleton(() => RemoveBankInfoUseCase(sl()));
 
   //Repository
   sl.registerLazySingleton<HomeRepoV>(

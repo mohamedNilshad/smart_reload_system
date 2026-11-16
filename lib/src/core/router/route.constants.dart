@@ -24,5 +24,7 @@ class RouteConstants {
   static const String mainVendorScreen = "MainVendorScreen";
   static const String connectionListVendorScreen = "ConnectionListVendorScreen";
   static const String connectionDetailsVendorScreen = "ConnectionDetailsVendorScreen";
+  static const String bankInfoVendorScreen = "BankInfoVendorScreen";
+  static const String newBankInfoVendorScreen = "NewBankInfoVendorScreen";
 
 }

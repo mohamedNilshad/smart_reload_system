@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/src/services/text_formatter.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 
@@ -14,6 +15,9 @@ class CTextField extends StatefulWidget {
   final IconData? prefixIcon;
   final String? Function(String?)? validator;
   final String? Function(String?)? onChanged;
+  final TextCapitalization? textCapitalization;
+  final TextInputAction? textInputAction;
+  final List<TextInputFormatter>? inputFormatters;
 
   const CTextField({
     super.key,
@@ -28,6 +32,9 @@ class CTextField extends StatefulWidget {
     this.prefixIcon,
     this.validator,
     this.onChanged,
+    this.textCapitalization,
+    this.textInputAction,
+    this.inputFormatters,
   });
 
   @override
