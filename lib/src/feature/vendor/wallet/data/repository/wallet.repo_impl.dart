@@ -32,20 +32,12 @@ class WalletRepoImpl implements WalletRepo {
   }
 
   @override
-  Future<Either<Failure, bool>> addWithdrawal({
-    required double withdrewAmount,
-    required double totalAmount,
-    required String bankName,
-    required String accountHolder,
-    required String accountNumber,
-  }) async {
+  Future<Either<Failure, bool>> addWithdrawal({required double withdrewAmount, required double totalAmount, required String bankId}) async {
     try {
       final saved = await remoteDataSource.addWithdrawal(
         withdrewAmount: withdrewAmount,
         totalAmount: totalAmount,
-        bankName: bankName,
-        accountHolder: accountHolder,
-        accountNumber: accountNumber,
+        bankId: bankId,
       );
       return Right(saved);
     } on ServerException catch (e) {

@@ -31,17 +31,9 @@ class WalletBloc extends Bloc<WalletEvent, WalletState> {
   Future<void> _onWithdrawalSubmitted(ComWithdrawalSubmitted event, Emitter<WalletState> emit) async {
     emit(WalletLoading(isWithdrawalLoading: true));
 
-    final result = await addWithdrawalUseCase(
-      withdrewAmount: event.withdrewAmount,
-      totalAmount: event.totalAmount,
-      bankName: event.bankName,
-      accountHolder: event.accountHolder,
-      accountNumber: event.accountNumber,
-    );
+    final result = await addWithdrawalUseCase(withdrewAmount: event.withdrewAmount, totalAmount: event.totalAmount, bankId: event.bankId);
 
-    result.fold(
-          (failure) => emit(WalletFailure(failure.message)),
-          (success) {
+    result.fold((failure) => emit(WalletFailure(failure.message)), (success) {
         emit(WithdrawSubmitted(success));
         add(const WalletRequested());
       },

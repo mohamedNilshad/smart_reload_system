@@ -151,6 +151,14 @@ class HelperFunctions {
     return '$start$middleMask$end';
   }
 
+  static String maskedNumber(String accountNumber, {bool showFullNumber = false}) {
+    if (showFullNumber || accountNumber.length <= 4) {
+      return accountNumber;
+    }
+    final last4 = accountNumber.substring(accountNumber.length - 4);
+    return '•••• •••• $last4';
+  }
+
 
 
   ///DATE FORMATS--------------------------------------------------->

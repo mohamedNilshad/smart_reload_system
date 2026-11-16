@@ -18,24 +18,14 @@ class WalletReset extends WalletEvent {
 class ComWithdrawalSubmitted extends WalletEvent {
   final double withdrewAmount;
   final double totalAmount;
-  final String bankName;
-  final String accountHolder;
-  final String accountNumber;
+  final String bankId;
 
-  const ComWithdrawalSubmitted({
-    required this.withdrewAmount,
-    required this.totalAmount,
-    required this.bankName,
-    required this.accountHolder,
-    required this.accountNumber,
-  });
+  const ComWithdrawalSubmitted({required this.withdrewAmount, required this.totalAmount, required this.bankId});
 
   @override
   List<Object?> get props => [
     withdrewAmount,
     totalAmount,
-    bankName,
-    accountHolder,
-    accountNumber,
+    bankId,
   ];
 }

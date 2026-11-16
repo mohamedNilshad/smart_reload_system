@@ -38,13 +38,7 @@ class _BankInfoVendorScreenState extends State<BankInfoVendorScreen> {
   final _isLoadingNotifier = ValueNotifier<bool>(false);
 
 
-  String _maskedNumber(String accountNumber) {
-    if (_showFullNumber || accountNumber.length <= 4) {
-      return accountNumber;
-    }
-    final last4 = accountNumber.substring(accountNumber.length - 4);
-    return '•••• •••• $last4';
-  }
+
 
 
   List<BankDetailsModel> bankInfoList = [];
@@ -197,7 +191,7 @@ class _BankInfoVendorScreenState extends State<BankInfoVendorScreen> {
                                     Row(
                                       children: [
                                         SubHeadlineText(
-                                          text: _maskedNumber(item.accountNumber),
+                                          text: HelperFunctions.maskedNumber(item.accountNumber, showFullNumber: _showFullNumber),
                                           color: AppColors.white,
                                         ),
                                         IconButton(

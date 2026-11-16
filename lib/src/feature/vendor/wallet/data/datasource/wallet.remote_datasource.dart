@@ -7,23 +7,14 @@ import 'package:smart_reload_system/src/core/error/error_logger.dart';
 abstract class WalletRemoteDataSource {
   Future<double> getWalletSummary();
   Future<List<ComWithdrawHistoryEntity>> getHistory();
-  Future<bool> addWithdrawal({
-    required double withdrewAmount,
-    required double totalAmount,
-    required String bankName,
-    required String accountHolder,
-    required String accountNumber,
-  });
+  Future<bool> addWithdrawal({required double withdrewAmount, required double totalAmount, required String bankId});
 }
 
 class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
   final FirebaseFirestore firestore;
   final FirebaseAuth firebaseAuth;
 
-  WalletRemoteDataSourceImpl({
-    required this.firestore,
-    required this.firebaseAuth,
-  });
+  WalletRemoteDataSourceImpl({required this.firestore, required this.firebaseAuth});
 
   @override
   Future<double> getWalletSummary() async {
@@ -103,13 +94,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
   }
 
   @override
-  Future<bool> addWithdrawal({
-    required double withdrewAmount,
-    required double totalAmount,
-    required String bankName,
-    required String accountHolder,
-    required String accountNumber,
-  }) async {
+  Future<bool> addWithdrawal({required double withdrewAmount, required double totalAmount, required String bankId}) async {
     try {
       final userId = firebaseAuth.currentUser?.uid;
       if (userId == null) {
@@ -121,10 +106,7 @@ class WalletRemoteDataSourceImpl implements WalletRemoteDataSource {
         'withdrewAmount': withdrewAmount,
         'totalAmount': totalAmount,
         'date': Timestamp.fromDate(DateTime.now()),
-        'bankName': bankName,
-        'accountHolder': accountHolder,
-        'accountNumber': accountNumber,
-        'status': 'pending',
+        'bankId': bankId,
       });
 
       final query = await firestore

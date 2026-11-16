@@ -5,11 +5,5 @@ import 'package:smart_reload_system/src/feature/vendor/wallet/domain/entity/comm
 abstract class WalletRepo {
   Future<Either<Failure, double>> getWalletSummary();
   Future<Either<Failure, List<ComWithdrawHistoryEntity>>> getHistory();
-  Future<Either<Failure, bool>> addWithdrawal({
-    required double withdrewAmount,
-    required double totalAmount,
-    required String bankName,
-    required String accountHolder,
-    required String accountNumber,
-  });
+  Future<Either<Failure, bool>> addWithdrawal({required double withdrewAmount, required double totalAmount, required String bankId});
 }

@@ -10,18 +10,14 @@ class ComWithdrawHistoryEntity extends Equatable {
   final double withdrewAmount;
   final double totalAmount;
   final DateTime date;
-  final String bankName;
-  final String accountHolder;
-  final String accountNumber;
+  final String bankId;
 
   const ComWithdrawHistoryEntity({
     required this.vendorId,
     required this.withdrewAmount,
     required this.totalAmount,
     required this.date,
-    required this.bankName,
-    required this.accountHolder,
-    required this.accountNumber,
+    required this.bankId
   });
 
   factory ComWithdrawHistoryEntity.fromFirestore(DocumentSnapshot doc) {
@@ -31,9 +27,7 @@ class ComWithdrawHistoryEntity extends Equatable {
       withdrewAmount: (data['withdrewAmount'] as num?)?.toDouble() ?? 0.0,
       totalAmount: (data['totalAmount'] as num?)?.toDouble() ?? 0.0,
       date: (data['date'] as Timestamp?)?.toDate() ?? DateTime.now(),
-      bankName: data['bankName'] as String? ?? 'Bank',
-      accountHolder: data['accountHolder'] as String? ?? '',
-      accountNumber: data['accountNumber'] as String? ?? '',
+      bankId: data['bankId'] as String? ?? '',
     );
   }
 
@@ -49,8 +43,6 @@ class ComWithdrawHistoryEntity extends Equatable {
     withdrewAmount,
     totalAmount,
     date,
-    bankName,
-    accountHolder,
-    accountNumber,
+    bankId,
   ];
 }

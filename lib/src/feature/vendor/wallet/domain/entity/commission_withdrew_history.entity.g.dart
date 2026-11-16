@@ -13,9 +13,7 @@ ComWithdrawHistoryEntity _$ComWithdrawHistoryEntityFromJson(
   withdrewAmount: (json['withdrewAmount'] as num).toDouble(),
   totalAmount: (json['totalAmount'] as num).toDouble(),
   date: DateTime.parse(json['date'] as String),
-  bankName: json['bankName'] as String,
-  accountHolder: json['accountHolder'] as String,
-  accountNumber: json['accountNumber'] as String,
+  bankId: json['bankId'] as String,
 );
 
 Map<String, dynamic> _$ComWithdrawHistoryEntityToJson(
@@ -25,7 +23,5 @@ Map<String, dynamic> _$ComWithdrawHistoryEntityToJson(
   'withdrewAmount': instance.withdrewAmount,
   'totalAmount': instance.totalAmount,
   'date': instance.date.toIso8601String(),
-  'bankName': instance.bankName,
-  'accountHolder': instance.accountHolder,
-  'accountNumber': instance.accountNumber,
+  'bankId': instance.bankId,
 };

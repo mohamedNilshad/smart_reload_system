@@ -85,7 +85,7 @@ class AppBottomSheet {
         required String title,
         required Widget form,
         required String buttonText,
-        required VoidCallback onSubmit,
+        VoidCallback? onSubmit,
         ValueListenable<bool>? isLoading,
       }) {
     return showModalBottomSheet<T>(
@@ -254,7 +254,7 @@ class _FormContent extends StatelessWidget {
   final String title;
   final Widget form;
   final String buttonText;
-  final VoidCallback onSubmit;
+  final VoidCallback? onSubmit;
   final ValueListenable<bool> isLoading;
   final bool isDark;
 

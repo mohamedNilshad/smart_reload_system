@@ -7,19 +7,7 @@ class AddComWithdrawalUseCase {
 
   AddComWithdrawalUseCase(this.repo);
 
-  Future<Either<Failure, bool>> call({
-    required double withdrewAmount,
-    required double totalAmount,
-    required String bankName,
-    required String accountHolder,
-    required String accountNumber,
-  }) {
-    return repo.addWithdrawal(
-      withdrewAmount: withdrewAmount,
-      totalAmount: totalAmount,
-      bankName: bankName,
-      accountHolder: accountHolder,
-      accountNumber: accountNumber,
-    );
+  Future<Either<Failure, bool>> call({required double withdrewAmount, required double totalAmount, required String bankId}) {
+    return repo.addWithdrawal(withdrewAmount: withdrewAmount, totalAmount: totalAmount, bankId: bankId);
   }
 }
