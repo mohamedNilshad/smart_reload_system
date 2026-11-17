@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
+import 'package:smart_reload_system/src/core/domain/entity/user.entity.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_card.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/presentation/screens/report/report.vendor.screen.dart';
+import 'package:smart_reload_system/src/feature/vendor/report/presentation/screen/vendor_dashboard.screen.dart';
 
 class ManageScreen extends StatefulWidget {
   const ManageScreen({super.key});
@@ -32,6 +38,17 @@ class _ManageScreenState extends State<ManageScreen> {
     },
   ];
 
+  late UserEntity user;
+
+  bool isLoading = false;
+
+  @override
+  void initState() {
+    final sessionState = context.read<SessionCubit>().state;
+    if (sessionState is SessionAuthenticated) user = sessionState.user;
+    super.initState();
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -52,7 +69,20 @@ class _ManageScreenState extends State<ManageScreen> {
             return InkWell(
               onTap: (){
                 if(index == 0){
-                  //do
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => const VendorReportsScreen(),
+                  //   ),
+                  // );
+                  //
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => VendorDashboardScreen(vendorId: user.uid,),
+                    ),
+                  );
+
                 } else if(index == 1){
                   //do
                 } else if(index == 2){

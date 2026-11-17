@@ -19,6 +19,7 @@ import 'package:smart_reload_system/src/core/features/profile/presentation/bloc/
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/home.vendor.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/bloc/home/package_request.cubit.dart';
 import 'package:smart_reload_system/src/feature/vendor/manage/presentation/bloc/bank/bank.bloc.dart';
+import 'package:smart_reload_system/src/feature/vendor/report/presentation/bloc/vendor_reports.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/wallet/presentation/bloc/com_history/com_history.bloc.dart';
 import 'package:smart_reload_system/src/injection_container.dart';
 
@@ -53,6 +54,7 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => sl<WalletBloc>()),
         BlocProvider(create: (_) => sl<vendor.PackageBloc>()),
         BlocProvider(create: (_) => sl<ComHistoryBloc>()),
+        BlocProvider(create: (_) => sl<VendorReportsBloc>()),
       ],
       child: BlocBuilder<ThemeBloc, ThemeMode>(
         builder: (context, state) {

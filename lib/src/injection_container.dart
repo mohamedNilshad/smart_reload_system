@@ -27,6 +27,7 @@ import 'package:smart_reload_system/src/core/features/auth/domain/usecase/verify
 import 'package:smart_reload_system/src/core/features/auth/domain/usecase/watch_user_realtime.usecase.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/auth.bloc.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/core/services/report_calculator.service.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/datasource/home.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/repository/home.repo_impl.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/repository/home.repo.dart';
@@ -78,6 +79,11 @@ import 'package:smart_reload_system/src/feature/vendor/manage/domain/usecase/new
 import 'package:smart_reload_system/src/feature/vendor/manage/domain/usecase/get_vendor_bank_info.usecase.dart';
 import 'package:smart_reload_system/src/feature/vendor/manage/domain/usecase/remove_bank_info.usecase.dart';
 import 'package:smart_reload_system/src/feature/vendor/manage/presentation/bloc/bank/bank.bloc.dart';
+import 'package:smart_reload_system/src/feature/vendor/report/data/datasource/vendor_reports.remote_datasource.dart';
+import 'package:smart_reload_system/src/feature/vendor/report/data/repository/vendor_reports.repo_impl.dart';
+import 'package:smart_reload_system/src/feature/vendor/report/domain/repository/vendor_reports.repo.dart';
+import 'package:smart_reload_system/src/feature/vendor/report/domain/usecase/get_vendor_report.usecase.dart';
+import 'package:smart_reload_system/src/feature/vendor/report/presentation/bloc/vendor_reports.bloc.dart';
 import 'package:smart_reload_system/src/feature/vendor/wallet/data/datasource/wallet.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/vendor/wallet/data/repository/wallet.repo_impl.dart';
 import 'package:smart_reload_system/src/feature/vendor/wallet/domain/repository/wallet.repo.dart';
@@ -313,4 +319,19 @@ Future<void> init() async {
   sl.registerLazySingleton<WalletRemoteDataSource>(
     () => WalletRemoteDataSourceImpl(firestore: sl(), firebaseAuth: sl()),
   );
+
+  sl.registerLazySingleton<VendorReportsRemoteDataSource>(
+        () => VendorReportsRemoteDataSourceImpl(firestore: sl()),
+  );
+
+
+  sl.registerLazySingleton(() => const ReportCalculator());
+  sl.registerLazySingleton<VendorReportsRepo>(
+          () => VendorReportsRepoImpl(remote: sl(), calculator: sl()));
+  sl.registerLazySingleton(() => GetVendorReportUseCase(sl()));
+  sl.registerLazySingleton(() => VendorReportsBloc(getVendorReportUseCase: sl()));
+
+  // sl.registerLazySingleton(() => VendorReportsBloc(getVendorReportUseCase: sl()));
+
+
 }

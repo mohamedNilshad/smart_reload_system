@@ -15,10 +15,7 @@ class ManageRemoteDataSourceImpl implements ManageRemoteDataSource {
   final FirebaseFirestore firestore;
   final FirebaseAuth firebaseAuth;
 
-  ManageRemoteDataSourceImpl({
-    required this.firestore,
-    required this.firebaseAuth,
-  });
+  ManageRemoteDataSourceImpl({required this.firestore, required this.firebaseAuth});
 
   @override
   Future<List<BankDetailsModel>> getVendorBankInfo() async {

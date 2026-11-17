@@ -9,7 +9,8 @@ import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart
 class FallbackWidget extends StatelessWidget {
   final void Function() onPressed;
   final bool isDark;
-  const FallbackWidget({super.key, required this.onPressed, this.isDark = false});
+  final String? message;
+  const FallbackWidget({super.key, required this.onPressed, this.message, this.isDark = false});
 
   @override
   Widget build(BuildContext context) {
@@ -28,7 +29,7 @@ class FallbackWidget extends StatelessWidget {
           SizedBox(
             width: HelperFunctions.screenWidth(context)/1.2,
             child: BodyText(
-              text: 'Something went wrong while loading this screen.',
+              text: message ?? 'Something went wrong while loading this screen.',
               color: isDark ? AppColors.darkGrey : AppColors.white,
               textAlign: TextAlign.center,
             ),

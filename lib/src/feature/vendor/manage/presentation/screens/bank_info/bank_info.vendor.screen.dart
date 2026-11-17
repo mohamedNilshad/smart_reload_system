@@ -38,9 +38,6 @@ class _BankInfoVendorScreenState extends State<BankInfoVendorScreen> {
   final _isLoadingNotifier = ValueNotifier<bool>(false);
 
 
-
-
-
   List<BankDetailsModel> bankInfoList = [];
 
   @override

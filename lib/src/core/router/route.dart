@@ -23,8 +23,8 @@ import 'package:smart_reload_system/src/core/features/auth/presentation/screens/
 import 'package:smart_reload_system/src/feature/vendor/home/data/model/client.model.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/screens/connection_details.vendor.screen.dart';
 import 'package:smart_reload_system/src/feature/vendor/home/presentation/screens/connection_list.vendor.screen.dart';
-import 'package:smart_reload_system/src/feature/vendor/manage/presentation/screens/bank_info.vendor.screen.dart';
-import 'package:smart_reload_system/src/feature/vendor/manage/presentation/screens/new_bank_info.vendor.screen.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/presentation/screens/bank_info/bank_info.vendor.screen.dart';
+import 'package:smart_reload_system/src/feature/vendor/manage/presentation/screens/bank_info/new_bank_info.vendor.screen.dart';
 
 
 class AppRouter {
