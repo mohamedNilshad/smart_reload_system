@@ -12,14 +12,16 @@ class PackageCard extends StatelessWidget {
   final String validity;
   final String description;
   final double price;
+  final bool isDark;
   final void Function()? onTap;
-  const PackageCard({super.key, required this.title, required this.validity, required this.description, required this.price, required this.onTap});
+  const PackageCard({super.key, this.isDark = false, required this.title, required this.validity, required this.description, required this.price, required this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
       child: CCard(
+        isDark: isDark,
         radius: BorderRadius.circular(Sizes.borderRadius),
         padding: const EdgeInsets.symmetric(vertical:  Sizes.ssm),
         margin: const EdgeInsets.symmetric(vertical:  Sizes.sm),
@@ -32,8 +34,8 @@ class PackageCard extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  TitleText(text: title),
-                  SubTitleText(text: description, color: AppColors.darkerGrey),
+                  TitleText(text: title, color: isDark ? AppColors.white : null,),
+                  SubTitleText(text: description, color: isDark ? AppColors.darkGrey :AppColors.darkerGrey),
                 ],
               ),
             ),
@@ -58,8 +60,8 @@ class PackageCard extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        LabelText(text: title, color: AppColors.darkGrey,),
-        LabelText(text: subtitle, isBold: true,),
+        LabelText(text: title, color: isDark ? AppColors.grey : AppColors.darkGrey,),
+        LabelText(text: subtitle, isBold: true,color: isDark ? AppColors.white : null,),
       ],
     );
   }

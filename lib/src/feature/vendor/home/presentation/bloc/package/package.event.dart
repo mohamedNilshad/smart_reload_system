@@ -8,14 +8,6 @@ abstract class PackageEvent extends Equatable {
   List<Object?> get props => [];
 }
 
-class PackageRequest extends PackageEvent {
-  final PackageRequestModel packageRequestModel;
-  final String userName;
-  const PackageRequest(this.packageRequestModel, this.userName);
-
-  @override
-  List<Object?> get props => [packageRequestModel, userName];
-}
 
 class ActivatePackageRequest extends PackageEvent {
   final PackageRequestModel packageRequestModel;

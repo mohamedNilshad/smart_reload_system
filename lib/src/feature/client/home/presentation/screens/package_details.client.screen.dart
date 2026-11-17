@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
+import 'package:smart_reload_system/src/core/domain/entity/user.entity.dart';
 import 'package:smart_reload_system/src/core/enums/connection_data.enum.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
@@ -25,7 +26,8 @@ import 'package:smart_reload_system/src/feature/client/home/presentation/screens
 class PackageDetailsClientScreen extends StatefulWidget {
   final ConnectionModel connectionModel;
   final String vendorId;
-  const PackageDetailsClientScreen({super.key, required this.connectionModel, required this.vendorId});
+  final bool isDark;
+  const PackageDetailsClientScreen({super.key, this.isDark = false, required this.connectionModel, required this.vendorId});
 
   @override
   State<PackageDetailsClientScreen> createState() => _PackageDetailsClientScreenState();
@@ -40,18 +42,20 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
   List<PackageModel> dataPackages = [];
   List<PackageModel> voicePackages = [];
   List<PackageModel> comboPackages = [];
-  String userName = "USER";
+  late UserEntity user;
 
   bool isMobile = true;
+  bool isDark = false;
 
   double screenWidth = 0.0;
 
   @override
   void initState() {
+    isDark = widget.isDark;
     connectionModel = widget.connectionModel;
     final sessionState = context.read<SessionCubit>().state;
     if (sessionState is SessionAuthenticated) {
-      userName = sessionState.user.fullName;
+      user = sessionState.user;
     }
 
     context.read<PackageBloc>().add(FetchPackages(
@@ -111,7 +115,9 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
       },
 
       child: Scaffold(
+        backgroundColor: isDark ? AppColors.scaffoldVendor : null,
         appBar: customAppBar(
+          isDark: isDark,
           onPressed: () => Navigator.of(context).pop(),
           icon: Icons.arrow_back_ios_new_rounded,
           title: "Package Details",
@@ -154,7 +160,7 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
                         delegate: StickyTabBarDelegate(
                           TabBar(
                             labelColor: AppColors.primary,
-                            unselectedLabelColor: AppColors.darkerGrey,
+                            unselectedLabelColor: isDark ? AppColors.grey : AppColors.darkerGrey,
                             indicatorColor: AppColors.primary,
                             labelStyle: Theme.of(context).textTheme.titleMedium?.copyWith(fontSize: 14),
                             tabs: const [
@@ -163,7 +169,7 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
                               Tab(text: 'Combo'),
                             ],
                           ),
-                          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+                          backgroundColor: isDark ? AppColors.scaffoldVendor : Theme.of(context).scaffoldBackgroundColor,
                         ),
                       ),
                     ];
@@ -204,9 +210,11 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
         String validity = "$count ${item.validityPeriod}${count >1 ? 's' : ''}";
 
         return PackageCard(
+          isDark : isDark,
           onTap: () {
             AppBottomSheet.showInfo(
               context,
+              isDark: isDark,
               title: item.packageName,
               subtitle: item.packageDescription,
               buttonText: "Request Reload",
@@ -218,17 +226,37 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
               ],
               onPressed: (){
 
-                final data = PackageRequestModel(
-                  clientVendorId: connectionModel.clientVendorId,
-                  vendorId: widget.vendorId,
-                  packageModel: item,
-                  connectionId: connectionModel.id!,
-                  requestDate: DateTime.now(),
-                  packageDetailsId: item.id,
-                  amount: item.packagePrice,
-                );
+                if(isDark){
+                  final activatedAt = DateTime.now();
+                  final data = PackageRequestModel(
+                    clientVendorId: connectionModel.clientVendorId,
+                    connectionId: connectionModel.id!,
+                    requestDate:activatedAt,
+                    vendorId: user.uid,
+                    activatedDate: activatedAt,
+                    packageModel: item,
+                    packageDetailsId: item.id,
+                    amount: item.packagePrice,
+                    isPaid: false,
+                    isCancel: false,
+                    isDelete: false,
+                  );
 
-                context.read<PackageBloc>().add(PackageRequest(data, userName));
+                  context.read<PackageBloc>().add(ActivatePackageRequest(data, widget.vendorId));//in vendor dashboard it is client id
+                }else{
+                  final data = PackageRequestModel(
+                    clientVendorId: connectionModel.clientVendorId,
+                    vendorId: widget.vendorId,//in client dashboard it is vendor id
+                    packageModel: item,
+                    connectionId: connectionModel.id!,
+                    requestDate: DateTime.now(),
+                    packageDetailsId: item.id,
+                    amount: item.packagePrice,
+                  );
+
+                  context.read<PackageBloc>().add(PackageRequest(data, user.fullName));
+                }
+
               }
             );
           },
@@ -253,13 +281,13 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
         ),
         child: CSvgBuilder(
           path: SvgStrings.box,
-          colorFilter: ColorFilter.mode(AppColors.black, BlendMode.srcIn),
+          colorFilter: ColorFilter.mode(isDark ? AppColors.white : AppColors.black, BlendMode.srcIn),
         ),
       ),
-      title: TitleText(text: connectionModel.serviceProvider!),
+      title: TitleText(text: connectionModel.serviceProvider!, color: isDark ? AppColors.white : null,),
       subtitle: Row(
         children: [
-          CChip(label: connectionModel.connectionType),
+          CChip(label: connectionModel.connectionType, fontColor: isDark ? AppColors.grey : null),
         ],
       ),
     );

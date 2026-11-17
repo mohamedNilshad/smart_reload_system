@@ -19,11 +19,13 @@ class PackageRequest extends PackageEvent {
 
 class ActivatePackageRequest extends PackageEvent {
   final PackageRequestModel packageRequestModel;
-  const ActivatePackageRequest(this.packageRequestModel);
+  final String clientId;
+  const ActivatePackageRequest(this.packageRequestModel, this.clientId);
 
   @override
-  List<Object?> get props => [packageRequestModel];
+  List<Object?> get props => [packageRequestModel, clientId];
 }
+
 class CancelPackageRequest extends PackageEvent {
   final PackageRequestModel packageRequestModel;
   const CancelPackageRequest(this.packageRequestModel);

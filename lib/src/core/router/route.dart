@@ -118,11 +118,12 @@ class AppRouter {
         final args = settings.arguments as ({
           ConnectionModel connectionModel,
           String vendorId,
+          bool isDark,
         });
 
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.packageDetailsClientScreen),
-          builder: (context) => PackageDetailsClientScreen(connectionModel: args.connectionModel, vendorId: args.vendorId),
+          builder: (context) => PackageDetailsClientScreen(connectionModel: args.connectionModel, vendorId: args.vendorId, isDark: args.isDark,),
         );
 
       case RouteConstants.reloadHistoryClientScreen:

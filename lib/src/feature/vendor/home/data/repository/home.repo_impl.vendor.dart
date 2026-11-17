@@ -57,18 +57,6 @@ class HomeRepoVImpl implements HomeRepoV {
   }
 
   @override
-  Future<Either<Failure, bool>> requestPackage(PackageRequestModel packageRequestModel) async {
-    try {
-      final result = await remoteDataSource.requestPackage(packageRequestModel);
-      return Right(result);
-    } on ServerException catch (e) {
-      return Left(ServerFailure(e.message));
-    } catch (e) {
-      return Left(ServerFailure('An unexpected error occurred'));
-    }
-  }
-
-  @override
   Future<Either<Failure, bool>> activatePackageRequest(PackageRequestModel packageRequestModel, String clientId) async {
     try {
       final result = await remoteDataSource.activatePackageRequest(packageRequestModel, clientId);

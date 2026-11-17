@@ -10,7 +10,6 @@ abstract class HomeRepoV {
   Future<Either<Failure, Map<String, dynamic>>> getClients();
 
   Future<Either<Failure, List<ConnectionModel>>> getConnections(String clientVendorId);
-  Future<Either<Failure, bool>> requestPackage(PackageRequestModel packageRequestModel);
   Future<Either<Failure, bool>> activatePackageRequest(PackageRequestModel packageRequestModel, String clientId);
   Future<Either<Failure, bool>> cancelPackageRequest(PackageRequestModel packageRequestModel);
   Future<Either<Failure, bool>> addNewConnection(ConnectionModel connectionModel);

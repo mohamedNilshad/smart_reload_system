@@ -67,6 +67,7 @@ class AppBottomSheet {
       builder: (_) => _BottomSheetShell(
         isDark: isDark,
         child: _InfoContent(
+          isDark: isDark,
           title: title,
           subtitle: subtitle,
           buttonText: buttonText,
@@ -184,12 +185,14 @@ class _InfoContent extends StatelessWidget {
   final String title;
   final String subtitle;
   final String buttonText;
+  final bool isDark;
   final List<String> points;
   final ValueNotifier<bool> isLoading;
   final VoidCallback? onPressed;
 
   const _InfoContent({
     required this.title,
+    required this.isDark,
     required this.subtitle,
     required this.buttonText,
     required this.points,
@@ -203,10 +206,10 @@ class _InfoContent extends StatelessWidget {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        TitleText(text: title),
+        TitleText(text: title, color: isDark ? AppColors.white : null),
         const SizedBox(height: Sizes.sm),
 
-        BodyText(text: subtitle, textAlign: TextAlign.center, color: AppColors.darkerGrey),
+        BodyText(text: subtitle, textAlign: TextAlign.center, color: isDark ? AppColors.grey : AppColors.darkerGrey),
 
         if(points.isNotEmpty)...{
           Padding(
@@ -216,8 +219,8 @@ class _InfoContent extends StatelessWidget {
               children: points.map((p){
                 return Row(
                   children: [
-                    Icon(Icons.arrow_right_outlined, size: 20,),
-                    Flexible(child: BodyText(text: p, color: AppColors.darkGrey, size: 11,)),
+                    Icon(Icons.arrow_right_outlined, size: 20, color: isDark ? AppColors.white : null),
+                    Flexible(child: BodyText(text: p, color:  AppColors.darkGrey, size: 11,)),
                   ],
                 );
               }).toList(),

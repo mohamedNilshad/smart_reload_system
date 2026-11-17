@@ -18,7 +18,6 @@ abstract class HomeRemoteDataSourceV {
   Future<Map<String, dynamic>> getClients();
 
   Future<List<ConnectionModel>> getConnections(String clientVendorId);
-  Future<bool> requestPackage(PackageRequestModel packageRequestModel);
   Future<bool> activatePackageRequest(PackageRequestModel packageRequestModel, String clientId);
   Future<bool> cancelPackageRequest(PackageRequestModel packageRequestModel);
   Future<bool> addNewConnection(ConnectionModel connectionModel);
@@ -216,50 +215,33 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
   }
 
   @override
-  Future<bool> requestPackage(PackageRequestModel packageRequestModel) async {
+  Future<bool> activatePackageRequest(PackageRequestModel packageRequestModel, String clientId, ) async {
     try {
-
-      await firestore.collection("requested_packages").add(packageRequestModel.toJson());
-      //send push notification
-      return true;
-    } on FirebaseException catch (e, st) {
-      ErrorLogger.log(
-        e,
-        location: 'HomeRemoteDataSourceImpl.requestPackage',
-        stackTrace: st,
-      );
-      throw ServerException(e.message ?? 'Failed to fetch connections');
-    } catch (e, st) {
-      ErrorLogger.log(
-        e,
-        location: 'HomeRemoteDataSourceImpl.requestPackage',
-        stackTrace: st,
-      );
-      throw Exception('An error occurred while fetching connections');
-    }
-  }
-
-  @override
-  Future<bool> activatePackageRequest(PackageRequestModel packageRequestModel, String clientId) async {
-    try {
-      if (packageRequestModel.id == null || packageRequestModel.id!.isEmpty) {
-        throw ServerException('Package request id is missing');
-      }
 
       final activatedAt = DateTime.now();
-      final expireDate = HelperFunctions.calculateExpiryDate(
-        activatedAt,
-        packageRequestModel.packageModel?.packageValidity,
-        packageRequestModel.packageModel?.validityPeriod,
-      );
+      DateTime? expireDate;
+      if (packageRequestModel.id == null || packageRequestModel.id!.isEmpty) {
+        // throw ServerException('Package request id is missing');
 
-      await firestore.collection('requested_packages').doc(packageRequestModel.id).update({
-        'activatedDate': Timestamp.fromDate(activatedAt),
-        'expireDate': Timestamp.fromDate(expireDate),
-        'packageDetailsId': packageRequestModel.packageDetailsId,
-        'isCancel': false,
-        'isDelete': false,
-      });
+        await firestore.collection("requested_packages").add(packageRequestModel.toJson());
+
+      }else{
+        expireDate = HelperFunctions.calculateExpiryDate(
+          activatedAt,
+          packageRequestModel.packageModel?.packageValidity,
+          packageRequestModel.packageModel?.validityPeriod,
+        );
+
+        await firestore.collection('requested_packages').doc(packageRequestModel.id).update({
+          'activatedDate': Timestamp.fromDate(activatedAt),
+          'expireDate': Timestamp.fromDate(expireDate),
+          'packageDetailsId': packageRequestModel.packageDetailsId,
+          'isCancel': false,
+          'isDelete': false,
+        });
+      }
+
+
 
       ///Send push notification to the client about the activation
       final tokenSnapshot = await firestore.collection('device_info').where('userId', isEqualTo: clientId).get();
@@ -277,7 +259,7 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
 
 
       String notifyTitle = "Reload Activated";
-      String notifyBody = "Requested reload $packageName Amount: $amount. Activated on: ${HelperFunctions.formatDateTime(activatedAt)}. Expires on: ${HelperFunctions.formatDateTime(expireDate)}.";
+      String notifyBody = "Requested reload $packageName Amount: $amount. Activated on: ${HelperFunctions.formatDateTime(activatedAt)}. Expires on: ${(expireDate == null) ? ' N/A': HelperFunctions.formatDateTime(expireDate)}.";
       debugPrint("Notify Body: $notifyBody");
 
       await firestore.collection('users').doc(clientId).collection('notifications').add({

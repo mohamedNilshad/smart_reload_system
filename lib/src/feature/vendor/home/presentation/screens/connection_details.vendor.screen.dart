@@ -104,29 +104,38 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
         otherPackages.clear();
 
         allPackageDetails = packages;
-
-        for (var pc in packages) {
-          if((pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)) && (pc.isCancel == null || pc.isCancel == false)){
-            actPackageDetails.add(pc);
-          }
-        }
-
-        for (var p in actPackageDetails) {
-          if(p.packageModel?.packageType == PackageType.Data.name){
-            dataPackages.add(p);
-          }else if(p.packageModel?.packageType == PackageType.Voice.name){
-            voicePackages.add(p);
-          }else if(p.packageModel?.packageType == PackageType.Combo.name){
-            comboPackages.add(p);
-          }
-
-          if(p.packageModel?.packageType == null && p.activatedDate == null){
-            otherPackages.add(p);
-          }
-        }
-        fetchingActPackage = false;
         //show history only
         isUtility = (connectionModel.connectionCategory.toLowerCase() == ConCategory.Utility.name.toLowerCase()) || (connectionModel.connectionType.toLowerCase() == TelecomType.TV.name.toLowerCase());
+
+        if(isUtility){
+          for (var pc in packages) {
+            if((pc.activatedDate == null) && (pc.isCancel == null || pc.isCancel == false)){
+              actPackageDetails.add(pc);
+            }
+          }
+        }else{
+          for (var pc in packages) {
+            if((pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)) && (pc.isCancel == null || pc.isCancel == false)){
+              actPackageDetails.add(pc);
+            }
+          }
+
+          for (var p in actPackageDetails) {
+            if(p.packageModel?.packageType == PackageType.Data.name){
+              dataPackages.add(p);
+            }else if(p.packageModel?.packageType == PackageType.Voice.name){
+              voicePackages.add(p);
+            }else if(p.packageModel?.packageType == PackageType.Combo.name){
+              comboPackages.add(p);
+            }
+
+            if(p.packageModel?.packageType == null && p.activatedDate == null){
+              otherPackages.add(p);
+            }
+          }
+        }
+
+        fetchingActPackage = false;
       });
     }catch(e, st){
       ErrorLogger.log(
@@ -233,8 +242,10 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                       _buildHeader(),
                       _buildList(
                         typeIndex: 0,
-                        packages: dataPackages,
-                        emptyMsg: "No Data packages activated!",
+                        packages: allPackageDetails,
+                        topPadding: true,
+                        isReload: true,
+                        emptyMsg: "No Reloads !",
                       ),
                     ],
                   ),
@@ -357,7 +368,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                 if(result == 'Select a package' && context.mounted){
                   Navigator.of(context).pushNamed(
                       RouteConstants.packageDetailsClientScreen,
-                      arguments: (vendorId: widget.vendorId, connectionModel: connectionModel),
+                      arguments: (vendorId: widget.client.clientId, connectionModel: connectionModel, isDark: true),
                   );
                 }else{
                   showAmountSheet();
@@ -398,17 +409,19 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
       isLoading: _isLoadingNotifier,
       onSubmit: () {
         if(_formKey.currentState!.validate()){
+          final activatedAt = DateTime.now();
           final data = PackageRequestModel(
             clientVendorId: connectionModel.clientVendorId,
-            vendorId: widget.vendorId,
             connectionId: connectionModel.id!,
-            requestDate: DateTime.now(),
+            requestDate:activatedAt,
+            vendorId: user.uid,
+            activatedDate: activatedAt,
             amount: double.parse(amountController.text),
+            isPaid: false,
             isCancel: false,
             isDelete: false,
           );
-
-          context.read<PackageBloc>().add(PackageRequest(data, user.fullName));
+          context.read<PackageBloc>().add(ActivatePackageRequest(data, widget.client.clientId));
         }
       },
     );
@@ -484,7 +497,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                 });
               }
             },
-            onTap: isReload ? null : () {
+            onTap: () {
               if(expandId == index) {
                 setState(() => expandId = -1);
               }else {
@@ -555,45 +568,47 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
               },
             ],
           ),
-          Container(
-            padding: EdgeInsets.all(Sizes.ssm),
-            margin: EdgeInsets.only(bottom: Sizes.ssm),
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16.0),
-              border: Border(left: BorderSide(color: AppColors.primary, width: 5.0)),
-              color: AppColors.darkContainers,
+          if(!isUtility)...{
+            Container(
+              padding: EdgeInsets.all(Sizes.ssm),
+              margin: EdgeInsets.only(bottom: Sizes.ssm),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.0),
+                border: Border(left: BorderSide(color: AppColors.primary, width: 5.0)),
+                color: AppColors.darkContainers,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 5,
+                    children: [
+                      BodyText(text: "Reload History", color: AppColors.white),
+                      TitleText(text: "Total reloads (${allPackageDetails.length})", color: AppColors.white),
+                      SubTitleText(text: "click to see all", color: AppColors.grey),
+                      // SubTitleText(text: "Last request: ${HelperFunctions.formatDateTime(actPackageDetails.last.requestDate)}"),
+                    ],
+                  ),
+                  TextButton(
+                    onPressed: (){
+                      Navigator.of(context).pushNamed(
+                        RouteConstants.reloadHistoryClientScreen,
+                        arguments: (
+                        packageList: allPackageDetails,
+                        connection: connectionModel,
+                        isMobile: isMobile,
+                        isDark: true,
+                        ),
+                      );
+                    },
+                    child: Text("See All"),
+                  ),
+                ],
+              ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 5,
-                  children: [
-                    BodyText(text: "Reload History", color: AppColors.white),
-                    TitleText(text: "Total reloads (${allPackageDetails.length})", color: AppColors.white),
-                    SubTitleText(text: "click to see all", color: AppColors.grey),
-                    // SubTitleText(text: "Last request: ${HelperFunctions.formatDateTime(actPackageDetails.last.requestDate)}"),
-                  ],
-                ),
-                TextButton(
-                  onPressed: (){
-                    Navigator.of(context).pushNamed(
-                      RouteConstants.reloadHistoryClientScreen,
-                      arguments: (
-                       packageList: allPackageDetails,
-                       connection: connectionModel,
-                       isMobile: isMobile,
-                       isDark: true,
-                      ),
-                    );
-                  },
-                  child: Text("See All"),
-                ),
-              ],
-            ),
-          ),
+          },
           SubHeadlineText(text: "Packages", color: AppColors.white),
           Padding(
             padding: const EdgeInsets.only(top: 8),
@@ -605,7 +620,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                     child: CChip(
                       label: 'All',
                       bgColor: _selectedPackageFilter == PackageFilter.all ? AppColors.primary : AppColors.grey,
-                      fontColor: _selectedPackageFilter == PackageFilter.all ? AppColors.white : AppColors.darkerGrey,
+                      fontColor: _selectedPackageFilter == PackageFilter.all ? AppColors.white : AppColors.grey,
                     ),
                   ),
                 ),
@@ -616,7 +631,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                     child: CChip(
                       label: 'Pending',
                       bgColor: _selectedPackageFilter == PackageFilter.pending ? AppColors.warning : AppColors.grey,
-                      fontColor: _selectedPackageFilter == PackageFilter.pending ? AppColors.white : AppColors.darkerGrey,
+                      fontColor: _selectedPackageFilter == PackageFilter.pending ? AppColors.white : AppColors.grey,
                     ),
                   ),
                 ),
@@ -627,7 +642,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                     child: CChip(
                       label: 'Activated',
                       bgColor: _selectedPackageFilter == PackageFilter.activated ? AppColors.buttonGreen : AppColors.grey,
-                      fontColor: _selectedPackageFilter == PackageFilter.activated ? AppColors.white : AppColors.darkerGrey,
+                      fontColor: _selectedPackageFilter == PackageFilter.activated ? AppColors.white : AppColors.grey,
                     ),
                   ),
                 ),

@@ -20,22 +20,10 @@ class PackageBloc extends Bloc<PackageEvent, PackageState> {
     this.activatePackageRequestUseCase,
     this.cancelPackageRequestUseCase,
   }) : super(const PackageRequestInitial()) {
-    on<PackageRequest>(_onPackageRequest);
     on<ActivatePackageRequest>(_onActivatePackageRequest);
     on<CancelPackageRequest>(_onCancelPackageRequest);
     on<FetchPackages>(_onFetchPackage);
     on<FetchActivatedPackages>(_onFetchActivatedPackage);
-  }
-
-  Future<void> _onPackageRequest(PackageRequest event, Emitter<PackageState> emit) async {
-    emit(const PackageLoading(requesting: true));
-
-    final result = await requestPackageUseCase(packageRequestModel: event.packageRequestModel, clientName: event.userName);
-
-    result.fold(
-      (failure) => emit(PackageFailure(failure.message)),
-      (requestStatus) => emit(PackageSuccess(isRequested: requestStatus)),
-    );
   }
 
   Future<void> _onActivatePackageRequest(ActivatePackageRequest event, Emitter<PackageState> emit) async {

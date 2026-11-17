@@ -61,7 +61,6 @@ class ActivatedPackageCard extends StatelessWidget {
     return progress;
   }
 
-
   @override
   Widget build(BuildContext context) {
     double screenWidth = HelperFunctions.screenWidth(context);
@@ -87,7 +86,7 @@ class ActivatedPackageCard extends StatelessWidget {
                         title: TitleText(text: title, color: isDark ? AppColors.white : null),
                         subtitle: SubTitleText(text: description, color: isDark ? AppColors.grey : AppColors.darkerGrey),
                         trailing: status ? Visibility(
-                          visible: calDate(actDate!, expDate!) > 0.75,
+                          visible: !isReload && calDate(actDate!, expDate!) > 0.75,
                           child: CChip(
                             label: "Expiring soon",
                             bgColor: AppColors.accent,
@@ -143,27 +142,25 @@ class ActivatedPackageCard extends StatelessWidget {
                     ],
                   ),
                 ),
-                if(!isReload)...{
-                  Divider(thickness: 0.3),
-                  InkWell(
-                    onTap: onTap,
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(Sizes.sm, Sizes.sm, Sizes.sm, Sizes.ssm),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SubTitleText(text: "Package Details", color: AppColors.darkGrey, isBold: true),
-                          Icon(isExpand ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.darkGrey),
-                        ],
-                      ),
+                Divider(thickness: 0.3),
+                InkWell(
+                  onTap: onTap,
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(Sizes.sm, Sizes.sm, Sizes.sm, Sizes.ssm),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SubTitleText(text: "More Details", color: AppColors.darkGrey, isBold: true),
+                        Icon(isExpand ? Icons.keyboard_arrow_up_rounded : Icons.keyboard_arrow_down_rounded, size: 18, color: AppColors.darkGrey),
+                      ],
                     ),
                   ),
-                },
+                ),
 
               ],
             ),
           ),
-          if(isExpand && !isReload)...{
+          if(isExpand )...{
             Container(
               margin: const EdgeInsets.fromLTRB(Sizes.sm, 0.0, Sizes.sm, Sizes.sm),
               padding: const EdgeInsets.all(Sizes.sm),
@@ -184,8 +181,8 @@ class ActivatedPackageCard extends StatelessWidget {
                   Row(
                     spacing: 10,
                     children: [
-                      _buildDetailsColumn("Exp. date", status ? HelperFunctions.formatDateTime(expDate!) : "N/A", width: screenWidth/1.8),
-                      _buildDetailsColumn("Validity", validity),
+                      _buildDetailsColumn("Exp. date", (expDate != null) ? HelperFunctions.formatDateTime(expDate!) : "N/A", width: screenWidth/1.8),
+                      _buildDetailsColumn("Validity", validity.isNotEmpty ? validity : "N/A"),
                     ],
                   ),
                 ],

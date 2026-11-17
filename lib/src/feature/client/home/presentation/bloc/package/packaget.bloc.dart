@@ -48,7 +48,7 @@ class PackageBloc extends Bloc<PackageEvent, PackageState> {
 
     emit(const PackageLoading(requesting: true));
 
-    final result = await activatePackageRequestUseCase!(event.packageRequestModel, "");
+    final result = await activatePackageRequestUseCase!(event.packageRequestModel, event.clientId);
 
     result.fold(
       (failure) => emit(PackageFailure(failure.message)),
@@ -86,7 +86,7 @@ class PackageBloc extends Bloc<PackageEvent, PackageState> {
 
     emit(const PackageLoading(canceling: true));
 
-    final result = await cancelPackageRequestUseCase!(event.packageRequestModel);
+    final result = await cancelPackageRequestUseCase(event.packageRequestModel);
 
     result.fold(
           (failure) => emit(PackageFailure(failure.message)),

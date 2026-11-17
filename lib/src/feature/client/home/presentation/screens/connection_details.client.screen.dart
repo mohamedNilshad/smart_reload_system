@@ -101,29 +101,37 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
         otherPackages.clear();
 
         allPackageDetails = packages;
-
-        for (var pc in packages) {
-          if((pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)) && (pc.isCancel == null || pc.isCancel == false)){
-            actPackageDetails.add(pc);
-          }
-        }
-
-        for (var p in actPackageDetails) {
-          if(p.packageModel?.packageType == PackageType.Data.name){
-            dataPackages.add(p);
-          }else if(p.packageModel?.packageType == PackageType.Voice.name){
-            voicePackages.add(p);
-          }else if(p.packageModel?.packageType == PackageType.Combo.name){
-            comboPackages.add(p);
-          }
-
-          if(p.packageModel?.packageType == null && p.activatedDate == null){
-            otherPackages.add(p);
-          }
-        }
-        fetchingActPackage = false;
         //show history only
         isUtility = (connectionModel.connectionCategory.toLowerCase() == ConCategory.Utility.name.toLowerCase()) || (connectionModel.connectionType.toLowerCase() == TelecomType.TV.name.toLowerCase());
+        if(isUtility){
+          for (var pc in packages) {
+            if((pc.activatedDate == null) && (pc.isCancel == null || pc.isCancel == false)){
+              actPackageDetails.add(pc);
+            }
+          }
+        }else{
+          for (var pc in packages) {
+            if((pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)) && (pc.isCancel == null || pc.isCancel == false)){
+              actPackageDetails.add(pc);
+            }
+          }
+
+          for (var p in actPackageDetails) {
+            if(p.packageModel?.packageType == PackageType.Data.name){
+              dataPackages.add(p);
+            }else if(p.packageModel?.packageType == PackageType.Voice.name){
+              voicePackages.add(p);
+            }else if(p.packageModel?.packageType == PackageType.Combo.name){
+              comboPackages.add(p);
+            }
+
+            if(p.packageModel?.packageType == null && p.activatedDate == null){
+              otherPackages.add(p);
+            }
+          }
+        }
+
+        fetchingActPackage = false;
       });
     }catch(e, st){
       ErrorLogger.log(
@@ -222,8 +230,10 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                       _buildHeader(),
                       _buildList(
                         typeIndex: 0,
-                        packages: dataPackages,
-                        emptyMsg: "No Data packages activated!",
+                        packages: allPackageDetails,
+                        topPadding: true,
+                        isReload: true,
+                        emptyMsg: "No Reloads!",
                       ),
                     ],
                   ),
@@ -345,7 +355,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
                 if(result == 'Select a package' && context.mounted){
                   Navigator.of(context).pushNamed(
                       RouteConstants.packageDetailsClientScreen,
-                      arguments: (vendorId: widget.vendorId, connectionModel: connectionModel),
+                      arguments: (vendorId: widget.vendorId, connectionModel: connectionModel, isDark: false),
                   );
                 }else{
                   showAmountSheet();
@@ -513,45 +523,47 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
               },
             ],
           ),
-          Container(
-            padding: EdgeInsets.all(Sizes.ssm),
-            margin: EdgeInsets.only(bottom: Sizes.ssm),
-            width: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(16.0),
-              border: Border(left: BorderSide(color: AppColors.primary, width: 5.0)),
-              color: AppColors.white,
+          if(!isUtility)...{
+            Container(
+              padding: EdgeInsets.all(Sizes.ssm),
+              margin: EdgeInsets.only(bottom: Sizes.ssm),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16.0),
+                border: Border(left: BorderSide(color: AppColors.primary, width: 5.0)),
+                color: AppColors.white,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    spacing: 5,
+                    children: [
+                      BodyText(text: "Reload History"),
+                      TitleText(text: "Total reloads (${allPackageDetails.length})"),
+                      SubTitleText(text: "click to see all"),
+                      // SubTitleText(text: "Last request: ${HelperFunctions.formatDateTime(actPackageDetails.last.requestDate)}"),
+                    ],
+                  ),
+                  TextButton(
+                    onPressed: (){
+                      Navigator.of(context).pushNamed(
+                        RouteConstants.reloadHistoryClientScreen,
+                        arguments: (
+                        packageList: allPackageDetails,
+                        connection: connectionModel,
+                        isMobile: isMobile,
+                        isDark: false
+                        ),
+                      );
+                    },
+                    child: Text("See All"),
+                  ),
+                ],
+              ),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  spacing: 5,
-                  children: [
-                    BodyText(text: "Reload History"),
-                    TitleText(text: "Total reloads (${allPackageDetails.length})"),
-                    SubTitleText(text: "click to see all"),
-                    // SubTitleText(text: "Last request: ${HelperFunctions.formatDateTime(actPackageDetails.last.requestDate)}"),
-                  ],
-                ),
-                TextButton(
-                  onPressed: (){
-                    Navigator.of(context).pushNamed(
-                      RouteConstants.reloadHistoryClientScreen,
-                      arguments: (
-                       packageList: allPackageDetails,
-                       connection: connectionModel,
-                       isMobile: isMobile,
-                       isDark: false
-                      ),
-                    );
-                  },
-                  child: Text("See All"),
-                ),
-              ],
-            ),
-          ),
+          },
           SubHeadlineText(text: "Packages"),
           Padding(
             padding: const EdgeInsets.only(top: 8),

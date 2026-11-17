@@ -110,7 +110,7 @@ class _ReloadHistoryClientScreenState extends State<ReloadHistoryClientScreen> {
                 _buildHeader(addDivider: true),
                 _buildList(
                   packages: dataPackages,
-                  emptyMsg: "No Data packages activated!",
+                  emptyMsg: "No Reloads !",
                   topPadding: true,
                 ),
               ],
