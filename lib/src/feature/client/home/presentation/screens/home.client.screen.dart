@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
@@ -12,6 +13,7 @@ import 'package:smart_reload_system/src/core/presentation/widgets/shimmer_loadin
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
+import 'package:smart_reload_system/src/core/seeder/requested_packages.seeder.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.event.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.state.dart';
@@ -33,6 +35,8 @@ class _HomeClientScreenState extends State<HomeClientScreen> {
     // Fetch fresh data
     context.read<HomeBloc>().add(const HomeDataRequested());
   }
+
+  bool seeding = false;
 
   @override
   Widget build(BuildContext context) {
@@ -107,6 +111,36 @@ class _HomeClientScreenState extends State<HomeClientScreen> {
                               ),
                               const SizedBox(height: 12),
                             },
+                            if (kDebugMode)...{
+                              Wrap(
+                                spacing: 8,
+                                children: [
+                                  FilledButton(
+                                    onPressed: seeding ? null : () async {
+                                      setState(() => seeding = true);
+                                      final n = await RequestedPackagesSeeder().seed();
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(content: Text('Inserted $n docs')));
+                                      }
+                                      setState(() => seeding = false);
+                                    },
+                                    child: seeding ? CircularProgressIndicator(): const Text('Seed dummy data'),
+                                  ),
+                                  OutlinedButton(
+                                    onPressed: () async {
+                                      final n = await RequestedPackagesSeeder().deleteSeeded();
+                                      if (context.mounted) {
+                                        ScaffoldMessenger.of(context)
+                                            .showSnackBar(SnackBar(content: Text('Deleted $n docs')));
+                                      }
+                                    },
+                                    child: const Text('Delete dummy data'),
+                                  ),
+                                ],
+                              ),
+                            },
+
 
                             // Display vendors
                             SubHeadlineText(text: "My Vendors"),

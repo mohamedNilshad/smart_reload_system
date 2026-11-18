@@ -7,6 +7,9 @@ class AppData {
   String hutchPreMobile = "*344#";
   String airtelMobile = "*550#";
 
+  static double lockAmount = 10000.0;
+  static String lockAmountMessage = "Please settle your outstanding bill to access this feature.";
+
 
   static const banks = <String, String>{
     'Bank of Ceylon': '7010',

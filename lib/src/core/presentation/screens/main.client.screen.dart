@@ -21,7 +21,7 @@ class _MainClientScreenState extends State<MainClientScreen> {
 
   List<Widget> screens = [
     HomeClientScreen(),
-    TempScreen(title: "Family screen"),
+    // TempScreen(title: "Family screen"),
     PaymentScreen(),
     ProfileScreen(),
   ];
@@ -47,10 +47,10 @@ class _MainClientScreenState extends State<MainClientScreen> {
               icon: Icon(Icons.home_filled),
               label: 'Home',
             ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.family_restroom_rounded),
-              label: 'Family',
-            ),
+            // BottomNavigationBarItem(
+            //   icon: Icon(Icons.family_restroom_rounded),
+            //   label: 'Family',
+            // ),
             BottomNavigationBarItem(
               icon: Icon(Icons.receipt_long_rounded),
               label: 'Invoice',

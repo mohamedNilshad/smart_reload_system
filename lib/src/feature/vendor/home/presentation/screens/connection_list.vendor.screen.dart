@@ -362,6 +362,7 @@ class _ConnectionListVendorScreenState extends State<ConnectionListVendorScreen>
                                       );
                                     }
                                   },
+                                  payableAmount: paymentAmount,
                                   conNumber: connection.connectionNumber,
                                   lastDate: connection.lastReloadDate,
                                   conName: connection.connectionName,

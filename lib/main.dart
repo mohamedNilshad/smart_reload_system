@@ -27,8 +27,8 @@ void main()  {
     await notificationService.initialize();
 
     await FirebaseAppCheck.instance.activate(
-      providerAndroid: kReleaseMode ? const AndroidPlayIntegrityProvider() : const AndroidDebugProvider(),
-      providerApple: kReleaseMode ? const AppleAppAttestProvider() : const AppleDebugProvider(),
+      providerAndroid: kReleaseMode ? const AndroidPlayIntegrityProvider() : const AndroidDebugProvider(debugToken: "66913490-5f52-4042-bb93-470d2152cf4a"),
+      providerApple: kReleaseMode ? const AppleAppAttestProvider() : const AppleDebugProvider(debugToken: "66913490-5f52-4042-bb93-470d2152cf4a"),
     );
 
     runApp(App(theme: ThemeMode.light));

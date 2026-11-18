@@ -4,8 +4,10 @@ import 'package:smart_reload_system/src/core/bloc/payment/payment.bloc.dart';
 import 'package:smart_reload_system/src/core/bloc/payment/payment.event.dart';
 import 'package:smart_reload_system/src/core/bloc/payment/payment.state.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
+import 'package:smart_reload_system/src/core/constants/app_data.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/data/model/Invoice_pdf_data.model.dart';
+import 'package:smart_reload_system/src/core/enums/connection_data.enum.dart';
 import 'package:smart_reload_system/src/core/presentation/progress_indicators/custom.circular_progress_indicator.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/app_snackbar.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
@@ -55,6 +57,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
   bool payableLoading = false;
   bool payableAmountLoading = true;
   double paymentAmount = 0.0;
+
   List<PackageRequestModel> payableList = [];
   late VendorModel vendor;
   late UserEntity user;
@@ -408,7 +411,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                                       Navigator.pushNamed(
                                         context,
                                         RouteConstants.connectionDetailsClientScreen,
-                                        arguments: (vendorId: vendor.vendorId, connectionModel: connection),
+                                        arguments: (vendorId: vendor.vendorId, connectionModel: connection, paymentAmount: paymentAmount),
                                       );
                                     } else {
                                       Navigator.pushNamed(
@@ -419,6 +422,8 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                                     }
                                   },
                                   conId: connection.id,
+                                  payableAmount: paymentAmount,
+                                  showAIButton: (connection.connectionCategory != ConCategory.Utility.name) && (connection.connectionType != TelecomType.TV.name),
                                   conNumber: connection.connectionNumber,
                                   lastDate: connection.lastReloadDate,
                                   conName: connection.connectionName,
@@ -446,6 +451,11 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
         padding: const EdgeInsets.symmetric(horizontal: Sizes.sm),
         child: CElevatedButton(
           onPressed: () {
+            if(paymentAmount >= AppData.lockAmount) {
+              AppSnackbar.showInfo(context, AppData.lockAmountMessage);
+              return;
+
+            }
             Navigator.of(context).pushNamed(
               RouteConstants.addNewConnectionClientScreen,
               arguments: (clientVendorId: vendor.clientVendorId, connectionNumbers: connectionsNumbers, isDark: false)

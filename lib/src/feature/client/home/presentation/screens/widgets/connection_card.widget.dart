@@ -21,7 +21,9 @@ class ConnectionCard extends StatelessWidget {
   final bool isDark;
   final DateTime? lastDate;
   final void Function()? onTap;
-  const ConnectionCard({super.key, this.conId, required this.conNumber, required this.isActive, this.isDark = false, this.status = true, required this.conName, required this.conType, this.conPlan, required this.onTap, this.lastDate});
+  final double payableAmount;
+  final bool showAIButton;
+  const ConnectionCard({super.key, this.conId, this.showAIButton = false, required this.conNumber, required this.isActive, this.isDark = false, this.status = true, required this.conName, required this.conType, this.conPlan, required this.onTap, this.lastDate, required this.payableAmount});
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +58,7 @@ class ConnectionCard extends StatelessWidget {
               trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18, color: isDark ? AppColors.grey : AppColors.darkerGrey),
             ),
             Padding(
-              padding: const EdgeInsets.only(left: 60.0),
+              padding: const EdgeInsets.symmetric(horizontal: 20.0),
               child: Row(
                 spacing: 5,
                 children: [
@@ -69,11 +71,12 @@ class ConnectionCard extends StatelessWidget {
                     ),
                   },
 
-                  if(!isDark)...{
+                  if(showAIButton && !isDark)...{
                     Spacer(),
                     AiSuggestionButton(
-                      isClient: true,          // your client-role check
-                      connectionId: conId, // String? is fine
+                      isClient: true,
+                      payableAmount: payableAmount,
+                      connectionId: conId,
                       onSelectPackage: (s) {
                         // optional: start your reload flow with s.package.id
                       },

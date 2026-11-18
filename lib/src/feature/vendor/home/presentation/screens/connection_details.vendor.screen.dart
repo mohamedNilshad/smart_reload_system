@@ -115,7 +115,11 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
           }
         }else{
           for (var pc in packages) {
-            if((pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)) && (pc.isCancel == null || pc.isCancel == false)){
+            bool isActivated = pc.activatedDate != null;
+            bool isExpired = (pc.expireDate != null) && HelperFunctions.isExpired(expDate: pc.expireDate!);
+            bool isCancelled = pc.isCancel != null && pc.isCancel == true;
+            bool isReload = isActivated && pc.packageDetailsId == null;
+            if((!isActivated || !isExpired || isReload) && (!isCancelled)){
               actPackageDetails.add(pc);
             }
           }
@@ -440,6 +444,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
         itemCount: filteredPackages.length,
         shrinkWrap: !isMobile,
         scrollDirection: Axis.vertical,
+        reverse: true,
         physics: isMobile ? null : NeverScrollableScrollPhysics(),
         padding: EdgeInsetsGeometry.only(bottom: 100),
         itemBuilder: (context, index){

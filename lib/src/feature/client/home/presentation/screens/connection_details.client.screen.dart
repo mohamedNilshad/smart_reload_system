@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
+import 'package:smart_reload_system/src/core/constants/app_data.dart';
 import 'package:smart_reload_system/src/core/constants/sizes.dart';
 import 'package:smart_reload_system/src/core/constants/svg_strings.dart';
 import 'package:smart_reload_system/src/core/enums/connection_data.enum.dart';
@@ -31,7 +32,8 @@ import 'package:smart_reload_system/src/core/error/error_logger.dart';
 class ConnectionDetailsClientScreen extends StatefulWidget {
   final ConnectionModel connectionModel;
   final String vendorId;
-  const ConnectionDetailsClientScreen({super.key, required this.connectionModel, required this.vendorId});
+  final double paymentAmount;
+  const ConnectionDetailsClientScreen({super.key, required this.connectionModel, required this.vendorId, required this.paymentAmount});
 
   @override
   State<ConnectionDetailsClientScreen> createState() => _ConnectionDetailsClientScreenState();
@@ -111,7 +113,11 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
           }
         }else{
           for (var pc in packages) {
-            if((pc.activatedDate == null || !HelperFunctions.isExpired(expDate: pc.expireDate!)) && (pc.isCancel == null || pc.isCancel == false)){
+            bool isActivated = pc.activatedDate != null;
+            bool isExpired = (pc.expireDate != null) && HelperFunctions.isExpired(expDate: pc.expireDate!);
+            bool isCancelled = pc.isCancel != null && pc.isCancel == true;
+            bool isReload = isActivated && pc.packageDetailsId == null;
+            if((!isActivated || !isExpired || isReload) && (!isCancelled)){
               actPackageDetails.add(pc);
             }
           }
@@ -333,6 +339,11 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
           padding: const EdgeInsets.symmetric(horizontal: Sizes.sm),
           child: CElevatedButton(
             onPressed: () async {
+              if(widget.paymentAmount >= AppData.lockAmount) {
+                AppSnackbar.showInfo(context, AppData.lockAmountMessage);
+                return;
+
+              }
               if(!connectionModel.status){
                 AppSnackbar.showInfo(context, "Waiting for connection approve");
                 return;
@@ -421,6 +432,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
         itemCount: filteredPackages.length,
         shrinkWrap: !isMobile,
         scrollDirection: Axis.vertical,
+        reverse: true,
         physics: isMobile ? null : NeverScrollableScrollPhysics(),
         padding: EdgeInsetsGeometry.only(bottom: 100),
         itemBuilder: (context, index){

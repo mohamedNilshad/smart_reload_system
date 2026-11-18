@@ -93,11 +93,12 @@ class AppRouter {
         final args = settings.arguments as ({
           ConnectionModel connectionModel,
           String vendorId,
+          double paymentAmount,
         });
 
         return MaterialPageRoute(
           settings: const RouteSettings(name: RouteConstants.connectionDetailsClientScreen),
-          builder: (context) => ConnectionDetailsClientScreen(connectionModel: args.connectionModel, vendorId: args.vendorId),
+          builder: (context) => ConnectionDetailsClientScreen(connectionModel: args.connectionModel, vendorId: args.vendorId, paymentAmount: args.paymentAmount),
         );
 
       case RouteConstants.connectionDetailsVendorScreen:
