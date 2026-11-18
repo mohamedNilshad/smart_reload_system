@@ -1,9 +1,12 @@
 import 'dart:async';
+import 'package:firebase_app_check/firebase_app_check.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/app.dart';
 import 'package:smart_reload_system/src/core/services/notification.service.dart';
 import 'package:smart_reload_system/src/injection_container.dart' as di;
 import 'package:firebase_core/firebase_core.dart';
+import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 
 void main()  {
@@ -23,9 +26,19 @@ void main()  {
     };
     await notificationService.initialize();
 
+    await FirebaseAppCheck.instance.activate(
+      providerAndroid: kReleaseMode ? const AndroidPlayIntegrityProvider() : const AndroidDebugProvider(),
+      providerApple: kReleaseMode ? const AppleAppAttestProvider() : const AppleDebugProvider(),
+    );
+
     runApp(App(theme: ThemeMode.light));
-  }, (error, stack) =>
-      print(error));
+  }, (e, st) =>
+      ErrorLogger.log(
+        e,
+        location: 'HomeRemoteDataSourceImpl.requestPackage',
+        stackTrace: st,
+      )
+  );
   // FirebaseCrashlytics.instance.recordError(error, stack, fatal: true));
 }
 

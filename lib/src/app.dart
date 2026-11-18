@@ -10,6 +10,7 @@ import 'package:smart_reload_system/src/core/theme/theme.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/navigator_key.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/auth.bloc.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
+import 'package:smart_reload_system/src/feature/client/ai_suggest/presentation/bloc/plan_suggestion.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/connection/connection.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/package/packaget.bloc.dart';
@@ -55,6 +56,7 @@ class App extends StatelessWidget {
         BlocProvider(create: (_) => sl<vendor.PackageBloc>()),
         BlocProvider(create: (_) => sl<ComHistoryBloc>()),
         BlocProvider(create: (_) => sl<VendorReportsBloc>()),
+        BlocProvider(create: (_) => sl<PlanSuggestionBloc>()),
       ],
       child: BlocBuilder<ThemeBloc, ThemeMode>(
         builder: (context, state) {

@@ -28,6 +28,13 @@ import 'package:smart_reload_system/src/core/features/auth/domain/usecase/watch_
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/auth.bloc.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/core/services/report_calculator.service.dart';
+import 'package:smart_reload_system/src/core/services/usage_analyzer.service.dart';
+import 'package:smart_reload_system/src/feature/client/ai_suggest/data/datasource/plan_advisor.remote_datasource.dart';
+import 'package:smart_reload_system/src/feature/client/ai_suggest/data/datasource/plan_history.remote_datasource.dart';
+import 'package:smart_reload_system/src/feature/client/ai_suggest/data/repository/plan_suggestion.repo_impl.dart';
+import 'package:smart_reload_system/src/feature/client/ai_suggest/domain/repository/plan_suggestion.repo.dart';
+import 'package:smart_reload_system/src/feature/client/ai_suggest/domain/usecase/get_plan_advice.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/ai_suggest/presentation/bloc/plan_suggestion.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/datasource/home.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/repository/home.repo_impl.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/repository/home.repo.dart';
@@ -332,6 +339,14 @@ Future<void> init() async {
   sl.registerLazySingleton(() => VendorReportsBloc(getVendorReportUseCase: sl()));
 
   // sl.registerLazySingleton(() => VendorReportsBloc(getVendorReportUseCase: sl()));
+
+  ///AI suggestion
+  sl.registerLazySingleton(() => PlanHistoryRemoteDataSource());
+  sl.registerLazySingleton(() => PlanAdvisorRemoteDataSource());
+  sl.registerLazySingleton(() => const UsageAnalyzer());
+  sl.registerLazySingleton<PlanSuggestionRepo>(() => PlanSuggestionRepoImpl(history: sl(), advisor: sl(), analyzer: sl()));
+  sl.registerLazySingleton(() => GetPlanAdviceUseCase(sl()));
+  sl.registerLazySingleton(() => PlanSuggestionBloc(getPlanAdviceUseCase: sl()));
 
 
 }

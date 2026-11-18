@@ -8,8 +8,10 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/su
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
+import 'package:smart_reload_system/src/feature/client/ai_suggest/presentation/screens/widgets/ai_suggestion_button.widget.dart';
 
 class ConnectionCard extends StatelessWidget {
+  final String? conId;
   final String conNumber;
   final String conName;
   final String conType;
@@ -19,7 +21,7 @@ class ConnectionCard extends StatelessWidget {
   final bool isDark;
   final DateTime? lastDate;
   final void Function()? onTap;
-  const ConnectionCard({super.key, required this.conNumber, required this.isActive, this.isDark = false, this.status = true, required this.conName, required this.conType, this.conPlan, required this.onTap, this.lastDate});
+  const ConnectionCard({super.key, this.conId, required this.conNumber, required this.isActive, this.isDark = false, this.status = true, required this.conName, required this.conType, this.conPlan, required this.onTap, this.lastDate});
 
   @override
   Widget build(BuildContext context) {
@@ -64,6 +66,17 @@ class ConnectionCard extends StatelessWidget {
                       label: conPlan!,
                       bgColor: AppColors.primary,
                       fontColor: isDark ? AppColors.white : AppColors.primary,
+                    ),
+                  },
+
+                  if(!isDark)...{
+                    Spacer(),
+                    AiSuggestionButton(
+                      isClient: true,          // your client-role check
+                      connectionId: conId, // String? is fine
+                      onSelectPackage: (s) {
+                        // optional: start your reload flow with s.package.id
+                      },
                     ),
                   }
 

@@ -418,6 +418,7 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                                       );
                                     }
                                   },
+                                  conId: connection.id,
                                   conNumber: connection.connectionNumber,
                                   lastDate: connection.lastReloadDate,
                                   conName: connection.connectionName,
