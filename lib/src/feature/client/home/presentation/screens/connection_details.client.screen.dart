@@ -437,7 +437,6 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
             onActionTap: isActionLoading ? null : () async{
               final result = await AppBottomSheet.showRadioSelect(
                 context,
-                isDark: true,
                 title: 'Choose',
                 askConfirm: false,
                 options: ['Cancel'],

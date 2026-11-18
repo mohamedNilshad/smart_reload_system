@@ -13,7 +13,7 @@ String formatMoney(double value, {String currency = kCurrency}) {
   final parts = fixed.split('.');
   final grouped = parts[0].replaceAllMapped(
     RegExp(r'\B(?=(\d{3})+(?!\d))'),
-    (_) => ',',
+        (_) => ',',
   );
   final sign = value < 0 ? '-' : '';
   final decimals = parts.length > 1 ? '.${parts[1]}' : '';
@@ -23,3 +23,6 @@ String formatMoney(double value, {String currency = kCurrency}) {
 String formatDay(DateTime d) => '${d.day} ${_months[d.month - 1]}';
 
 String formatPct(double pct) => '${pct.abs().toStringAsFixed(0)}%';
+
+/// 17 Nov 2026
+String formatDate(DateTime d) => '${d.day} ${_months[d.month - 1]} ${d.year}';

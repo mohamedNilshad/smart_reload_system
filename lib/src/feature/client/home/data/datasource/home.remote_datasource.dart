@@ -208,13 +208,28 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      for(var item in tokens){
-        await NotificationService.sendPushMessage(
-          item.fcmToken,
-          notifyTitle,
-          notifyBody,
-        );
-      }
+      // for(var item in tokens){
+      //   await NotificationService.sendPushMessage(
+      //     item.fcmToken,
+      //     notifyTitle,
+      //     notifyBody,
+      //   );
+      // }
+
+      await Future.wait(
+        tokens.map((item) async {
+          try {
+            await NotificationService.sendPushMessage(
+              item.fcmToken,
+              notifyTitle,
+              notifyBody,
+            );
+          } catch (e) {
+            // Log or clean up invalid token without failing the rest
+            debugPrint('Failed to notify ${item.fcmToken}: $e');
+          }
+        }),
+      );
 
 
       return true;

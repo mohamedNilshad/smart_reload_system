@@ -38,7 +38,7 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
     required String address,
     required String city,
   }) async {
-    final completer = Completer<String>();
+    final completer = Completer<String?>();
 
     final paymentObject = {
       "sandbox": _isSandbox,
@@ -61,28 +61,35 @@ class PaymentRemoteDataSourceImpl implements PaymentRemoteDataSource {
     try{
       PayHere.startPayment(
         paymentObject,
-            (paymentId) {
+
+        // 1. Payment succeeded
+        (paymentId) {
           if (!completer.isCompleted) {
             completer.complete(paymentId);
           }
         },
-            (error) {
+
+        // 2. Actual payment/SDK error
+        (error) {
           if (!completer.isCompleted) {
             completer.completeError(
               ServerException(error),
             );
           }
         },
-            () {
+
+        // 3. User closed the bottom sheet
+        () {
           if (!completer.isCompleted) {
-            completer.completeError(
-              ServerException('Payment was cancelled.'),
-            );
+            completer.complete(null);
           }
         },
       );
 
       final paymentId = await completer.future;
+      if (paymentId == null) {
+        return {};
+      }
       return {
         'paymentId': paymentId,
         'paymentDate': DateTime.now().toIso8601String(),

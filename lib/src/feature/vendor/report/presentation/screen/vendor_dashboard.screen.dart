@@ -7,6 +7,7 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bar
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/body_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/label_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/fallback.widget.dart';
+import 'package:smart_reload_system/src/core/services/report_export.service.dart';
 import 'package:smart_reload_system/src/core/utils/report_format.util.dart';
 import 'package:smart_reload_system/src/feature/vendor/report/domain/entity/report_period.entity.dart';
 import 'package:smart_reload_system/src/feature/vendor/report/domain/entity/report_summary.entity.dart';
@@ -18,9 +19,12 @@ import 'package:smart_reload_system/src/feature/vendor/report/presentation/scree
 import 'package:smart_reload_system/src/feature/vendor/report/presentation/screen/widget/report_section.widget.dart';
 import 'package:smart_reload_system/src/feature/vendor/report/presentation/screen/widget/sales_trend_chart.widget.dart';
 
+enum _ExportType { pdf, csv }
+
 class VendorDashboardScreen extends StatefulWidget {
-  const VendorDashboardScreen({super.key, required this.vendorId});
+  const VendorDashboardScreen({super.key, required this.vendorId, required this.vendorName});
   final String vendorId;
+  final String vendorName;
 
   @override
   State<VendorDashboardScreen> createState() => _VendorDashboardScreenState();
@@ -31,6 +35,7 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen> {
 
   /// Last loaded report, kept so the page doesn't blank out while refreshing.
   ReportSummaryEntity? _last;
+  bool _exporting = false;
 
   @override
   void initState() {
@@ -39,7 +44,6 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen> {
       ..add(const VendorReportsReset())
       ..add(VendorReportsRequested(vendorId: widget.vendorId, period: _period));
   }
-
 
   void _load() {
     context.read<VendorReportsBloc>().add(
@@ -71,6 +75,32 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen> {
     _pick(ReportPeriodEntity.custom(range.start, range.end));
   }
 
+  Future<void> _export(_ExportType type) async {
+    final summary = _last;
+    if (summary == null || _exporting) return;
+
+    setState(() => _exporting = true);
+    try {
+      const service = ReportExportService();
+      if (type == _ExportType.pdf) {
+        await service.openPdf(summary: summary, vendorName: widget.vendorName);
+      } else {
+        await service.openCsv(summary: summary, vendorName: widget.vendorName);
+      }
+    } catch (_) {
+      if (mounted) {
+        final kind = type == _ExportType.pdf ? 'PDF' : 'CSV';
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Could not open the $kind. Is an app installed that can open it?'),
+          ),
+        );
+      }
+    } finally {
+      if (mounted) setState(() => _exporting = false);
+    }
+  }
+
   Future<void> _refresh() async {
     final bloc = context.read<VendorReportsBloc>();
     _load();
@@ -88,9 +118,49 @@ class _VendorDashboardScreenState extends State<VendorDashboardScreen> {
         onPressed: () => Navigator.of(context).pop(),
         icon: Icons.arrow_back_ios_new_rounded,
         title: "Reports",
+        action: [
+          PopupMenuButton<_ExportType>(
+            tooltip: 'Export report',
+            color: AppColors.darkContainers,
+            iconColor: AppColors.white,
+            enabled: _last != null && !_exporting,
+            onSelected: _export,
+            icon: _exporting ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(strokeWidth: 2),
+            ) : const Icon(Icons.ios_share_rounded),
+            itemBuilder: (_) => const [
+              PopupMenuItem(
+                value: _ExportType.pdf,
+                child: Row(
+                  children: [
+                    Icon(Icons.picture_as_pdf_outlined, size: 20, color: AppColors.white),
+                    SizedBox(width: 12),
+                    LabelText(text:'Export as PDF', color: AppColors.white, size: 15),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: _ExportType.csv,
+                child: Row(
+                  children: [
+                    Icon(Icons.table_chart_outlined, size: 20, color: AppColors.white),
+                    SizedBox(width: 12),
+                    LabelText(text:'Export as CSV', color: AppColors.white, size: 15),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
       ),
       body: BlocConsumer<VendorReportsBloc, VendorReportsState>(
         listener: (context, state) {
+          if (state is VendorReportsSuccess) {
+            // Rebuild the whole screen so the app bar's export menu enables.
+            setState(() => _last = state.summary);
+          }
           if (state is VendorReportsFailureState && _last != null) {
             AppSnackbar.showError(context, state.message);
           }

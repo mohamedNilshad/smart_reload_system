@@ -9,7 +9,6 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bar
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_card.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/router/route.constants.dart';
-import 'package:smart_reload_system/src/feature/vendor/manage/presentation/screens/report/report.vendor.screen.dart';
 import 'package:smart_reload_system/src/feature/vendor/report/presentation/screen/vendor_dashboard.screen.dart';
 
 class ManageScreen extends StatefulWidget {
@@ -69,17 +68,10 @@ class _ManageScreenState extends State<ManageScreen> {
             return InkWell(
               onTap: (){
                 if(index == 0){
-                  // Navigator.push(
-                  //   context,
-                  //   MaterialPageRoute(
-                  //     builder: (context) => const VendorReportsScreen(),
-                  //   ),
-                  // );
-                  //
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => VendorDashboardScreen(vendorId: user.uid,),
+                      builder: (context) => VendorDashboardScreen(vendorId: user.uid, vendorName: user.fullName),
                     ),
                   );
 
