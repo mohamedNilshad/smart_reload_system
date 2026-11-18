@@ -5,31 +5,32 @@ import 'package:smart_reload_system/src/feature/client/ai_suggest/domain/entitie
 import 'package:smart_reload_system/src/feature/client/ai_suggest/domain/entities/plan_suggestion_input.entity.dart';
 import 'package:smart_reload_system/src/feature/client/ai_suggest/domain/entities/reload_record.entity.dart';
 import 'package:smart_reload_system/src/core/services/validity_days.service.dart';
+import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
-// TODO: match these names to your Firestore schema.
-const _requestsCollection = 'requested_packages';
-const _connectionsCollection = 'connections';
-const _packagesCollection = 'package_details';
-
-/// How many days of history to read, and the most requests to load.
-const _historyDays = 90;
-const _historyLimit = 100;
-const _candidateLimit = 60;
+abstract class PlanHistoryRemoteDataSource {
+  Future<PlanSuggestionInputEntity> load({required String connectionId, required DateTime now});
+}
 
 /// Reads one connection's reload history and the packages its provider sells.
-class PlanHistoryRemoteDataSource {
-  PlanHistoryRemoteDataSource({FirebaseFirestore? firestore})
-      : _db = firestore ?? FirebaseFirestore.instance;
+class PlanHistoryRemoteDataSourceImpl implements PlanHistoryRemoteDataSource {
+  final _requestsCollection = 'requested_packages';
+  final _connectionsCollection = 'connections';
+  final _packagesCollection = 'package_details';
 
-  final FirebaseFirestore _db;
+  /// How many days of history to read, and the most requests to load.
+  final _historyDays = 90;
+  final _historyLimit = 100;
+  final _candidateLimit = 60;
 
-  Future<PlanSuggestionInputEntity> load({
-    required String connectionId,
-    required DateTime now,
-  }) async {
+  final FirebaseFirestore firestore;
+
+  PlanHistoryRemoteDataSourceImpl({required this.firestore});
+
+
+  @override
+  Future<PlanSuggestionInputEntity> load({required String connectionId, required DateTime now}) async {
     try {
-      final connectionDoc =
-          await _db.collection(_connectionsCollection).doc(connectionId).get();
+      final connectionDoc = await firestore.collection(_connectionsCollection).doc(connectionId).get();
       final c = connectionDoc.data();
       if (c == null) throw ServerException('Connection not found');
 
@@ -44,7 +45,7 @@ class PlanHistoryRemoteDataSource {
       final since = DateTime(now.year, now.month, now.day - _historyDays);
       // Needs a composite index: connectionId (asc) + requestDate (asc).
       // The first run prints an error with a link that creates it.
-      final requests = await _db
+      final requests = await firestore
           .collection(_requestsCollection)
           .where('connectionId', isEqualTo: connectionId)
           .where('requestDate', isGreaterThanOrEqualTo: Timestamp.fromDate(since))
@@ -106,8 +107,20 @@ class PlanHistoryRemoteDataSource {
         history: history,
         candidates: candidates,
       );
-    } on FirebaseException catch (e) {
+    } on FirebaseException catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'PlanHistoryRemoteDataSource.load',
+        stackTrace: st,
+      );
       throw ServerException(e.message ?? 'Could not load your reload history');
+    } catch (e, st) {
+      ErrorLogger.log(
+        e,
+        location: 'PlanHistoryRemoteDataSource.load',
+        stackTrace: st,
+      );
+      throw Exception('Could not load your reload history');
     }
   }
 
@@ -116,7 +129,7 @@ class PlanHistoryRemoteDataSource {
 
     // TODO: if packages are scoped to a vendor or telecom type in your data,
     // add that filter here.
-    final snap = await _db
+    final snap = await firestore
         .collection(_packagesCollection)
         .where('serviceProvider', isEqualTo: provider)
         .limit(_candidateLimit)
@@ -148,10 +161,7 @@ class PlanHistoryRemoteDataSource {
   }
 
   /// Loads documents by id in chunks (Firestore `whereIn` allows 30 values).
-  Future<Map<String, Map<String, dynamic>>> _getByIds(
-    String collection,
-    Set<String> ids,
-  ) async {
+  Future<Map<String, Map<String, dynamic>>> _getByIds(String collection, Set<String> ids) async {
     final list = ids.where((id) => id.trim().isNotEmpty).toList();
     if (list.isEmpty) return {};
 
@@ -159,7 +169,7 @@ class PlanHistoryRemoteDataSource {
     for (var i = 0; i < list.length; i += 30) {
       final end = i + 30 > list.length ? list.length : i + 30;
       futures.add(
-        _db
+        firestore
             .collection(collection)
             .where(FieldPath.documentId, whereIn: list.sublist(i, end))
             .get(),

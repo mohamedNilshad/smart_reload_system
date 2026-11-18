@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-// Prefixed because firebase_ai also exports a class called ServerException.
 import 'package:firebase_ai/firebase_ai.dart' as fai;
 import 'package:flutter/foundation.dart' show debugPrint;
 import 'package:smart_reload_system/src/core/error/exceptions.dart';
@@ -8,6 +7,7 @@ import 'package:smart_reload_system/src/feature/client/ai_suggest/domain/entitie
 import 'package:smart_reload_system/src/feature/client/ai_suggest/domain/entities/reload_record.entity.dart';
 import 'package:smart_reload_system/src/feature/client/ai_suggest/domain/entities/usage_stats.entity.dart';
 import 'package:smart_reload_system/src/core/utils/money.util.dart';
+import 'package:smart_reload_system/src/core/error/error_logger.dart';
 
 /// Gemini model used for suggestions. Model names are retired regularly, so
 /// check the "Models" page of the Firebase AI Logic docs and update this when
@@ -21,11 +21,7 @@ class PlanAdviceDraft {
   final String? tip;
   final List<PlanSuggestionDraft> suggestions;
 
-  const PlanAdviceDraft({
-    required this.summary,
-    required this.tip,
-    required this.suggestions,
-  });
+  const PlanAdviceDraft({required this.summary, required this.tip, required this.suggestions});
 }
 
 class PlanSuggestionDraft {
@@ -34,12 +30,7 @@ class PlanSuggestionDraft {
   final String reason;
   final String confidence;
 
-  const PlanSuggestionDraft({
-    required this.packageId,
-    required this.title,
-    required this.reason,
-    required this.confidence,
-  });
+  const PlanSuggestionDraft({required this.packageId, required this.title, required this.reason, required this.confidence});
 }
 
 /// Asks Gemini (through Firebase AI Logic, so there is no API key in the app
@@ -117,10 +108,15 @@ Rules:
       return _parse(text);
     } on ServerException {
       rethrow;
-    } catch (e) {
+    } catch (e,st) {
       // Typical causes while developing: App Check not set up (403), the model
       // name was retired, or the quota was reached.
       debugPrint('PlanAdvisor request failed: $e');
+      ErrorLogger.log(
+        e,
+        location: 'PlanAdvisorRemoteDataSource.advise',
+        stackTrace: st,
+      );
       throw ServerException('AI suggestions are unavailable right now');
     }
   }

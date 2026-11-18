@@ -341,7 +341,9 @@ Future<void> init() async {
   // sl.registerLazySingleton(() => VendorReportsBloc(getVendorReportUseCase: sl()));
 
   ///AI suggestion
-  sl.registerLazySingleton(() => PlanHistoryRemoteDataSource());
+  sl.registerLazySingleton<PlanHistoryRemoteDataSource>(
+        () => PlanHistoryRemoteDataSourceImpl(firestore: sl()),
+  );
   sl.registerLazySingleton(() => PlanAdvisorRemoteDataSource());
   sl.registerLazySingleton(() => const UsageAnalyzer());
   sl.registerLazySingleton<PlanSuggestionRepo>(() => PlanSuggestionRepoImpl(history: sl(), advisor: sl(), analyzer: sl()));

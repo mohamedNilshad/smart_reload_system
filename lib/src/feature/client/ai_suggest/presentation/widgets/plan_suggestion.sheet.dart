@@ -4,7 +4,7 @@ import 'package:smart_reload_system/src/feature/client/ai_suggest/domain/entitie
 import 'package:smart_reload_system/src/feature/client/ai_suggest/presentation/bloc/plan_suggestion.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/ai_suggest/presentation/bloc/plan_suggestion.event.dart';
 import 'package:smart_reload_system/src/feature/client/ai_suggest/presentation/bloc/plan_suggestion.state.dart';
-import 'package:smart_reload_system/src/feature/client/ai_suggest/presentation/screens/widgets/suggestion_card.widget.dart';
+import 'package:smart_reload_system/src/feature/client/ai_suggest/presentation/widgets/suggestion_card.widget.dart';
 
 /// Bottom sheet that analyses a connection's reload history and shows
 /// AI-suggested plans. Open it with [PlanSuggestionSheet.show].
@@ -97,7 +97,7 @@ class _PlanSuggestionSheetState extends State<PlanSuggestionSheet> {
               width: 40,
               height: 4,
               decoration: BoxDecoration(
-                color: cs.onSurfaceVariant.withOpacity(0.35),
+                color: cs.onSurfaceVariant.withValues(alpha: 0.35),
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -223,7 +223,7 @@ class _AdviceView extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: cs.secondaryContainer.withOpacity(0.6),
+                color: cs.secondaryContainer.withValues(alpha: 0.6),
                 borderRadius: BorderRadius.circular(14),
               ),
               child: Row(

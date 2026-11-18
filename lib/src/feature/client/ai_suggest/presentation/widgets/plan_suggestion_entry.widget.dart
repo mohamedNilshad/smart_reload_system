@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:smart_reload_system/src/feature/client/ai_suggest/domain/entities/plan_advice.entity.dart';
-import 'package:smart_reload_system/src/feature/client/ai_suggest//presentation/screens/widgets/plan_suggestion.sheet.dart';
+import 'package:smart_reload_system/src/feature/client/ai_suggest/presentation/widgets/plan_suggestion.sheet.dart';
 
 /// Card that opens the AI plan suggestions. Place it on a connection's screen.
 ///

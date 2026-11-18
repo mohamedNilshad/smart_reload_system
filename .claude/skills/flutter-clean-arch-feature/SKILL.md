@@ -1,6 +1,6 @@
 ---
 name: flutter-clean-arch-feature
-description: Use this skill when adding, scaffolding, or modifying a feature in the Smart Reload System Flutter app — entities, repositories, use cases, data sources, blocs, or screens. Triggers on requests like "add a new feature", "create a repository/usecase/bloc", "add a screen", "wire up a new entity", or any file under lib/src/features/. Ensures new code matches this project's Clean Architecture + BLoC + get_it conventions exactly.
+description: Use this skill when adding, scaffolding, or modifying a feature in the Smart Reload System Flutter app — entities, repositories, use cases, data sources, blocs, or widgets. Triggers on requests like "add a new feature", "create a repository/usecase/bloc", "add a screen", "wire up a new entity", or any file under lib/src/features/. Ensures new code matches this project's Clean Architecture + BLoC + get_it conventions exactly.
 ---
 
 # Flutter Clean Architecture Feature Scaffolding

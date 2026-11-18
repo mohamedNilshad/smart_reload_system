@@ -8,7 +8,7 @@ import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/su
 import 'package:smart_reload_system/src/core/presentation/widgets/custom_text/title_text.widget.dart';
 import 'package:smart_reload_system/src/core/presentation/widgets/svg_builder.widget.dart';
 import 'package:smart_reload_system/src/core/utils/helpers/helper_functions.dart';
-import 'package:smart_reload_system/src/feature/client/ai_suggest/presentation/screens/widgets/ai_suggestion_button.widget.dart';
+import 'package:smart_reload_system/src/feature/client/ai_suggest/presentation/widgets/ai_suggestion_button.widget.dart';
 
 class ConnectionCard extends StatelessWidget {
   final String? conId;
