@@ -65,6 +65,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
   double screenHeight = 0.0;
   bool isUtility = false;
   bool isMobile = false;
+  bool isHBB = false;
   bool isActionLoading = false;
   String actionId = "";
   int selectedType = 0;
@@ -78,6 +79,10 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
       user = sessionState.user;
     }
     isMobile = connectionModel.connectionType.toLowerCase() == TelecomType.Mobile.name.toLowerCase();
+    isHBB = connectionModel.connectionType.toLowerCase() == TelecomType.HBB.name.toLowerCase();
+    print(isHBB);
+    print(connectionModel.connectionType.toLowerCase());
+    print(TelecomType.HBB.name.toLowerCase());
     context.read<PackageBloc>().add(FetchActivatedPackages(connectionId: connectionModel.id!));
     super.initState();
   }
@@ -354,7 +359,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
                 return;
               }
 
-              if(isUtility){
+              if(isUtility || isHBB){
                 showAmountSheet();
                 return;
               }
@@ -432,7 +437,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
   }
 
   Widget _buildList({required int typeIndex, bool isReload = false, required List<PackageRequestModel> packages, required String emptyMsg, bool topPadding = false}){
-    final filteredPackages = _filterPackages(packages);
+    final filteredPackages = _filterPackages(packages).reversed.toList();
 
     return Visibility(
       visible: filteredPackages.isNotEmpty,
@@ -444,7 +449,6 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
         itemCount: filteredPackages.length,
         shrinkWrap: !isMobile,
         scrollDirection: Axis.vertical,
-        reverse: true,
         physics: isMobile ? null : NeverScrollableScrollPhysics(),
         padding: EdgeInsetsGeometry.only(bottom: 100),
         itemBuilder: (context, index){

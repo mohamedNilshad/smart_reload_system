@@ -53,6 +53,10 @@ class _WalletScreenState extends State<WalletScreen> {
   }
 
   Future<void> _showWithdrawSheet(double availableBalance, List<BankDetailsModel> items) async {
+    if(items.isEmpty){
+      AppSnackbar.showError(context, "No bank account found.");
+      return;
+    }
     BankDetailsModel item = items.first;
     final navigator = Navigator.of(context);
 

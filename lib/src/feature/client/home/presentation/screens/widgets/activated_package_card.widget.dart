@@ -86,7 +86,7 @@ class ActivatedPackageCard extends StatelessWidget {
                         title: TitleText(text: title, color: isDark ? AppColors.white : null),
                         subtitle: SubTitleText(text: description, color: isDark ? AppColors.grey : AppColors.darkerGrey),
                         trailing: status ? Visibility(
-                          visible: !isReload && calDate(actDate!, expDate!) > 0.75,
+                          visible: !isReload && expDate != null && calDate(actDate!, expDate!) > 0.75,
                           child: CChip(
                             label: "Expiring soon",
                             bgColor: AppColors.accent,
@@ -127,8 +127,8 @@ class ActivatedPackageCard extends StatelessWidget {
                                     colorFilter: ColorFilter.mode(status ? AppColors.accent : AppColors.primary, BlendMode.srcIn),
                                   ),
                                   LabelText(
-                                    text: status ? HelperFunctions.calculateRemainingTime(expDate!) : "Req. Date: ${HelperFunctions.formatDateTime(reqDate)}",
-                                    color: status ? AppColors.accent : AppColors.primary,
+                                    text: status && expDate != null ? HelperFunctions.calculateRemainingTime(expDate!) : "Req. Date: ${HelperFunctions.formatDateTime(reqDate)}",
+                                    color: status && expDate != null ? AppColors.accent : AppColors.primary,
                                   ),
                                 ],
                               ),
@@ -196,7 +196,7 @@ class ActivatedPackageCard extends StatelessWidget {
 
 
   Widget buildDateProgressBar({DateTime? startDate, DateTime? endDate}) {
-    double progress = !status ? 0.0 : calDate(startDate!, endDate!);
+    double progress = !status || startDate == null || endDate == null  ? 0.0 : calDate(startDate, endDate);
 
     // Calculate remaining days for display
     return LinearProgressIndicator(

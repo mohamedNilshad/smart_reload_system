@@ -64,6 +64,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
   double screenHeight = 0.0;
   bool isUtility = false;
   bool isMobile = false;
+  bool isHBB = false;
   String userName = "USER";
   bool isActionLoading = false;
   String actionId = "";
@@ -77,6 +78,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
       userName = sessionState.user.fullName;
     }
     isMobile = connectionModel.connectionType.toLowerCase() == TelecomType.Mobile.name.toLowerCase();
+    isHBB = connectionModel.connectionType.toLowerCase() == TelecomType.HBB.name.toLowerCase();
     context.read<PackageBloc>().add(FetchActivatedPackages(connectionId: connectionModel.id!));
     super.initState();
   }
@@ -420,7 +422,7 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
   }
 
   Widget _buildList({required int typeIndex, bool isReload = false, required List<PackageRequestModel> packages, required String emptyMsg, bool topPadding = false}){
-    final filteredPackages = _filterPackages(packages);
+    final filteredPackages = _filterPackages(packages).reversed.toList();
 
     return Visibility(
       visible: filteredPackages.isNotEmpty,
@@ -432,7 +434,6 @@ class _ConnectionDetailsClientScreenState extends State<ConnectionDetailsClientS
         itemCount: filteredPackages.length,
         shrinkWrap: !isMobile,
         scrollDirection: Axis.vertical,
-        reverse: true,
         physics: isMobile ? null : NeverScrollableScrollPhysics(),
         padding: EdgeInsetsGeometry.only(bottom: 100),
         itemBuilder: (context, index){

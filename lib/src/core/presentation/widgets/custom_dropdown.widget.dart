@@ -34,13 +34,13 @@ class CDropDown extends StatelessWidget {
         );
       }).toList(),
       onChanged: onChanged,
-      style: TextStyle(color: isDark ? AppColors.white : null),
-      dropdownColor: isDark ? AppColors.darkerGrey : null,
+      style: TextStyle(color: isDark ? AppColors.white : AppColors.black),
+      dropdownColor: isDark ? AppColors.darkerGrey : AppColors.grey,
       decoration: InputDecoration(
         label: Text(
           label,
           style: TextStyle(
-            color: isDark ? AppColors.grey : null,
+            color: isDark ? AppColors.grey : AppColors.black,
           ),
         ),
         border: OutlineInputBorder(
