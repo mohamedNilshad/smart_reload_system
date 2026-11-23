@@ -89,11 +89,7 @@ Rules:
         ),
       );
 
-  Future<PlanAdviceDraft> advise({
-    required PlanSuggestionInputEntity input,
-    required UsageStatsEntity stats,
-    required List<RatedCandidateEntity> rated,
-  }) async {
+  Future<PlanAdviceDraft> advise({required PlanSuggestionInputEntity input, required UsageStatsEntity stats, required List<RatedCandidateEntity> rated}) async {
     final prompt = _buildPrompt(input: input, stats: stats, rated: rated);
 
     try {
@@ -123,11 +119,7 @@ Rules:
 
   // ------------------------------------------------------------------ prompt
 
-  String _buildPrompt({
-    required PlanSuggestionInputEntity input,
-    required UsageStatsEntity stats,
-    required List<RatedCandidateEntity> rated,
-  }) {
+  String _buildPrompt({required PlanSuggestionInputEntity input, required UsageStatsEntity stats, required List<RatedCandidateEntity> rated}) {
     double r2(double v) => (v * 100).roundToDouble() / 100;
     double? r2n(double? v) => v == null ? null : r2(v);
 
