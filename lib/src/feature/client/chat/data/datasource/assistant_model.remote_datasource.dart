@@ -17,10 +17,7 @@ class AssistantModelDataSource {
   /// Starts a new conversation with the given instructions. Anything said
   /// before is forgotten.
   void start(String systemPrompt) {
-    final model = fai.FirebaseAI.googleAI().generativeModel(
-      model: kAssistantModel,
-      systemInstruction: fai.Content.system(systemPrompt),
-    );
+    final model = fai.FirebaseAI.googleAI().generativeModel(model: kAssistantModel, systemInstruction: fai.Content.system(systemPrompt));
     _chat = model.startChat();
   }
 
@@ -31,9 +28,7 @@ class AssistantModelDataSource {
     }
 
     try {
-      final response = await chat
-          .sendMessage(fai.Content.text(text))
-          .timeout(const Duration(seconds: 45));
+      final response = await chat.sendMessage(fai.Content.text(text)).timeout(const Duration(seconds: 45));
 
       final reply = response.text?.trim();
       if (reply == null || reply.isEmpty) {

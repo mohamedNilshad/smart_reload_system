@@ -263,94 +263,77 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
                     padding: const EdgeInsets.fromLTRB(Sizes.ssm, Sizes.ssm, Sizes.ssm, 100 ),
                     child: Column(
                       children: [
-                        Stack(
-                          children: [
-                            Container(
-                              width: screenWidth,
-                              padding: EdgeInsets.all(Sizes.sm),
-                              decoration: BoxDecoration(
-                                gradient: AppColors.linerGradient,
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                              child: Column(
-                                spacing: 10,
-                                children: [
-                                  SubTitleText(text: "TOTAL PAYABLE", color: AppColors.white),
-                                  (payableAmountLoading) ? CCircularProgressIndicator(color: AppColors.white, radius: 25): HeadlineText(text: "RS. $paymentAmount", color: AppColors.white),
-                                  InkWell(
-                                    onTap: paymentBtnLoading || payableAmountLoading || (paymentAmount == 0.0) ? null : (){
-                                      context.read<PaymentBloc>().add(
-                                        StartPaymentRequested(
-                                          amount: paymentAmount,
-                                          address: "Kandy Sri Lanka",
-                                          city: "Kandy",
-                                          email: user.email,
-                                          firstName: user.fullName,
-                                          itemDescription: "",
-                                          lastName: "SRS",
-                                          orderId: "SRS-${DateTime.now().microsecondsSinceEpoch}",
-                                          phone: user.phoneNumber,
-                                        ),
-                                      );
-                                    },
-                                    child: Container(
-                                      width: double.infinity,
-                                      padding: EdgeInsets.all(Sizes.sm),
-                                      margin: EdgeInsets.symmetric(horizontal: Sizes.xl),
-                                      alignment: AlignmentGeometry.center,
-                                      decoration: BoxDecoration(
-                                          color: (paymentAmount == 0.0) ? AppColors.buttonDisabled : AppColors.white,
-                                          borderRadius: BorderRadius.circular(25.0)
-                                      ),
-                                      child: paymentBtnLoading ? SizedBox(
-                                        width: 20,
-                                        height: 20,
-                                        child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.black),
-                                      ) : Text(
-                                        "Pay Now",
-                                        style: TextStyle(color: AppColors.black, fontWeight: FontWeight.bold, fontSize: 14.0),
-                                      ),
+                        Container(
+                          width: screenWidth,
+                          padding: EdgeInsets.all(Sizes.sm),
+                          decoration: BoxDecoration(
+                            gradient: AppColors.linerGradient,
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          child: Column(
+                            spacing: 10,
+                            children: [
+                              SubTitleText(text: "TOTAL PAYABLE", color: AppColors.white),
+                              (payableAmountLoading) ? CCircularProgressIndicator(color: AppColors.white, radius: 25): HeadlineText(text: "RS. $paymentAmount", color: AppColors.white),
+                              InkWell(
+                                onTap: paymentBtnLoading || payableAmountLoading || (paymentAmount == 0.0) ? null : (){
+                                  context.read<PaymentBloc>().add(
+                                    StartPaymentRequested(
+                                      amount: paymentAmount,
+                                      address: "Kandy Sri Lanka",
+                                      city: "Kandy",
+                                      email: user.email,
+                                      firstName: user.fullName,
+                                      itemDescription: "",
+                                      lastName: "SRS",
+                                      orderId: "SRS-${DateTime.now().microsecondsSinceEpoch}",
+                                      phone: user.phoneNumber,
                                     ),
-                                  ),
-                                  if((paymentAmount != 0.0))...{
-                                    TextButton(
-                                      onPressed: (){
-                                        InvoiceItemsBottomSheet.show(
-                                          context,
-                                          total: paymentAmount,
-                                          invoiceData: invoiceData!,
-                                        );
-                                      },
-                                      child: Text(
-                                        "See details",
-                                        style: TextStyle(
-                                          decoration: TextDecoration.underline,
-                                          color: AppColors.grey,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  }else...{
-                                    SizedBox(height: 10.0),
-                                  }
-
-                                ],
-                              ),
-                            ),
-                            Positioned(
-                              top: 5,
-                              left: 5,
-                              child: InkWell(
-                                onTap: (){
-                                  //navigate to payment screen
+                                  );
                                 },
-                                child: CircleAvatar(
-                                  backgroundColor: AppColors.darkerGrey.withValues(alpha: 0.5),
-                                  child: Icon(Icons.history_rounded, color: AppColors.white),
+                                child: Container(
+                                  width: double.infinity,
+                                  padding: EdgeInsets.all(Sizes.sm),
+                                  margin: EdgeInsets.symmetric(horizontal: Sizes.xl),
+                                  alignment: AlignmentGeometry.center,
+                                  decoration: BoxDecoration(
+                                      color: (paymentAmount == 0.0) ? AppColors.buttonDisabled : AppColors.white,
+                                      borderRadius: BorderRadius.circular(25.0)
+                                  ),
+                                  child: paymentBtnLoading ? SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: AppColors.black),
+                                  ) : Text(
+                                    "Pay Now",
+                                    style: TextStyle(color: AppColors.black, fontWeight: FontWeight.bold, fontSize: 14.0),
+                                  ),
                                 ),
                               ),
-                            ),
-                          ],
+                              if((paymentAmount != 0.0))...{
+                                TextButton(
+                                  onPressed: (){
+                                    InvoiceItemsBottomSheet.show(
+                                      context,
+                                      total: paymentAmount,
+                                      invoiceData: invoiceData!,
+                                    );
+                                  },
+                                  child: Text(
+                                    "See details",
+                                    style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      color: AppColors.grey,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              }else...{
+                                SizedBox(height: 10.0),
+                              }
+
+                            ],
+                          ),
                         ),
 
                         Padding(

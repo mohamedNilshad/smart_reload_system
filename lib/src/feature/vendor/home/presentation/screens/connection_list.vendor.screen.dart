@@ -235,59 +235,43 @@ class _ConnectionListVendorScreenState extends State<ConnectionListVendorScreen>
                     padding: const EdgeInsets.fromLTRB(Sizes.ssm, Sizes.ssm, Sizes.ssm, 100 ),
                     child: Column(
                       children: [
-                        Stack(
-                          children: [
-                            Container(
-                              width: screenWidth,
-                              padding: EdgeInsets.all(Sizes.sm),
-                              decoration: BoxDecoration(
-                                gradient: AppColors.linerGradient,
-                                borderRadius: BorderRadius.circular(12.0),
-                              ),
-                              child: Column(
-                                spacing: 10,
-                                children: [
-                                  SubTitleText(text: "TOTAL PAYABLE", color: AppColors.white),
-                                  (payableAmountLoading) ? CCircularProgressIndicator(color: AppColors.white, radius: 25): HeadlineText(text: "RS. $paymentAmount", color: AppColors.white),
-                                  if((paymentAmount != 0.0))...{
-                                    TextButton(
-                                      onPressed: (){
-                                        InvoiceItemsBottomSheet.show(
-                                          context,
-                                          isDark: true,
-                                          total: paymentAmount,
-                                          invoiceData: invoiceData!,
-                                        );
-                                      },
-                                      child: Text(
-                                        "See details",
-                                        style: TextStyle(
-                                          decoration: TextDecoration.underline,
-                                          color: AppColors.grey,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
+
+                        Container(
+                          width: screenWidth,
+                          padding: EdgeInsets.all(Sizes.sm),
+                          decoration: BoxDecoration(
+                            gradient: AppColors.linerGradient,
+                            borderRadius: BorderRadius.circular(12.0),
+                          ),
+                          child: Column(
+                            spacing: 10,
+                            children: [
+                              SubTitleText(text: "TOTAL PAYABLE", color: AppColors.white),
+                              (payableAmountLoading) ? CCircularProgressIndicator(color: AppColors.white, radius: 25): HeadlineText(text: "RS. $paymentAmount", color: AppColors.white),
+                              if((paymentAmount != 0.0))...{
+                                TextButton(
+                                  onPressed: (){
+                                    InvoiceItemsBottomSheet.show(
+                                      context,
+                                      isDark: true,
+                                      total: paymentAmount,
+                                      invoiceData: invoiceData!,
+                                    );
+                                  },
+                                  child: Text(
+                                    "See details",
+                                    style: TextStyle(
+                                      decoration: TextDecoration.underline,
+                                      color: AppColors.grey,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                  }else...{
-                                    SizedBox(height: 10.0),
-                                  }
-                                ],
-                              ),
-                            ),
-                            Positioned(
-                              top: 5,
-                              left: 5,
-                              child: InkWell(
-                                onTap: (){
-                                  //navigate to payment screen
-                                },
-                                child: CircleAvatar(
-                                  backgroundColor: AppColors.darkerGrey.withValues(alpha: 0.5),
-                                  child: Icon(Icons.history_rounded, color: AppColors.white),
+                                  ),
                                 ),
-                              ),
-                            ),
-                          ],
+                              }else...{
+                                SizedBox(height: 10.0),
+                              }
+                            ],
+                          ),
                         ),
 
                         Padding(
