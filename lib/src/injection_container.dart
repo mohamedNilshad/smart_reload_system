@@ -35,6 +35,13 @@ import 'package:smart_reload_system/src/feature/client/ai_suggest/data/repositor
 import 'package:smart_reload_system/src/feature/client/ai_suggest/domain/repository/plan_suggestion.repo.dart';
 import 'package:smart_reload_system/src/feature/client/ai_suggest/domain/usecase/get_plan_advice.usecase.dart';
 import 'package:smart_reload_system/src/feature/client/ai_suggest/presentation/bloc/plan_suggestion.bloc.dart';
+import 'package:smart_reload_system/src/feature/client/chat/data/datasource/assistant_catalog.remote_datasource.dart';
+import 'package:smart_reload_system/src/feature/client/chat/data/datasource/assistant_model.remote_datasource.dart';
+import 'package:smart_reload_system/src/feature/client/chat/data/repository/assistant.repo_impl.dart';
+import 'package:smart_reload_system/src/feature/client/chat/domain/repository/assistant.repo.dart';
+import 'package:smart_reload_system/src/feature/client/chat/domain/usecase/ask_assistant.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/chat/domain/usecase/start_assistant_conversation.usecase.dart';
+import 'package:smart_reload_system/src/feature/client/chat/presentation/bloc/assistant.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/datasource/home.remote_datasource.dart';
 import 'package:smart_reload_system/src/feature/client/home/data/repository/home.repo_impl.dart';
 import 'package:smart_reload_system/src/feature/client/home/domain/repository/home.repo.dart';
@@ -349,6 +356,15 @@ Future<void> init() async {
   sl.registerLazySingleton<PlanSuggestionRepo>(() => PlanSuggestionRepoImpl(history: sl(), advisor: sl(), analyzer: sl()));
   sl.registerLazySingleton(() => GetPlanAdviceUseCase(sl()));
   sl.registerLazySingleton(() => PlanSuggestionBloc(getPlanAdviceUseCase: sl()));
+
+
+  ///AI chat bot
+  sl.registerLazySingleton(() => AssistantCatalogRemoteDataSource());
+  sl.registerLazySingleton(() => AssistantModelDataSource());
+  sl.registerLazySingleton<AssistantRepo>(() => AssistantRepoImpl(catalog: sl(), model: sl()));
+  sl.registerLazySingleton(() => StartAssistantConversationUseCase(sl()));
+  sl.registerLazySingleton(() => AskAssistantUseCase(sl()));
+  sl.registerLazySingleton(() => AssistantBloc(startConversationUseCase: sl(), askAssistantUseCase: sl()));
 
 
 }

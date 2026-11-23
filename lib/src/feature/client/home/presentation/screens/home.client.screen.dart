@@ -14,6 +14,7 @@ import 'package:smart_reload_system/src/core/router/route.constants.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.cubit.dart';
 import 'package:smart_reload_system/src/core/features/auth/presentation/bloc/session.state.dart';
 import 'package:smart_reload_system/src/core/seeder/requested_packages.seeder.dart';
+import 'package:smart_reload_system/src/feature/client/chat/presentation/screens/widgets/assistant_entry.widget.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.event.dart';
 import 'package:smart_reload_system/src/feature/client/home/presentation/bloc/home/home.state.dart';
@@ -141,7 +142,8 @@ class _HomeClientScreenState extends State<HomeClientScreen> {
                               ),
                             },
 
-
+                            const AssistantEntry(),
+                            const SizedBox(height: 12),
                             // Display vendors
                             SubHeadlineText(text: "My Vendors"),
 
