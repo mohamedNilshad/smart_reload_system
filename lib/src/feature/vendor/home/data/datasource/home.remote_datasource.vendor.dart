@@ -215,14 +215,13 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
   }
 
   @override
-  Future<bool> activatePackageRequest(PackageRequestModel packageRequestModel, String clientId, ) async {
+  Future<bool> activatePackageRequest(PackageRequestModel packageRequestModel, String clientId) async {
     try {
 
       final activatedAt = DateTime.now();
       DateTime? expireDate;
       if (packageRequestModel.id == null || packageRequestModel.id!.isEmpty) {
-        // throw ServerException('Package request id is missing');
-
+        expireDate = packageRequestModel.expireDate;
         await firestore.collection("requested_packages").add(packageRequestModel.toJson());
 
       }else{
@@ -271,7 +270,7 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
       });
 
       for(var item in tokens){
-        await NotificationService.sendPushMessage(
+        NotificationService.sendPushMessage(
           item.fcmToken,
           notifyTitle,
           notifyBody,

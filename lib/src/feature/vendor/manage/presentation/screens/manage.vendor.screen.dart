@@ -25,11 +25,11 @@ class _ManageScreenState extends State<ManageScreen> {
       'icon': Icons.assessment_outlined,
       'iconColor': AppColors.purple,
     },
-    {
-      'title': 'Clients',
-      'icon': Icons.group,
-      'iconColor': AppColors.success,
-    },
+    // {
+    //   'title': 'Clients',
+    //   'icon': Icons.group,
+    //   'iconColor': AppColors.success,
+    // },
     {
       'title': 'Bank Info',
       'icon': Icons.account_balance,

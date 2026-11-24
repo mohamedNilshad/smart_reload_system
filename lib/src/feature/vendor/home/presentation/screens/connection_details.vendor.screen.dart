@@ -80,9 +80,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
     }
     isMobile = connectionModel.connectionType.toLowerCase() == TelecomType.Mobile.name.toLowerCase();
     isHBB = connectionModel.connectionType.toLowerCase() == TelecomType.HBB.name.toLowerCase();
-    print(isHBB);
-    print(connectionModel.connectionType.toLowerCase());
-    print(TelecomType.HBB.name.toLowerCase());
+
     context.read<PackageBloc>().add(FetchActivatedPackages(connectionId: connectionModel.id!));
     super.initState();
   }
@@ -177,6 +175,7 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
 
           }else if(state.activating){
             isActionLoading = state.activating;
+            _isLoadingNotifier.value = true;
           }else if(state.canceling){
             isActionLoading = state.canceling;
           }
@@ -194,6 +193,12 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
           }
           if(state.isActivated != null && state.isActivated == true){
             AppSnackbar.showSuccess(context, 'Package activated successfully!');
+            if(isActionLoading){
+              isActionLoading = false;
+              _isLoadingNotifier.value = false;
+              Navigator.pop(context);
+            }
+
             context.read<PackageBloc>().add(FetchActivatedPackages(connectionId: connectionModel.id!));
           }
           if(state.isCanceled != null && state.isCanceled == true){

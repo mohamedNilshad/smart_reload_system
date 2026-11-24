@@ -101,6 +101,7 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
         if (state is PackageSuccess) {
           if((state.isRequested != null) && (state.isRequested == true)){
             Navigator.of(context).pop();
+            _isLoadingNotifier.value = false;
             AppSnackbar.showSuccess(context, 'Reload request submitted!');
           }
           if(state.packages != null){
@@ -109,6 +110,7 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
           }
 
         } else if (state is PackageFailure) {
+          _isLoadingNotifier.value = false;
           setState(() => fetchingPackages = false);
           AppSnackbar.showError(context, state.message);
         }
@@ -228,12 +230,18 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
 
                 if(isDark){
                   final activatedAt = DateTime.now();
+                  final expireDate = HelperFunctions.calculateExpiryDate(
+                    activatedAt,
+                    item.packageValidity,
+                    item.validityPeriod,
+                  );
                   final data = PackageRequestModel(
                     clientVendorId: connectionModel.clientVendorId,
                     connectionId: connectionModel.id!,
                     requestDate:activatedAt,
                     vendorId: user.uid,
                     activatedDate: activatedAt,
+                    expireDate: expireDate,
                     packageModel: item,
                     packageDetailsId: item.id,
                     amount: item.packagePrice,
@@ -241,7 +249,6 @@ class _PackageDetailsClientScreenState extends State<PackageDetailsClientScreen>
                     isCancel: false,
                     isDelete: false,
                   );
-
                   context.read<PackageBloc>().add(ActivatePackageRequest(data, widget.vendorId));//in vendor dashboard it is client id
                 }else{
                   final data = PackageRequestModel(
