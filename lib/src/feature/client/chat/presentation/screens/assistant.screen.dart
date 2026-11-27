@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:smart_reload_system/src/core/constants/app_colors.dart';
-import 'package:smart_reload_system/src/core/presentation/widgets/custom_app_bars/custom_app_bar_2.widget.dart';
 import 'package:smart_reload_system/src/feature/client/chat/presentation/bloc/assistant.bloc.dart';
 import 'package:smart_reload_system/src/feature/client/chat/presentation/bloc/assistant.event.dart';
 import 'package:smart_reload_system/src/feature/client/chat/presentation/bloc/assistant.state.dart';
@@ -205,7 +204,7 @@ class _AssistantScreenState extends State<AssistantScreen> {
             margin: const EdgeInsets.only(top: 12),
             padding: const EdgeInsets.all(14),
             decoration: BoxDecoration(
-              color: cs.secondaryContainer.withOpacity(0.6),
+              color: cs.secondaryContainer.withValues(alpha: 0.6),
               borderRadius: BorderRadius.circular(14),
             ),
             child: Row(

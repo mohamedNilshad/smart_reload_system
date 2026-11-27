@@ -62,6 +62,7 @@ class _AssistantComposerState extends State<AssistantComposer> {
                     hintText: widget.enabled ? 'Ask about packages or reloads' : 'Please wait…',
                     filled: true,
                     fillColor: cs.surfaceContainerHigh,
+                    hintStyle: TextStyle(color: cs.onSurfaceVariant),
                     contentPadding:
                         const EdgeInsets.symmetric(horizontal: 18, vertical: 12),
                     border: border(),
