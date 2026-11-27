@@ -11,6 +11,7 @@ class ConnectionModel extends Equatable {
   final String? serviceProvider;
   final String connectionCategory;
   final String connectionType;
+  final int requestCount;
   final bool status;
   final bool isActive;
 
@@ -25,6 +26,7 @@ class ConnectionModel extends Equatable {
     required this.connectionCategory,
     required this.connectionType,
     this.status = false,
+    this.requestCount = 0,
     this.isActive = true,
   });
 
@@ -40,6 +42,7 @@ class ConnectionModel extends Equatable {
       billingType: json['billingType'] as String?,
       serviceProvider: json['serviceProvider'] as String?,
       status: json['status'] as bool? ?? false,
+      requestCount: json['requestCount'] as int? ?? 0,
       isActive: json['isActive'] as bool? ?? true,
     );
   }
@@ -55,6 +58,7 @@ class ConnectionModel extends Equatable {
       'billingType': billingType,
       'serviceProvider': serviceProvider,
       'status': status,
+      'requestCount': requestCount,
       'isActive': isActive,
     };
   }
@@ -71,6 +75,7 @@ class ConnectionModel extends Equatable {
       'billingType': billingType,
       'serviceProvider': serviceProvider,
       'status': status,
+      'requestCount': requestCount,
       'isActive': isActive,
     };
   }
@@ -86,6 +91,7 @@ class ConnectionModel extends Equatable {
     billingType,
     serviceProvider,
     status,
+    requestCount,
     isActive,
   ];
 }

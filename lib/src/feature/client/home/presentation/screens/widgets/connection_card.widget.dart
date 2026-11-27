@@ -19,113 +19,137 @@ class ConnectionCard extends StatelessWidget {
   final bool isActive;
   final bool status;
   final bool isDark;
+  final int count;
   final DateTime? lastDate;
   final void Function()? onTap;
   final double payableAmount;
   final bool showAIButton;
-  const ConnectionCard({super.key, this.conId, this.showAIButton = false, required this.conNumber, required this.isActive, this.isDark = false, this.status = true, required this.conName, required this.conType, this.conPlan, required this.onTap, this.lastDate, required this.payableAmount});
+  const ConnectionCard({super.key, this.conId, this.count = 0, this.showAIButton = false, required this.conNumber, required this.isActive, this.isDark = false, this.status = true, required this.conName, required this.conType, this.conPlan, required this.onTap, this.lastDate, required this.payableAmount});
 
   @override
   Widget build(BuildContext context) {
     return InkWell(
       onTap: onTap,
-      child: CCard(
-        isDark: isDark,
-        padding: EdgeInsets.zero,
-        child: Column(
-          children: [
-            ListTile(
-              leading: SizedBox(
-                width: 30,
-                height: 30,
-                child: CSvgBuilder(
-                  path: SvgStrings.box,
-                  colorFilter: ColorFilter.mode(isDark ? AppColors.grey : AppColors.darkGrey, BlendMode.srcIn),
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          CCard(
+            isDark: isDark,
+            padding: EdgeInsets.zero,
+            child: Column(
+              children: [
+                ListTile(
+                  leading: SizedBox(
+                    width: 30,
+                    height: 30,
+                    child: CSvgBuilder(
+                      path: SvgStrings.box,
+                      colorFilter: ColorFilter.mode(isDark ? AppColors.grey : AppColors.darkGrey, BlendMode.srcIn),
+                    ),
+                  ),
+                  title: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 10,
+                    children: [
+                      TitleText(text: conName, color: isDark ? AppColors.white : null),
+                      CircleAvatar(
+                        radius: 5,
+                        backgroundColor: isActive ? AppColors.green : AppColors.red,
+                      ),
+                    ],
+                  ),
+                  subtitle: SubTitleText(text: conNumber, color: isDark ? AppColors.grey : AppColors.darkerGrey),
+                  trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18, color: isDark ? AppColors.grey : AppColors.darkerGrey),
+                ),
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20.0),
+                  child: Row(
+                    spacing: 5,
+                    children: [
+                      CChip(label: conType, fontColor: isDark ? AppColors.white : null,),
+                      if(conPlan != null)...{
+                        CChip(
+                          label: conPlan!,
+                          bgColor: AppColors.primary,
+                          fontColor: isDark ? AppColors.white : AppColors.primary,
+                        ),
+                      },
+
+                      if(showAIButton && !isDark)...{
+                        Spacer(),
+                        AiSuggestionButton(
+                          isClient: true,
+                          payableAmount: payableAmount,
+                          connectionId: conId,
+                          onSelectPackage: (s) {
+                            // optional: start your reload flow with s.package.id
+                          },
+                        ),
+                      }
+
+                    ],
+                  ),
+                ),
+                SizedBox(height: 5),
+                Divider(thickness: 0.3),
+
+                Padding(
+                  padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
+                  child: Row(
+                    spacing: 5,
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      if(!status)...{
+                        CSvgBuilder(
+                          path: SvgStrings.clock,
+                          width: 12,
+                          colorFilter: ColorFilter.mode(AppColors.darkGrey, BlendMode.srcIn),
+                        ),
+                        LabelText(
+                          text: "Waiting for approve",
+                          color: AppColors.darkGrey,
+                        ),
+                      }else if(lastDate == null)...{
+                        Icon(Icons.info_outline_rounded, size: 14, color: AppColors.accent,),
+                        LabelText(
+                          text: "No reload yet",
+                          color: AppColors.accent,
+                        ),
+                      }else if(lastDate != null)...{
+                        Icon(Icons.check_circle_outline_rounded, size: 14, color: AppColors.primary,),
+                        LabelText(
+                          text: "Last request ${HelperFunctions.formatRelativeDate(lastDate)}",
+                          color: AppColors.primary,
+                        ),
+                      },
+
+
+
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          if(count > 0)...{
+            Positioned(
+              right: 0,
+              top: 0,
+              child: CircleAvatar(
+                radius: 10,
+                backgroundColor: AppColors.red,
+                child: Text(
+                  (count > 9) ? "9+": count.toString(),
+                  style: const TextStyle(
+                    fontSize: 10,
+                    fontWeight: FontWeight.bold,
+                    color: AppColors.white,
+                  ),
                 ),
               ),
-              title: Row(
-                mainAxisSize: MainAxisSize.min,
-                spacing: 10,
-                children: [
-                  TitleText(text: conName, color: isDark ? AppColors.white : null),
-                  CircleAvatar(
-                    radius: 5,
-                    backgroundColor: isActive ? AppColors.green : AppColors.red,
-                  ),
-                ],
-              ),
-              subtitle: SubTitleText(text: conNumber, color: isDark ? AppColors.grey : AppColors.darkerGrey),
-              trailing: Icon(Icons.arrow_forward_ios_rounded, size: 18, color: isDark ? AppColors.grey : AppColors.darkerGrey),
             ),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20.0),
-              child: Row(
-                spacing: 5,
-                children: [
-                  CChip(label: conType, fontColor: isDark ? AppColors.white : null,),
-                  if(conPlan != null)...{
-                    CChip(
-                      label: conPlan!,
-                      bgColor: AppColors.primary,
-                      fontColor: isDark ? AppColors.white : AppColors.primary,
-                    ),
-                  },
-
-                  if(showAIButton && !isDark)...{
-                    Spacer(),
-                    AiSuggestionButton(
-                      isClient: true,
-                      payableAmount: payableAmount,
-                      connectionId: conId,
-                      onSelectPackage: (s) {
-                        // optional: start your reload flow with s.package.id
-                      },
-                    ),
-                  }
-
-                ],
-              ),
-            ),
-            SizedBox(height: 5),
-            Divider(thickness: 0.3),
-
-            Padding(
-              padding: const EdgeInsets.fromLTRB(16.0, 0.0, 16.0, 16.0),
-              child: Row(
-                spacing: 5,
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  if(!status)...{
-                    CSvgBuilder(
-                      path: SvgStrings.clock,
-                      width: 12,
-                      colorFilter: ColorFilter.mode(AppColors.darkGrey, BlendMode.srcIn),
-                    ),
-                    LabelText(
-                      text: "Waiting for approve",
-                      color: AppColors.darkGrey,
-                    ),
-                  }else if(lastDate == null)...{
-                    Icon(Icons.info_outline_rounded, size: 14, color: AppColors.accent,),
-                    LabelText(
-                      text: "No reload yet",
-                      color: AppColors.accent,
-                    ),
-                  }else if(lastDate != null)...{
-                    Icon(Icons.check_circle_outline_rounded, size: 14, color: AppColors.primary,),
-                    LabelText(
-                      text: "Last reload ${HelperFunctions.formatRelativeDate(lastDate)}",
-                      color: AppColors.primary,
-                    ),
-                  },
-
-
-
-                ],
-              ),
-            ),
-          ],
-        ),
+          }
+        ],
       ),
     );
   }

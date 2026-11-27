@@ -225,7 +225,7 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
         await firestore.collection("requested_packages").add(packageRequestModel.toJson());
 
       }else{
-        expireDate = HelperFunctions.calculateExpiryDate(
+        expireDate = packageRequestModel.expireDate == null ? null : HelperFunctions.calculateExpiryDate(
           activatedAt,
           packageRequestModel.packageModel?.packageValidity,
           packageRequestModel.packageModel?.validityPeriod,
@@ -233,10 +233,14 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
 
         await firestore.collection('requested_packages').doc(packageRequestModel.id).update({
           'activatedDate': Timestamp.fromDate(activatedAt),
-          'expireDate': Timestamp.fromDate(expireDate),
+          if (expireDate != null) 'expireDate': Timestamp.fromDate(expireDate),
           'packageDetailsId': packageRequestModel.packageDetailsId,
           'isCancel': false,
           'isDelete': false,
+        });
+
+        await firestore.collection('connections').doc(packageRequestModel.connectionId).update({
+          'requestCount': FieldValue.increment(-1),
         });
       }
 
@@ -278,11 +282,6 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
       }
       ///Update realtime database for the package request status
 
-      // await database.ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}').update({
-      //   'clientVendorId': packageRequestModel.clientVendorId,
-      //   'status': false,
-      //   'onUpdate': DateTime.now().toIso8601String(),
-      // });
       await database
           .ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}')
           .remove();
@@ -318,8 +317,7 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
       });
 
       ///Update realtime database for the package request status
-      await database
-          .ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}')
+      await database.ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}')
           .remove();
 
       // await database.ref('package_requests/${packageRequestModel.vendorId}/${packageRequestModel.id}').update({
@@ -327,6 +325,9 @@ class HomeRemoteDataSourceVImpl implements HomeRemoteDataSourceV {
       //   'status': false,
       //   'onUpdate': DateTime.now().toIso8601String(),
       // });
+      await firestore.collection('connections').doc(packageRequestModel.connectionId).update({
+        'requestCount': FieldValue.increment(-1),
+      });
 
       return true;
     } on FirebaseException catch (e, st) {

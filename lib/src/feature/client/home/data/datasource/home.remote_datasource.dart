@@ -177,8 +177,16 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         'onUpdate': DateTime.now().toIso8601String(),
       });
 
-      ///send push notification
+      if(packageRequestModel.requestDate != null){
+        await firestore.collection('connections').doc(packageRequestModel.connectionId).update({
+          'lastReloadDate': Timestamp.fromDate(packageRequestModel.requestDate!),
+          'requestCount': FieldValue.increment(1),
+        });
+      }
 
+
+
+      ///send push notification
       final tokenSnapshot = await firestore
           .collection('device_info')
           .where('userId', isEqualTo: packageRequestModel.vendorId)
@@ -208,29 +216,13 @@ class HomeRemoteDataSourceImpl implements HomeRemoteDataSource {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      // for(var item in tokens){
-      //   await NotificationService.sendPushMessage(
-      //     item.fcmToken,
-      //     notifyTitle,
-      //     notifyBody,
-      //   );
-      // }
-
-      await Future.wait(
-        tokens.map((item) async {
-          try {
-            await NotificationService.sendPushMessage(
-              item.fcmToken,
-              notifyTitle,
-              notifyBody,
-            );
-          } catch (e) {
-            // Log or clean up invalid token without failing the rest
-            debugPrint('Failed to notify ${item.fcmToken}: $e');
-          }
-        }),
-      );
-
+      for(var item in tokens){
+        NotificationService.sendPushMessage(
+          item.fcmToken,
+          notifyTitle,
+          notifyBody,
+        );
+      }
 
       return true;
     } on FirebaseException catch (e, st) {

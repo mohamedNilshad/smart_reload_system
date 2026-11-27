@@ -76,8 +76,6 @@ class _ManageScreenState extends State<ManageScreen> {
                   );
 
                 } else if(index == 1){
-                  //do
-                } else if(index == 2){
                   //Bank info
                   Navigator.pushNamed(context, RouteConstants.bankInfoVendorScreen);
 

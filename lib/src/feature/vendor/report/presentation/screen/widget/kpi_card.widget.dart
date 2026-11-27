@@ -95,9 +95,13 @@ class KpiCard extends StatelessWidget {
           color: color,
         ),
         const SizedBox(width: 2),
-        BodyText(
-          text: '${formatPct(pct)} vs previous',
-          color: color,
+        Expanded(
+          child: BodyText(
+            text: '${formatPct(pct)} vs previous',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            color: color,
+          ),
         ),
       ],
     );

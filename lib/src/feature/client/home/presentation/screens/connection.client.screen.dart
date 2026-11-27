@@ -95,15 +95,45 @@ class _ConnectionClientScreenState extends State<ConnectionClientScreen> {
     }
   }
 
+  // List<ConnectionModel> _filteredConnections(List<ConnectionModel> connections) {
+  //   switch (_selectedFilter) {
+  //     case ConnectionFilter.pending:
+  //       return connections.where((connection) => connection.status == false).toList();
+  //     case ConnectionFilter.activated:
+  //       return connections.where((connection) => connection.status == true).toList();
+  //     case ConnectionFilter.all:
+  //       return connections;
+  //   }
+  // }
+
   List<ConnectionModel> _filteredConnections(List<ConnectionModel> connections) {
+    final List<ConnectionModel> filtered;
+
     switch (_selectedFilter) {
       case ConnectionFilter.pending:
-        return connections.where((connection) => connection.status == false).toList();
+        filtered = connections.where((connection) => connection.status == false).toList();
+        break;
       case ConnectionFilter.activated:
-        return connections.where((connection) => connection.status == true).toList();
+        filtered = connections.where((connection) => connection.status == true).toList();
+        break;
       case ConnectionFilter.all:
-        return connections;
+      // Create a copy so .sort() does not mutate the original state list in place
+        filtered = List<ConnectionModel>.of(connections);
+        break;
     }
+
+    filtered.sort((a, b) {
+      final dateA = a.lastReloadDate;
+      final dateB = b.lastReloadDate;
+
+      if (dateA == null && dateB == null) return 0;
+      if (dateA == null) return 1;  // Push connections with null date to the bottom
+      if (dateB == null) return -1;
+
+      return dateB.compareTo(dateA); // Descending (newest reload first)
+    });
+
+    return filtered;
   }
 
   Future<void> calPayAmount() async {

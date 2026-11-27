@@ -109,7 +109,7 @@ class _HomeVendorScreenState extends State<HomeVendorScreen> {
                 AppSnackbar.showError(context, state.message);
               }
               if(state is HomeSuccess){
-
+                clientList.clear();
                 for(var client in state.data['clients']){
                   clientList.add({
                     "client": client,

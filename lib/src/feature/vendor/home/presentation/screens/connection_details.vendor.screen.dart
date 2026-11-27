@@ -458,7 +458,8 @@ class _ConnectionDetailsVendorScreenState extends State<ConnectionDetailsVendorS
         padding: EdgeInsetsGeometry.only(bottom: 100),
         itemBuilder: (context, index){
           final item = filteredPackages[index];
-
+          print("Is Reload: $isReload");
+          print("Item: ${item.amount}");
           return ActivatedPackageCard(
             isDark: true,
             onActionTap: isActionLoading ? null : () async{

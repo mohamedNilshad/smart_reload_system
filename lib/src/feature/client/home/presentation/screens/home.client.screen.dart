@@ -112,7 +112,7 @@ class _HomeClientScreenState extends State<HomeClientScreen> {
                               ),
                               const SizedBox(height: 12),
                             },
-                            if (kDebugMode && false)...{
+                            if (kDebugMode)...{
                               Wrap(
                                 spacing: 8,
                                 children: [
